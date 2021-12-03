@@ -1,0 +1,7 @@
+name: LAbility
+main: com.LAbility.LAbilityMain
+version: 1.0
+api-version: 1.17
+commands:
+  la:
+    description: LAbility Command (Made by MINUTE.)
