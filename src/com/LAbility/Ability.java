@@ -122,7 +122,7 @@ public class Ability {
         return false;
     }
 
-    public void ExplaneAbility(Player player) {
+    public void ExplainAbility(Player player) {
         player.sendMessage("\2476[\247e" + abilityName + "\2476]");
         player.sendMessage("\247eRank : \247a" + abilityRank);
         player.sendMessage("\247eType : \247a" + abilityType);

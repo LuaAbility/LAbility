@@ -34,7 +34,7 @@ public class LAPlayer {
         }
         if (index < 0){
             if (ability.size() == 1) {
-                ability.get(0).ExplaneAbility(player);
+                ability.get(0).ExplainAbility(player);
             }
             else {
                 player.sendMessage("\2476-------[\247eAbility List\2476]-------");
@@ -46,7 +46,7 @@ public class LAPlayer {
         }
         else {
             if (index > ability.size()) index = ability.size() - 1;
-            ability.get(index).ExplaneAbility(player);
+            ability.get(index).ExplainAbility(player);
         }
     }
 }

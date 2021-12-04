@@ -1,5 +1,6 @@
 package com.LAbility;
 
+import com.LAbility.LuaUtility.AbilityList;
 import com.LAbility.LuaUtility.LuaAbilityLoader;
 import com.LAbility.LuaUtility.Wrapper.UtilitiesWrapper;
 import org.bukkit.Bukkit;
@@ -23,15 +24,17 @@ public class LAbilityMain extends JavaPlugin implements Listener {
     public static Plugin plugin;
     public UtilitiesWrapper utilitiesWrapper;
     public GameManager gameManager;
-    public ArrayList<Ability> abilities;
     public boolean enabled = false;
     public ArrayList<Class<? extends Event>> registerdClassList = new ArrayList<Class<? extends Event>>();
+    public AbilityList<Ability> abilities = new AbilityList<>();
 
     @Override
     public void onEnable() {
         instance = this;
         plugin = this.getServer().getPluginManager().getPlugin("LAbility");
         getCommand("la").setExecutor(new CommandManager(this));
+        getServer().getPluginManager().registerEvents(new EventManager(), this);
+
         getConfig().options().copyDefaults(true);
         saveConfig();
         if (!new File(getDataFolder(), "Ability/0. ExampleFolder/data.yml").exists()) saveResource("Ability/0. ExampleFolder/data.yml", false);
