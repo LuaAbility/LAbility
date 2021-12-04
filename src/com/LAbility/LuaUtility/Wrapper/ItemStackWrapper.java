@@ -89,14 +89,6 @@ public class ItemStackWrapper extends LuaTable {
             }
         });
 
-        this.set("setData", new OneArgFunction() {
-            @Override
-            public LuaValue call(LuaValue value) {
-                item.setData((MaterialData) value.checkuserdata(MaterialData.class));
-                return NIL;
-            }
-        });
-
         this.set("setType", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue value) {

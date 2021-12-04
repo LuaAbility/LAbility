@@ -54,21 +54,23 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         enabled = false;
     }
 
-    public Listener registerEvent(Ability ability, Class<? extends Event> event, LuaFunction function) {
+    public Listener registerEvent(Ability ability, Class<? extends Event> event, int cooldown, LuaFunction function) {
         getEventListeners(event).add(function);
+        ability.eventFunc.add( new Ability.ActiveFunc(event, cooldown, function) );
         Listener listener = new Listener() {};
+
         this.getServer().getPluginManager().registerEvent(event, listener, EventPriority.NORMAL, new EventExecutor() {
             @Override
             public void execute(Listener listener, Event event) throws EventException {
-                gameManager.RunEvent(ability, function, event);
+                gameManager.RunEvent(ability, event);
             }
         }, this, false);
+
         return null;
     }
 
-    public int addPassiveScript(Ability ability, LuaFunction function) {
-        ability.abilityFunc = function;
-
+    public int addPassiveScript(Ability ability, int tick, LuaFunction function) {
+        ability.passiveFunc.add(new Ability.PassiveFunc(tick, function));
         return 0;
     }
 

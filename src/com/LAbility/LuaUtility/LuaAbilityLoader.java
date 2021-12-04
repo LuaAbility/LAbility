@@ -33,8 +33,7 @@ public class LuaAbilityLoader {
         for (File file : files) {
             if (file.isDirectory() /*&& !file.toString().toLowerCase().contains("examplefolder")*/) {
                 String abilityID = "";
-                int abilityCooldown = 0;
-                boolean isPassive = false;
+                String abilityType = "";
                 String abilityName = "";
                 String abilityRank = "";
                 String abilityDesc = "";
@@ -50,8 +49,7 @@ public class LuaAbilityLoader {
                         try {
                             Map<String, Object> abilityData = new Yaml().load(new FileReader(file2));
                             abilityID = abilityData.get("id").toString();
-                            abilityCooldown = (int)abilityData.get("cooldown");
-                            isPassive = (boolean)abilityData.get("passive");
+                            abilityType = abilityData.get("type").toString();
                             abilityName = abilityData.get("name").toString();
                             abilityRank = abilityData.get("rank").toString();
                             abilityDesc = abilityData.get("description").toString();
@@ -62,7 +60,7 @@ public class LuaAbilityLoader {
                 }
 
                 if (!luaScript.equals(null) && !abilityName.equals("")) {
-                    Ability a = new Ability(abilityID, abilityCooldown, isPassive, abilityName, abilityRank, abilityDesc);
+                    Ability a = new Ability(abilityID, abilityType, abilityName, abilityRank, abilityDesc);
                     luaAbilities.add(a);
                     luaScript.call();
                     globals.get("main").call(CoerceJavaToLua.coerce(a));
