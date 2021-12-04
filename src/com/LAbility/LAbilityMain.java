@@ -10,6 +10,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.luaj.vm2.LuaFunction;
 
 import java.io.File;
@@ -31,6 +32,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         instance = this;
         plugin = this.getServer().getPluginManager().getPlugin("LAbility");
 
+        getCommand("la").setExecutor(new CommandManager(this));
         getConfig().options().copyDefaults(true);
         saveConfig();
         if (!new File(getDataFolder(), "Ability/0. ExampleFolder/data.yml").exists()) saveResource("Ability/0. ExampleFolder/data.yml", false);
@@ -52,17 +54,22 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         enabled = false;
     }
 
-    public Listener registerEvent(Class<? extends Event> event, LuaFunction function) {
+    public Listener registerEvent(Ability ability, Class<? extends Event> event, LuaFunction function) {
         getEventListeners(event).add(function);
-        Listener listener = new Listener() {
-        };
+        Listener listener = new Listener() {};
         this.getServer().getPluginManager().registerEvent(event, listener, EventPriority.NORMAL, new EventExecutor() {
             @Override
             public void execute(Listener listener, Event event) throws EventException {
-                gameManager.RunEvent(function, event);
+                gameManager.RunEvent(ability, function, event);
             }
         }, this, false);
         return null;
+    }
+
+    public int addPassiveScript(Ability ability, LuaFunction function) {
+        ability.abilityFunc = function;
+
+        return 0;
     }
 
     private ArrayList<LuaFunction> getEventListeners(Class<? extends Event> event) {

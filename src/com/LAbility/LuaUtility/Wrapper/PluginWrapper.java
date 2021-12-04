@@ -1,5 +1,6 @@
 package com.LAbility.LuaUtility.Wrapper;
 
+import com.LAbility.Ability;
 import com.LAbility.LAbilityMain;
 import com.LAbility.LuaUtility.LuaException;
 import org.bukkit.Bukkit;
@@ -12,6 +13,8 @@ import org.bukkit.plugin.Plugin;
 import org.luaj.vm2.LuaFunction;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.lib.OneArgFunction;
+import org.luaj.vm2.lib.ThreeArgFunction;
 import org.luaj.vm2.lib.TwoArgFunction;
 import org.luaj.vm2.lib.ZeroArgFunction;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
@@ -22,16 +25,18 @@ public class PluginWrapper extends LuaTable {
     private LAbilityMain plugin = LAbilityMain.instance;
 
     public PluginWrapper() {
-        set("registerEvent", new TwoArgFunction() {
+        set("registerEvent", new ThreeArgFunction() {
             @Override
-            public LuaValue call(LuaValue arg1, LuaValue arg2) {
+            public LuaValue call(LuaValue arg1, LuaValue arg2, LuaValue arg3) {
                 String eventName = arg1.checkjstring();
                 LuaFunction callback = arg2.checkfunction();
+                Ability ability = (Ability)arg3.checkuserdata(Ability.class);
+
                 try {
                     // Try to see if the event is a class path, for custom events
                     Class<?> c = Class.forName(eventName);
                     if (Event.class.isAssignableFrom(c) && c != null) {
-                        return CoerceJavaToLua.coerce(plugin.registerEvent((Class<? extends Event>) c, callback));
+                        return CoerceJavaToLua.coerce(plugin.registerEvent(ability, (Class<? extends Event>) c, callback));
                     }
                 } catch (ClassNotFoundException e) {
                     // Attempt to find the event Bukkit again
@@ -42,7 +47,7 @@ public class PluginWrapper extends LuaTable {
                         try {
                             Class<?> c = Class.forName("org.bukkit.event." + pkg + "." + eventName);
                             if (Event.class.isAssignableFrom(c) && c != null) {
-                                return CoerceJavaToLua.coerce(plugin.registerEvent((Class<? extends Event>) c, callback));
+                                return CoerceJavaToLua.coerce(plugin.registerEvent(ability, (Class<? extends Event>) c, callback));
                             }
                         } catch (ClassNotFoundException ignored) {
                             // This would spam the console anytime an event is registered if we print the stack trace
@@ -51,6 +56,16 @@ public class PluginWrapper extends LuaTable {
                 }
 
                 throw new LuaException("Event " + arg1.tostring() + " Not Found.", 1);
+            }
+        });
+
+        set("addPassiveScript", new TwoArgFunction() {
+            @Override
+            public LuaValue call(LuaValue arg1, LuaValue arg2) {
+                Ability ability = (Ability)arg1.checkuserdata(Ability.class);
+                LuaFunction callback = arg2.checkfunction();
+
+                return CoerceJavaToLua.coerce(plugin.addPassiveScript(ability, callback));
             }
         });
 

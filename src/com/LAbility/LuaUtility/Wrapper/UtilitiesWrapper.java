@@ -2,12 +2,7 @@ package com.LAbility.LuaUtility.Wrapper;
 
 import com.LAbility.LAbilityMain;
 import com.LAbility.LuaUtility.LuaException;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.luaj.vm2.LuaFunction;
 import org.luaj.vm2.LuaTable;
@@ -16,6 +11,7 @@ import org.luaj.vm2.lib.OneArgFunction;
 import org.luaj.vm2.lib.TwoArgFunction;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -30,6 +26,7 @@ public class UtilitiesWrapper extends LuaTable {
         this.plugin = plugin;
         this.runDelayedThreadPool = Executors.newScheduledThreadPool(1);
 
+
         set("getTableFromList", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue arg) {
@@ -39,6 +36,8 @@ public class UtilitiesWrapper extends LuaTable {
                     list = ((Collection<?>) arg.touserdata()).toArray();
                 } else if (arg.touserdata() instanceof Stream) {
                     list = ((Stream<?>) arg.touserdata()).toArray();
+                } else if (arg.touserdata() instanceof ArrayList) {
+                    list = ((ArrayList<?>) arg.touserdata()).toArray();
                 } else {
                     throw new LuaException("util.tableFromList(obj) was passed something other than an instance of Collection or Stream.", 1);
                 }
