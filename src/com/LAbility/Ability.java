@@ -20,12 +20,6 @@ public class Ability {
         abilityRank = rank;
         abilityDesc = desc;
         luaScript = lua;
-        Bukkit.getConsoleSender().sendMessage("" + id);
-        Bukkit.getConsoleSender().sendMessage("" + cooldown);
-        Bukkit.getConsoleSender().sendMessage("" + passive);
-        Bukkit.getConsoleSender().sendMessage(name);
-        Bukkit.getConsoleSender().sendMessage(rank);
-        Bukkit.getConsoleSender().sendMessage(desc);
         RunScript();
     }
 

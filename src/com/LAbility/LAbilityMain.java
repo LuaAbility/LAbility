@@ -54,21 +54,14 @@ public class LAbilityMain extends JavaPlugin implements Listener {
 
     public Listener registerEvent(Class<? extends Event> event, LuaFunction function) {
         getEventListeners(event).add(function);
-        Bukkit.getConsoleSender().sendMessage("1");
-        if (this.enabled) {
-            Bukkit.getConsoleSender().sendMessage("2");
-            Listener listener = new Listener() {
-            };
-
-            Bukkit.getConsoleSender().sendMessage("3");
-            this.getServer().getPluginManager().registerEvent(event, listener, EventPriority.NORMAL, new EventExecutor() {
-                @Override
-                public void execute(Listener listener, Event event) throws EventException {
-                    Bukkit.getConsoleSender().sendMessage("4");
-                    gameManager.RunEvent(function, event);
-                }
-            }, this, false);
-        }
+        Listener listener = new Listener() {
+        };
+        this.getServer().getPluginManager().registerEvent(event, listener, EventPriority.NORMAL, new EventExecutor() {
+            @Override
+            public void execute(Listener listener, Event event) throws EventException {
+                gameManager.RunEvent(function, event);
+            }
+        }, this, false);
         return null;
     }
 

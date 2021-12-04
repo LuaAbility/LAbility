@@ -10,9 +10,7 @@ public class GameManager {
 
 
     public void RunEvent(LuaFunction func, Event event) {
-        Bukkit.getConsoleSender().sendMessage("BBB");
         if (isGameStarted) {
-            Bukkit.getConsoleSender().sendMessage("CCC");
             func.call(CoerceJavaToLua.coerce(event));
         }
     }

@@ -25,16 +25,12 @@ public class PluginWrapper extends LuaTable {
         set("registerEvent", new TwoArgFunction() {
             @Override
             public LuaValue call(LuaValue arg1, LuaValue arg2) {
-                Bukkit.getConsoleSender().sendMessage("AAA");
                 String eventName = arg1.checkjstring();
                 LuaFunction callback = arg2.checkfunction();
-                Bukkit.getConsoleSender().sendMessage("AAA");
                 try {
                     // Try to see if the event is a class path, for custom events
                     Class<?> c = Class.forName(eventName);
-                    Bukkit.getConsoleSender().sendMessage("AAA");
                     if (Event.class.isAssignableFrom(c) && c != null) {
-                        Bukkit.getConsoleSender().sendMessage("BBB");
                         return CoerceJavaToLua.coerce(plugin.registerEvent((Class<? extends Event>) c, callback));
                     }
                 } catch (ClassNotFoundException e) {
@@ -43,20 +39,11 @@ public class PluginWrapper extends LuaTable {
                             "server", "vehicle", "weather", "world"};
 
                     for (String pkg : events) {
-
-
-                        Bukkit.getConsoleSender().sendMessage("CCC");
                         try {
                             Class<?> c = Class.forName("org.bukkit.event." + pkg + "." + eventName);
-
-                            Bukkit.getConsoleSender().sendMessage("DDD");
                             if (Event.class.isAssignableFrom(c) && c != null) {
-
-                                Bukkit.getConsoleSender().sendMessage("EEE");
                                 return CoerceJavaToLua.coerce(plugin.registerEvent((Class<? extends Event>) c, callback));
                             }
-
-                            Bukkit.getConsoleSender().sendMessage("FFF");
                         } catch (ClassNotFoundException ignored) {
                             // This would spam the console anytime an event is registered if we print the stack trace
                         }
