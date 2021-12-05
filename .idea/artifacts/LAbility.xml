@@ -1,9 +1,10 @@
 <component name="ArtifactManager">
   <artifact type="jar" name="LAbility">
-    <output-path>$PROJECT_DIR$/out/artifacts/LAbility</output-path>
+    <output-path>$PROJECT_DIR$/../api/plugins</output-path>
     <root id="archive" name="LAbility.jar">
       <element id="module-output" name="LAbility" />
       <element id="dir-copy" path="$PROJECT_DIR$/resources" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../luaj-jse-3.0.1.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
