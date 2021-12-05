@@ -21,19 +21,18 @@ public class CommandManager implements CommandExecutor {
 			Player senderPlayer = (Player) sender;
 			if (args.length == 0) {
 				sender.sendMessage("\2476-------[\247eLAbility\2476]-------");
-				sender.sendMessage("\2476/la \247eplayer \247f: \247a플레이어 용 명령어를 확인합니다.");
-				sender.sendMessage("\2476/la \247eadmin \247f: \247a관리자 용 명령어를 확인합니다.");
-				sender.sendMessage("\2476/la \247eutil \247f: \247a유틸 명령어를 확인합니다.");
+				sender.sendMessage("\2476/la \247eplayer \247f: \247a플레이어 용 명령어를 확인합니다."); // OK
+				sender.sendMessage("\2476/la \247eadmin \247f: \247a관리자 용 명령어를 확인합니다."); // OK
+				sender.sendMessage("\2476/la \247eutil \247f: \247a유틸 명령어를 확인합니다."); // OK
 				sender.sendMessage();
 				return true;
 			}
 			if (args.length > 0) {
 				if (args[0].equalsIgnoreCase("player")) {
 					sender.sendMessage("\2476-------[\247ePlayer Command\2476]-------");
-					sender.sendMessage("\2476/la \247echeck \247f: \247a자신의 능력을 확인합니다.");
+					sender.sendMessage("\2476/la \247echeck \247f: \247a자신의 능력을 확인합니다."); // OK
 					sender.sendMessage("\2476/la \247eyes \247f: \247a현재 능력을 사용합니다.");
 					sender.sendMessage("\2476/la \247eno \247f: \247a현재 능력을 사용하지 않습니다. 이 때, 다른 능력으로 변경됩니다.");
-					sender.sendMessage("\2476/la \247ea \247f: \247a일부 능력의 경우, 해당 명령어를 사용하여 능력을 사용합니다.");
 					return true;
 				}
 				if (args[0].equalsIgnoreCase("admin")) {
@@ -42,17 +41,17 @@ public class CommandManager implements CommandExecutor {
 					sender.sendMessage("\2476/la \247estop \247f: \247a게임을 중지합니다.");
 					sender.sendMessage("\2476/la \247eskip \247f: \247a모든 플레이어의 능력을 모두 확정합니다.");
 					sender.sendMessage("\2476/la \247ereroll <Player>\247f: \247a플레이어의 능력을 재추첨합니다. 공란 시 모두 변경.");
-					sender.sendMessage("\2476/la \247eob <Player>\247f: \247a해당 플레이어를 게임에서 제외합니다.");
-					sender.sendMessage("\2476/la \247esee <Player> \247f: \247a플레이어에게 할당된 능력들을 확인합니다.");
-					sender.sendMessage("\2476/la \247eadd <Player> <AbilityID> \247f: \247a플레이어에게 해당 능력을 추가합니다.");
-					sender.sendMessage("\2476/la \247eremove <Player> <AbilityID> \247f: \247a플레이어에게서 해당 능력을 제거합니다. ID 공란 시 모두 제거.");
-					sender.sendMessage("\2476/la \247elist \247f: \247a모든 플레이어의 능력을 확인합니다.");
+					sender.sendMessage("\2476/la \247eob <Player>\247f: \247a해당 플레이어를 게임에서 제외합니다.");  // OK
+					sender.sendMessage("\2476/la \247esee <Player> \247f: \247a플레이어에게 할당된 능력들을 확인합니다.");  // OK
+					sender.sendMessage("\2476/la \247eadd <Player> <AbilityID> \247f: \247a플레이어에게 해당 능력을 추가합니다."); // OK
+					sender.sendMessage("\2476/la \247eremove <Player> <AbilityID> \247f: \247a플레이어에게서 해당 능력을 제거합니다. ID 공란 시 모두 제거."); // OK
+					sender.sendMessage("\2476/la \247elist \247f: \247a모든 플레이어의 능력을 확인합니다."); // OK
 					return true;
 				}
 				if (args[0].equalsIgnoreCase("util")) {
 					sender.sendMessage("\2476-------[\247eAdmin Command\2476]-------");
-					sender.sendMessage("\2476/la \247eablist <Page> \247f: \247a현재 로드된 능력 리스트를 확인합니다.");
-					sender.sendMessage("\2476/la \247eability <AbilityID> \247f: \247a해당 능력의 정보를 확인합니다.");
+					sender.sendMessage("\2476/la \247eablist <Page> \247f: \247a현재 로드된 능력 리스트를 확인합니다.");  // OK
+					sender.sendMessage("\2476/la \247eability <AbilityID> \247f: \247a해당 능력의 정보를 확인합니다.");  // OK
 					return true;
 				}
 				if (args[0].equalsIgnoreCase("check")) {
@@ -83,18 +82,18 @@ public class CommandManager implements CommandExecutor {
 									}
 									p.sendMessage("\2478[\2477LAbility\2478] \2477" + "옵저버로 설정되었습니다.");
 									p.sendMessage("\2478[\2477LAbility\2478] \2477" + "재 접속 시, 게임에 다시 참여할 수 있습니다.");
-									return true;
 								}
 								else {
 									sender.sendMessage("\2474[\247cLAbility\2474] \247c해당 플레이어는 게임에 참가하고 있지 않습니다.");
-									return true;
 								}
+								return true;
 							}
 						}
 						sender.sendMessage("\2474[\247cLAbility\2474] \247c플레이어가 존재하지 않습니다.");
-						return true;
 					}
-					sender.sendMessage("\2474[\247cLAbility\2474] \247c플레이어 이름을 입력해주세요.");
+					else {
+						sender.sendMessage("\2474[\247cLAbility\2474] \247c플레이어 이름을 입력해주세요.");
+					}
 					return true;
 				}
 
@@ -118,11 +117,144 @@ public class CommandManager implements CommandExecutor {
 							main.abilities.get(index).ExplainAbility(senderPlayer);
 							return true;
 						}
-						else{
+						else {
 							sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 ID 입니다.");
 						}
 					}
-					return true;
+					else {
+						sender.sendMessage("\2474[\247cLAbility\2474] \247cID를 입력해주세요.");
+						return true;
+					}
+				}
+
+				if (args[0].equalsIgnoreCase("see")) {
+					if ((args.length > 1)) {
+						int index = main.gameManager.players.indexOf(args[1]);
+						if (index >= 0) {
+							sender.sendMessage("\2476-------[\247e" + args[1] + "'s Ability\2476]-------");
+							main.gameManager.players.get(index).CheckAbility(senderPlayer, -1);
+							return true;
+						}
+						else{
+							sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 플레이어 입니다.");
+						}
+					}
+					else {
+						sender.sendMessage("\2474[\247cLAbility\2474] \247c플레이어 이름을 입력해주세요.");
+						return true;
+					}
+				}
+
+				if (args[0].equalsIgnoreCase("add")) {
+					if ((args.length > 1)) {
+						int index = main.gameManager.players.indexOf(args[1]);
+						if (index >= 0) {
+							LAPlayer p = main.gameManager.players.get(index);
+							if (args.length > 2){
+								int index2 = main.abilities.indexOf(args[2]);
+								if (index2 >= 0) {
+									Ability a = main.abilities.get(index2);
+									if (!p.hasAbility(a)) {
+										p.ability.add(a);
+										if (!senderPlayer.equals(p.player)) {
+											sender.sendMessage("\2478[\2477LAbility\2478] \2477" + args[1] + " 가 \2478" + a.abilityName + "\2477 능력을 얻었습니다.");
+											sender.sendMessage("\2478[\2477LAbility\2478] \2477" + "해당 유저는 해당 능력을 사용할 수 있습니다.");
+										}
+										p.player.sendMessage("\2476[\247eLAbility\2476] \2476" + a.abilityName + "\247e 능력을 얻었습니다.");
+										p.player.sendMessage("\2476[\247eLAbility\2476] \247a" + "/la check " + (p.ability.size() - 1) + "\247e로 확인가능합니다.");
+										return true;
+									}
+									else {
+										sender.sendMessage("\2474[\247cLAbility\2474] \247c해당 유저는 해당 능력을 이미 소지 중입니다.");
+									}
+								}
+								else {
+									sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 ID 입니다.");
+								}
+							}
+							else {
+								sender.sendMessage("\2474[\247cLAbility\2474] \247cID를 입력해주세요.");
+							}
+							return true;
+						}
+						else{
+							sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 플레이어 입니다.");
+						}
+					}
+					else {
+						sender.sendMessage("\2474[\247cLAbility\2474] \247c플레이어 이름을 입력해주세요.");
+						return true;
+					}
+				}
+
+				if (args[0].equalsIgnoreCase("remove")) {
+					if ((args.length > 1)) {
+						int index = main.gameManager.players.indexOf(args[1]);
+						if (index >= 0) {
+							LAPlayer p = main.gameManager.players.get(index);
+							if (args.length > 2){
+								int index2 = main.abilities.indexOf(args[2]);
+								if (index2 >= 0) {
+									Ability a = main.abilities.get(index2);
+									if (p.hasAbility(a)) {
+										p.ability.remove(a);
+										if (!senderPlayer.equals(p.player)) {
+											sender.sendMessage("\2478[\2477LAbility\2478] \2477" + args[1] + " 가 \2478" + a.abilityName + "\2477 능력을 잃었습니다.");
+											sender.sendMessage("\2478[\2477LAbility\2478] \2477" + "해당 유저는 더이상 해당 능력 사용이 불가능합니다.");
+										}
+										p.player.sendMessage("\2474[\247cLAbility\2474] \2474" + a.abilityName + "\247c 능력을 잃었습니다.");
+										p.player.sendMessage("\2474[\247cLAbility\2474] \247c" + "해당 능력은, 더 이상 사용하실 수 없습니다.");
+										return true;
+									}
+									else {
+										sender.sendMessage("\2474[\247cLAbility\2474] \247c해당 유저는 해당 능력을 소지 중이 아닙니다.");
+									}
+								}
+								else {
+									sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 ID 입니다.");
+								}
+							}
+							else {
+								if (p.ability.size() > 0) {
+									p.ability.clear();
+									if (!senderPlayer.equals(p.player)) {
+										sender.sendMessage("\2478[\2477LAbility\2478] \2477" + args[1] + " 가 \2478모든\2477 능력을 잃었습니다.");
+										sender.sendMessage("\2478[\2477LAbility\2478] \2477" + "해당 유저는 더이상 능력 사용이 불가능합니다.");
+									}
+									p.player.sendMessage("\2474[\247cLAbility\2474] \2474모든\247c 능력을 잃었습니다.");
+									p.player.sendMessage("\2474[\247cLAbility\2474] \247c능력을 더 이상 사용하실 수 없습니다.");
+								}
+								else {
+									sender.sendMessage("\2474[\247cLAbility\2474] \247c해당 유저는 능력을 소지 중이 아닙니다.");
+								}
+							}
+							return true;
+						}
+						else{
+							sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 플레이어 입니다.");
+						}
+					}
+					else {
+						sender.sendMessage("\2474[\247cLAbility\2474] \247c플레이어 이름을 입력해주세요.");
+						return true;
+					}
+				}
+
+				if (args[0].equalsIgnoreCase("list")) {
+					sender.sendMessage("\2476-------[\247eAbility List\2476]-------");
+					for (LAPlayer lap : main.gameManager.players) {
+						String abilityString = "";
+						abilityString += ("\247e" + lap.player.getName() + "\2477 : \247a");
+						int index = 0;
+						for (Ability a : lap.ability) {
+							abilityString += a.abilityName;
+							if (index++ < (lap.ability.size() - 1)) {
+								abilityString += ", ";
+							}
+						}
+						if (index == 0) abilityString += "\247c없음";
+						sender.sendMessage(abilityString);
+					}
 				}
 			}
 		}

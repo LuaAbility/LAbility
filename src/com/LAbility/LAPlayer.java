@@ -27,26 +27,26 @@ public class LAPlayer {
         return false;
     }
 
-    public void CheckAbility(Player player, int index) {
+    public void CheckAbility(Player pl, int index) {
         if (ability.size() < 1) {
-            player.sendMessage("\2474[\247cLAbility\2474] \247c현재 능력이 없습니다.");
+            pl.sendMessage("\2474[\247cLAbility\2474] \247c현재 능력이 없습니다.");
             return;
         }
         if (index < 0){
             if (ability.size() == 1) {
-                ability.get(0).ExplainAbility(player);
+                ability.get(0).ExplainAbility(pl);
             }
             else {
-                player.sendMessage("\2476-------[\247eAbility List\2476]-------");
+                pl.sendMessage("\2476-------[\247eAbility List\2476]-------");
                 int i = 0;
                 for (Ability a : ability) {
-                    player.sendMessage("\2476" + (i++) + ". \247e" + a.abilityName);
+                    pl.sendMessage("\2476" + (i++) + ". \247e" + a.abilityName);
                 }
             }
         }
         else {
-            if (index > ability.size()) index = ability.size() - 1;
-            ability.get(index).ExplainAbility(player);
+            if (index >= ability.size()) index = ability.size() - 1;
+            ability.get(index).ExplainAbility(pl);
         }
     }
 }

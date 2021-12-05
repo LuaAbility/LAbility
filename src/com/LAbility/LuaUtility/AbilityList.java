@@ -10,8 +10,7 @@ public class AbilityList<E extends Ability> extends ArrayList<Ability> {
     @Override
     public int indexOf(Object o) {
         if (o instanceof Ability) return super.indexOf(o);
-        if (o instanceof String) {
-            String aID = (String) o;
+        if (o instanceof String aID) {
             for (Ability a : this) {
                 if (a.abilityID.equals(aID)){
                     return super.indexOf(a);
