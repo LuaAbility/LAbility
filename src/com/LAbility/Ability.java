@@ -1,5 +1,6 @@
 package com.LAbility;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.luaj.vm2.LuaFunction;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
@@ -119,5 +120,12 @@ public class Ability {
         }
 
         return false;
+    }
+
+    public void ExplainAbility(Player player) {
+        player.sendMessage("\2476[\247e" + abilityName + "\2476]");
+        player.sendMessage("\247eRank : \247a" + abilityRank);
+        player.sendMessage("\247eType : \247a" + abilityType);
+        player.sendMessage("\247a" + abilityDesc);
     }
 }

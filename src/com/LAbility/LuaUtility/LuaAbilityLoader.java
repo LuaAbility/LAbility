@@ -20,8 +20,8 @@ import java.util.Arrays;
 import java.util.Map;
 
 public class LuaAbilityLoader {
-    public static ArrayList<Ability> LoadAllLuaAbilities(){
-        ArrayList<Ability> luaAbilities = new ArrayList<Ability>();
+    public static AbilityList<Ability> LoadAllLuaAbilities(){
+        AbilityList<Ability> luaAbilities = new AbilityList<Ability>();
         Globals globals = JsePlatform.standardGlobals();
 
         File dataFolder = new File(LAbilityMain.instance.getDataFolder() + "/Ability");
@@ -67,6 +67,8 @@ public class LuaAbilityLoader {
                 }
             }
         }
+
+        luaAbilities.sort(new AbilityComparator());
 
         return luaAbilities;
     }

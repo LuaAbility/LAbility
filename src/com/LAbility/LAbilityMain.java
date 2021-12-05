@@ -1,8 +1,10 @@
 package com.LAbility;
 
+import com.LAbility.LuaUtility.AbilityList;
 import com.LAbility.LuaUtility.LuaAbilityLoader;
 import com.LAbility.LuaUtility.Wrapper.UtilitiesWrapper;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventException;
 import org.bukkit.event.EventPriority;
@@ -22,17 +24,17 @@ public class LAbilityMain extends JavaPlugin implements Listener {
     public static Plugin plugin;
     public UtilitiesWrapper utilitiesWrapper;
     public GameManager gameManager;
-    public ArrayList<Ability> abilities;
     public boolean enabled = false;
-
-    private final HashMap<Class<? extends Event>, ArrayList<LuaFunction>> eventListeners = new HashMap<>();
+    public ArrayList<Class<? extends Event>> registerdClassList = new ArrayList<Class<? extends Event>>();
+    public AbilityList<Ability> abilities = new AbilityList<>();
 
     @Override
     public void onEnable() {
         instance = this;
         plugin = this.getServer().getPluginManager().getPlugin("LAbility");
-
         getCommand("la").setExecutor(new CommandManager(this));
+        getServer().getPluginManager().registerEvents(new EventManager(), this);
+
         getConfig().options().copyDefaults(true);
         saveConfig();
         if (!new File(getDataFolder(), "Ability/0. ExampleFolder/data.yml").exists()) saveResource("Ability/0. ExampleFolder/data.yml", false);
@@ -41,6 +43,8 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         abilities = LuaAbilityLoader.LoadAllLuaAbilities();
         gameManager = new GameManager();
         gameManager.isGameStarted = true;
+
+        assignAllPlayer();
 
         Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \2477v0.1 " + abilities.size() + "개 능력 로드 완료!");
         Bukkit.getConsoleSender().sendMessage("Made by MINUTE.");
@@ -55,10 +59,11 @@ public class LAbilityMain extends JavaPlugin implements Listener {
     }
 
     public Listener registerEvent(Ability ability, Class<? extends Event> event, int cooldown, LuaFunction function) {
-        getEventListeners(event).add(function);
         ability.eventFunc.add( new Ability.ActiveFunc(event, cooldown, function) );
         Listener listener = new Listener() {};
 
+        if (registerdClassList.contains(event)) return null;
+        registerdClassList.add(event);
         this.getServer().getPluginManager().registerEvent(event, listener, EventPriority.NORMAL, new EventExecutor() {
             @Override
             public void execute(Listener listener, Event event) throws EventException {
@@ -74,8 +79,9 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         return 0;
     }
 
-    private ArrayList<LuaFunction> getEventListeners(Class<? extends Event> event) {
-        this.eventListeners.computeIfAbsent(event, k -> new ArrayList<>());
-        return this.eventListeners.get(event);
+    public void assignAllPlayer(){
+        for (Player p : getServer().getOnlinePlayers()){
+            if (!gameManager.players.contains(p)) gameManager.players.add(new LAPlayer(p));
+        }
     }
 }
