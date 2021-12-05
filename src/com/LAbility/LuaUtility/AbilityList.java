@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class AbilityList<E extends Ability> extends ArrayList<Ability> {
     @Override
@@ -18,5 +19,25 @@ public class AbilityList<E extends Ability> extends ArrayList<Ability> {
             }
         }
         return -1;
+    }
+
+    @Override
+    public void sort(Comparator<? super Ability> c) {
+        super.sort(c);
+    }
+}
+
+class AbilityComparator implements Comparator<Ability> {
+    @Override
+    public int compare(Ability o1, Ability o2) {
+        if(o1.abilityID.compareTo(o2.abilityID) > 0) {
+            return 1;
+        }
+        else if(o1.abilityID.compareTo(o2.abilityID) == 0) {
+            return 0;
+        }
+        else {
+            return -1;
+        }
     }
 }

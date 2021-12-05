@@ -31,16 +31,16 @@ public class CommandManager implements CommandExecutor {
 				if (args[0].equalsIgnoreCase("player")) {
 					sender.sendMessage("\2476-------[\247ePlayer Command\2476]-------");
 					sender.sendMessage("\2476/la \247echeck \247f: \247a자신의 능력을 확인합니다."); // OK
-					sender.sendMessage("\2476/la \247eyes \247f: \247a현재 능력을 사용합니다.");
-					sender.sendMessage("\2476/la \247eno \247f: \247a현재 능력을 사용하지 않습니다. 이 때, 다른 능력으로 변경됩니다.");
+					sender.sendMessage("\2476/la \247eyes \247f: \247a현재 능력을 사용합니다."); // OK
+					sender.sendMessage("\2476/la \247eno \247f: \247a현재 능력을 사용하지 않습니다. 이 때, 다른 능력으로 변경됩니다."); // OK
 					return true;
 				}
 				if (args[0].equalsIgnoreCase("admin")) {
 					sender.sendMessage("\2476-------[\247eAdmin Command\2476]-------");
 					sender.sendMessage("\2476/la \247estart \247f: \247a게임을 시작합니다.");
 					sender.sendMessage("\2476/la \247estop \247f: \247a게임을 중지합니다.");
-					sender.sendMessage("\2476/la \247eskip \247f: \247a모든 플레이어의 능력을 모두 확정합니다.");
-					sender.sendMessage("\2476/la \247ereroll <Player>\247f: \247a플레이어의 능력을 재추첨합니다. 공란 시 모두 변경.");
+					sender.sendMessage("\2476/la \247eskip \247f: \247a모든 플레이어의 능력을 모두 확정합니다."); // OK
+					sender.sendMessage("\2476/la \247ereroll <Player>\247f: \247a플레이어의 능력을 재추첨합니다. 공란 시 모두 변경."); // OK
 					sender.sendMessage("\2476/la \247eob <Player>\247f: \247a해당 플레이어를 게임에서 제외합니다.");  // OK
 					sender.sendMessage("\2476/la \247esee <Player> \247f: \247a플레이어에게 할당된 능력들을 확인합니다.");  // OK
 					sender.sendMessage("\2476/la \247eadd <Player> <AbilityID> \247f: \247a플레이어에게 해당 능력을 추가합니다."); // OK
@@ -55,19 +55,20 @@ public class CommandManager implements CommandExecutor {
 					return true;
 				}
 				if (args[0].equalsIgnoreCase("check")) {
-					for (LAPlayer lap : main.gameManager.players) {
-						if (lap.player.equals(senderPlayer)) {
-							if ((args.length > 1)) {
-								lap.CheckAbility(senderPlayer, Integer.parseInt(args[1]));
-								return true;
-							} else {
-								lap.CheckAbility(senderPlayer, -1);
-								return true;
-							}
+					int index = main.gameManager.players.indexOf(senderPlayer.getName());
+					if (index >= 0){
+						LAPlayer lap = main.gameManager.players.get(index);
+						if ((args.length > 1)) {
+							lap.CheckAbility(senderPlayer, Integer.parseInt(args[1]));
+							return true;
+						} else {
+							lap.CheckAbility(senderPlayer, -1);
+							return true;
 						}
+					} else {
+						senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c게임에 참여 중이 아닙니다.");
+						return true;
 					}
-					senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c게임에 참여 중이 아닙니다.");
-					return true;
 				}
 
 				if (args[0].equalsIgnoreCase("ob")) {
@@ -255,6 +256,54 @@ public class CommandManager implements CommandExecutor {
 						if (index == 0) abilityString += "\247c없음";
 						sender.sendMessage(abilityString);
 					}
+				}
+
+				if (args[0].equalsIgnoreCase("reroll")) {
+					if ((args.length > 1)) {
+						int index = main.gameManager.players.indexOf(args[1]);
+						if (index >= 0) {
+							LAPlayer p = main.gameManager.players.get(index);
+							main.gameManager.ResignAbility(p);
+							main.gameManager.AssignAbility(p);
+						} else {
+							sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 플레이어 입니다.");
+						}
+					}
+					else {
+						main.gameManager.ResignAbility();
+						main.gameManager.AssignAbility();
+					}
+				}
+
+				if (args[0].equalsIgnoreCase("yes")) {
+					int index = main.gameManager.players.indexOf(senderPlayer.getName());
+					if (index >= 0) {
+						LAPlayer lap = main.gameManager.players.get(index);
+						lap.isAssign = true;
+						sender.sendMessage("\2472[\247aLAbility\2472] \247a" + "능력을 결정했습니다. 게임 시작까지 기다려주세요.");
+						return true;
+					} else {
+						senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c게임에 참여 중이 아닙니다.");
+						return true;
+					}
+				}
+
+				if (args[0].equalsIgnoreCase("no")) {
+					int index = main.gameManager.players.indexOf(senderPlayer.getName());
+					if (index >= 0) {
+						LAPlayer lap = main.gameManager.players.get(index);
+						lap.ResignAbility();
+						sender.sendMessage("\2472[\247aLAbility\2472] \247a" + "능력을 변경했습니다.");
+						return true;
+					} else {
+						senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c게임에 참여 중이 아닙니다.");
+						return true;
+					}
+				}
+
+				if (args[0].equalsIgnoreCase("skip")) {
+					for (LAPlayer lap : main.gameManager.players) lap.isAssign = true;
+					main.getServer().broadcastMessage("\2474[\247cLAbility\2474] \247c관리자가 모든 능력을 강제로 할당시켰습니다.");
 				}
 			}
 		}

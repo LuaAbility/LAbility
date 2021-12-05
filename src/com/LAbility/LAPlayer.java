@@ -1,12 +1,12 @@
 package com.LAbility;
 
+import com.LAbility.LuaUtility.AbilityList;
 import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
 
 public class LAPlayer {
     Player player;
-    ArrayList<Ability> ability = new ArrayList<>();
+    AbilityList<Ability> ability = new AbilityList<>();
+    boolean isAssign = false;
 
     public LAPlayer(Player p){
         player = p;
@@ -16,7 +16,7 @@ public class LAPlayer {
         return player;
     }
 
-    public ArrayList<Ability> getAbility() {
+    public AbilityList<Ability> getAbility() {
         return ability;
     }
 
@@ -48,5 +48,11 @@ public class LAPlayer {
             if (index >= ability.size()) index = ability.size() - 1;
             ability.get(index).ExplainAbility(pl);
         }
+    }
+
+    public void ResignAbility() {
+        LAbilityMain.instance.gameManager.ResignAbility(this, ability.get(ability.size() - 1));
+        LAbilityMain.instance.gameManager.AssignAbility(this);
+        isAssign = true;
     }
 }

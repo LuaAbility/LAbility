@@ -68,6 +68,8 @@ public class LuaAbilityLoader {
             }
         }
 
+        luaAbilities.sort(new AbilityComparator());
+
         return luaAbilities;
     }
 
