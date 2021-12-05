@@ -3,9 +3,12 @@ package com.LAbility;
 import com.LAbility.LuaUtility.AbilityList;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+
 public class LAPlayer {
     Player player;
     AbilityList<Ability> ability = new AbilityList<>();
+    ArrayList<String> variable = new ArrayList<String>();
     boolean isAssign = false;
 
     public LAPlayer(Player p){
@@ -18,6 +21,10 @@ public class LAPlayer {
 
     public AbilityList<Ability> getAbility() {
         return ability;
+    }
+
+    public ArrayList<String> getVariable() {
+        return variable;
     }
 
     public boolean hasAbility(Ability a) {

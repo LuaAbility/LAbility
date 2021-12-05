@@ -44,9 +44,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         gameManager = new GameManager();
         gameManager.isGameStarted = true;
 
-        for (Player p : getServer().getOnlinePlayers()){
-            gameManager.players.add(new LAPlayer(p));
-        }
+        assignAllPlayer();
 
         Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \2477v0.1 " + abilities.size() + "개 능력 로드 완료!");
         Bukkit.getConsoleSender().sendMessage("Made by MINUTE.");
@@ -79,5 +77,11 @@ public class LAbilityMain extends JavaPlugin implements Listener {
     public int addPassiveScript(Ability ability, int tick, LuaFunction function) {
         ability.passiveFunc.add(new Ability.PassiveFunc(tick, function));
         return 0;
+    }
+
+    public void assignAllPlayer(){
+        for (Player p : getServer().getOnlinePlayers()){
+            if (!gameManager.players.contains(p)) gameManager.players.add(new LAPlayer(p));
+        }
     }
 }

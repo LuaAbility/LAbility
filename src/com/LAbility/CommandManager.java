@@ -279,6 +279,10 @@ public class CommandManager implements CommandExecutor {
 					int index = main.gameManager.players.indexOf(senderPlayer.getName());
 					if (index >= 0) {
 						LAPlayer lap = main.gameManager.players.get(index);
+						if (lap.isAssign) {
+							senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c이미 능력이 확정되었습니다.");
+							return true;
+						}
 						lap.isAssign = true;
 						sender.sendMessage("\2472[\247aLAbility\2472] \247a" + "능력을 결정했습니다. 게임 시작까지 기다려주세요.");
 						return true;
@@ -292,8 +296,12 @@ public class CommandManager implements CommandExecutor {
 					int index = main.gameManager.players.indexOf(senderPlayer.getName());
 					if (index >= 0) {
 						LAPlayer lap = main.gameManager.players.get(index);
+						if (lap.isAssign) {
+							senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c이미 능력이 확정되었습니다.");
+							return true;
+						}
 						lap.ResignAbility();
-						sender.sendMessage("\2472[\247aLAbility\2472] \247a" + "능력을 변경했습니다.");
+						sender.sendMessage("\2472[\247aLAbility\2472] \247a" + "현재 능력을 버리고 새로운 능력을 갖습니다.");
 						return true;
 					} else {
 						senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c게임에 참여 중이 아닙니다.");
@@ -304,6 +312,16 @@ public class CommandManager implements CommandExecutor {
 				if (args[0].equalsIgnoreCase("skip")) {
 					for (LAPlayer lap : main.gameManager.players) lap.isAssign = true;
 					main.getServer().broadcastMessage("\2474[\247cLAbility\2474] \247c관리자가 모든 능력을 강제로 할당시켰습니다.");
+				}
+
+				if (args[0].equalsIgnoreCase("start")) {
+					ScheduleManager.PrepareTimer();
+				}
+
+				if (args[0].equalsIgnoreCase("stop")) {
+					ScheduleManager.ClearTimer();
+					main.gameManager.ResetAll();
+					main.getServer().broadcastMessage("\2474[\247cLAbility\2474] \247c게임이 중단되었습니다.");
 				}
 			}
 		}

@@ -20,6 +20,14 @@ public class GameManager {
     public ArrayList<Integer> shuffledAbilityIndex = new ArrayList<Integer>();
     public int currentAbilityIndex = 0;
 
+    public void ResetAll(){
+        currentAbilityIndex = 0;
+        shuffledAbilityIndex = new ArrayList<Integer>();
+        StopAllPassive();
+        players = new PlayerList<LAPlayer>();
+        LAbilityMain.instance.assignAllPlayer();
+    }
+
     public void RunEvent(Ability ability, Event event) {
         if (isGameStarted){
             for (LAPlayer player : players){
@@ -52,8 +60,8 @@ public class GameManager {
     }
 
     public void StopAllPassive(){
-        for (int schedule : passiveScheduler){
-            schedule = 0;
+        for (int i = 0; i < passiveScheduler.size(); i++){
+            Bukkit.getScheduler().cancelTask(passiveScheduler.get(i));
         }
         passiveScheduler = new ArrayList<>();
     }
@@ -120,5 +128,12 @@ public class GameManager {
         for (LAPlayer player : players){
             ResignAbility(player);
         }
+    }
+
+    public boolean IsAllAsigned(){
+        for (LAPlayer player : players){
+            if (player.isAssign == false) return false;
+        }
+        return true;
     }
 }
