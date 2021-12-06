@@ -2,6 +2,7 @@ package com.LAbility;
 
 import com.LAbility.LuaUtility.AbilityList;
 import com.LAbility.LuaUtility.LuaAbilityLoader;
+import com.LAbility.LuaUtility.TabManager;
 import com.LAbility.LuaUtility.Wrapper.UtilitiesWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -24,7 +25,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
     public static Plugin plugin;
     public UtilitiesWrapper utilitiesWrapper;
     public GameManager gameManager;
-    public boolean enabled = false;
+    public int hasError = 0;
     public ArrayList<Class<? extends Event>> registerdClassList = new ArrayList<Class<? extends Event>>();
     public AbilityList<Ability> abilities = new AbilityList<>();
 
@@ -32,30 +33,28 @@ public class LAbilityMain extends JavaPlugin implements Listener {
     public void onEnable() {
         instance = this;
         plugin = this.getServer().getPluginManager().getPlugin("LAbility");
-        getCommand("la").setExecutor(new CommandManager(this));
-        getServer().getPluginManager().registerEvents(new EventManager(), this);
-
-        getConfig().options().copyDefaults(true);
-        saveConfig();
-        if (!new File(getDataFolder(), "Ability/0. ExampleFolder/data.yml").exists()) saveResource("Ability/0. ExampleFolder/data.yml", false);
-        if (!new File(getDataFolder(), "Ability/0. ExampleFolder/main.lua").exists()) saveResource("Ability/0. ExampleFolder/main.lua", false);
-
+        hasError = 0;
         abilities = LuaAbilityLoader.LoadAllLuaAbilities();
         gameManager = new GameManager();
         gameManager.isGameStarted = true;
 
-        assignAllPlayer();
+        getCommand("la").setExecutor(new CommandManager(this));
+        getCommand("la").setTabCompleter(new TabManager(this));
+        getServer().getPluginManager().registerEvents(new EventManager(), this);
 
+        getConfig().options().copyDefaults(true);
+        saveConfig();
+
+        assignAllPlayer();
+        if (hasError > 0) Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c" + hasError + "개의 능력을 로드하는데 문제가 생겼습니다. 해당 능력들은 로드하지 않습니다.");
         Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \2477v0.1 " + abilities.size() + "개 능력 로드 완료!");
         Bukkit.getConsoleSender().sendMessage("Made by MINUTE.");
-        enabled = true;
     }
 
     @Override
     public void onDisable() {
         Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \2477v0.1 비활성화 되었습니다.");
         Bukkit.getConsoleSender().sendMessage("Made by MINUTE.");
-        enabled = false;
     }
 
     public Listener registerEvent(Ability ability, Class<? extends Event> event, int cooldown, LuaFunction function) {

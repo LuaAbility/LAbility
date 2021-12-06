@@ -323,6 +323,13 @@ public class CommandManager implements CommandExecutor {
 					main.gameManager.ResetAll();
 					main.getServer().broadcastMessage("\2474[\247cLAbility\2474] \247c게임이 중단되었습니다.");
 				}
+
+				if (args[0].equalsIgnoreCase("reload")) {
+					main.onEnable();
+					if (main.hasError > 0) sender.sendMessage("\2474[\247cLAbility\2474] \247c" + main.hasError + "개의 능력을 로드하는데 문제가 생겼습니다. 해당 능력들은 로드하지 않습니다.");
+					sender.sendMessage("\2478[\2477LAbility\2478] \2477" + main.abilities.size() + "개의 능력을 로드했습니다.");
+					sender.sendMessage("\2478[\2477LAbility\2478] \2477Reload Complete.");
+				}
 			}
 		}
 		return false;

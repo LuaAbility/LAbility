@@ -31,40 +31,45 @@ public class LuaAbilityLoader {
             return luaAbilities;
         }
         for (File file : files) {
-            if (file.isDirectory() /*&& !file.toString().toLowerCase().contains("examplefolder")*/) {
-                String abilityID = "";
-                String abilityType = "";
-                String abilityName = "";
-                String abilityRank = "";
-                String abilityDesc = "";
-                LuaValue luaScript = null;
+            try {
+                if (file.isDirectory()) {
+                    String abilityID = "";
+                    String abilityType = "";
+                    String abilityName = "";
+                    String abilityRank = "";
+                    String abilityDesc = "";
+                    LuaValue luaScript = null;
 
-                File[] files2 = file.listFiles();
-                for (File file2 : files2) {
-                    if (file2.toString().toLowerCase().contains("main.lua")) {
-                        luaScript = globals.loadfile(file2.toString());
-                        globals = setGlobals(globals);
-                    }
-                    else if (file2.toString().toLowerCase().contains("data.yml")) {
-                        try {
-                            Map<String, Object> abilityData = new Yaml().load(new FileReader(file2));
-                            abilityID = abilityData.get("id").toString();
-                            abilityType = abilityData.get("type").toString();
-                            abilityName = abilityData.get("name").toString();
-                            abilityRank = abilityData.get("rank").toString();
-                            abilityDesc = abilityData.get("description").toString();
-                        } catch (FileNotFoundException e){
-                            e.printStackTrace();
+                    File[] files2 = file.listFiles();
+                    for (File file2 : files2) {
+                        if (file2.toString().toLowerCase().contains("main.lua")) {
+                            luaScript = globals.loadfile(file2.toString());
+                            globals = setGlobals(globals);
+                        } else if (file2.toString().toLowerCase().contains("data.yml")) {
+                            try {
+                                Map<String, Object> abilityData = new Yaml().load(new FileReader(file2));
+                                abilityID = abilityData.get("id").toString();
+                                abilityType = abilityData.get("type").toString();
+                                abilityName = abilityData.get("name").toString();
+                                abilityRank = abilityData.get("rank").toString();
+                                abilityDesc = abilityData.get("description").toString();
+                            } catch (FileNotFoundException e) {
+                                Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247cdata.yml 파일을 불러올 수 없습니다. 해당 능력은 불러오지 않습니다.");
+                            }
                         }
                     }
-                }
 
-                if (!luaScript.equals(null) && !abilityName.equals("")) {
-                    Ability a = new Ability(abilityID, abilityType, abilityName, abilityRank, abilityDesc);
-                    luaAbilities.add(a);
-                    luaScript.call();
-                    globals.get("main").call(CoerceJavaToLua.coerce(a));
+                    if (!luaScript.equals(null) && !abilityName.equals("")) {
+                        Ability a = new Ability(abilityID, abilityType, abilityName, abilityRank, abilityDesc);
+                        luaScript.call();
+                        globals.get("main").call(CoerceJavaToLua.coerce(a));
+                        luaAbilities.add(a);
+                    }
                 }
+            } catch (Exception e) {
+                LAbilityMain.instance.hasError++;
+                Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c능력을 로드하는데 문제가 생겼습니다. 해당 능력은 로드하지 않습니다.");
+                Bukkit.getConsoleSender().sendMessage(e.getMessage());
             }
         }
 
