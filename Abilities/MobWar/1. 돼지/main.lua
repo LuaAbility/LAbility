@@ -24,7 +24,7 @@ function main(abilityData)
 	plugin.registerEvent(abilityData, "EntityDamageByEntityEvent", 0, function(a, e)
 		if e:getDamager():getType():toString() == "LIGHTNING" and e:getEntity():getType():toString() == "PLAYER" then
 			if game.checkCooldown(e:getEntity(), a, 2) then
-				game.changeAbility(e:getEntity(), a, "LA-000", false)
+				game.changeAbility(e:getEntity(), a, "LA-MW-014", false)
 			end
 		end
 	end)
