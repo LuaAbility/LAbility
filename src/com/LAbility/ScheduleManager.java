@@ -26,6 +26,7 @@ public class ScheduleManager {
                         Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e능력 추첨을 시작합니다.");
                         break;
                     case 2:
+                        LAbilityMain.instance.gameManager.isGameStarted = true;
                         Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e능력 추첨이 완료되었습니다.");
                         Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e/la check로 능력 확인 후, /la yes 또는 /la no를 통해 능력을 결정해주세요.");
                         LAbilityMain.instance.gameManager.AbilityShuffle(true);

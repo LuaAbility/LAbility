@@ -21,6 +21,7 @@ public class GameManager {
     public int currentAbilityIndex = 0;
 
     public void ResetAll(){
+        isGameStarted = false;
         currentAbilityIndex = 0;
         shuffledAbilityIndex = new ArrayList<Integer>();
         StopAllPassive();
@@ -42,16 +43,18 @@ public class GameManager {
     }
 
     public void RunAllPassive() {
-        for (LAPlayer player : players) {
-            for (Ability ability : player.ability) {
-                for (Ability.PassiveFunc pf : ability.passiveFunc) {
-                    Integer temp = 0;
-                    temp = LAbilityMain.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(LAbilityMain.plugin, new Runnable() {
-                        public void run() {
-                            pf.function.call(CoerceJavaToLua.coerce(player.player));
-                        }
-                    }, 0, pf.delay);
-                    passiveScheduler.add(temp);
+        if (isGameStarted) {
+            for (LAPlayer player : players) {
+                for (Ability ability : player.ability) {
+                    for (Ability.PassiveFunc pf : ability.passiveFunc) {
+                        Integer temp = 0;
+                        temp = LAbilityMain.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(LAbilityMain.plugin, new Runnable() {
+                            public void run() {
+                                pf.function.call(CoerceJavaToLua.coerce(player.player));
+                            }
+                        }, 0, pf.delay);
+                        passiveScheduler.add(temp);
+                    }
                 }
             }
         }

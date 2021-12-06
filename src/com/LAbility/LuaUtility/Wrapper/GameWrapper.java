@@ -76,6 +76,9 @@ public class GameWrapper extends LuaTable {
                         if (deleteAll) players.getAbility().clear();
                         else players.getAbility().removeIf(abilities -> abilities.equals(ability));
                         players.getAbility().add(newAbility);
+
+                        LAbilityMain.instance.gameManager.StopAllPassive();
+                        LAbilityMain.instance.gameManager.RunAllPassive();
                     }
                 }
 
