@@ -10,6 +10,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventException;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -37,7 +38,6 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         hasError = 0;
         abilities = LuaAbilityLoader.LoadAllLuaAbilities();
         gameManager = new GameManager();
-        gameManager.isGameStarted = true;
 
         getCommand("la").setExecutor(new CommandManager(this));
         getCommand("la").setTabCompleter(new TabManager(this));
@@ -62,6 +62,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         ability.eventFunc.add( new Ability.ActiveFunc(event, cooldown, function) );
         Listener listener = new Listener() {};
 
+        Bukkit.getConsoleSender().sendMessage(event.getName());
         this.getServer().getPluginManager().registerEvent(event, listener, EventPriority.NORMAL, new EventExecutor() {
             @Override
             public void execute(Listener listener, Event event) throws EventException {
