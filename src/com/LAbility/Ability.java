@@ -1,5 +1,7 @@
 package com.LAbility;
 
+import com.LAbility.LuaUtility.FunctionList;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.luaj.vm2.LuaFunction;
@@ -21,16 +23,29 @@ public class Ability {
             currentCooldown = cooldown;
             currentSchedule = 0;
         }
+
+        public CooldownData(CooldownData cd){
+            maxCooldown = cd.maxCooldown;
+            currentCooldown = cd.maxCooldown;
+            currentSchedule = 0;
+        }
     }
 
     public static class ActiveFunc {
         public Class<? extends Event> event;
         public CooldownData cooldown;
         public LuaFunction function;
+
         public ActiveFunc(Class<? extends Event> eve, int cooldowns, LuaFunction func) {
             event = eve;
             cooldown = new CooldownData(cooldowns);
             function = func;
+        }
+
+        public ActiveFunc(ActiveFunc af) {
+            event = af.event;
+            cooldown = new CooldownData(af.cooldown);
+            function = af.function;
         }
     }
 
@@ -41,6 +56,11 @@ public class Ability {
         public PassiveFunc(int del, LuaFunction func) {
             delay = del;
             function = func;
+        }
+
+        public PassiveFunc(PassiveFunc pf) {
+            delay = pf.delay;
+            function = pf.function;
         }
     }
 
@@ -62,7 +82,7 @@ public class Ability {
     public String abilityName;
     public String abilityRank;
     public String abilityDesc;
-    public ArrayList<ActiveFunc> eventFunc = new ArrayList<ActiveFunc>() {
+    public FunctionList<ActiveFunc> eventFunc = new FunctionList<ActiveFunc>() {
         @Override
         public boolean contains(Object o) {
             if (o instanceof Event) {
@@ -96,16 +116,37 @@ public class Ability {
         abilityDesc = desc;
     }
 
+    public Ability(Ability a) {
+        abilityID = a.abilityID;
+        abilityType = a.abilityType;
+        abilityName = a.abilityName;
+        abilityRank = a.abilityRank;
+        abilityDesc = a.abilityDesc;
+
+        eventFunc = new FunctionList<ActiveFunc>();
+        for (ActiveFunc af : a.eventFunc){
+            ActiveFunc afs = new ActiveFunc(af);
+            eventFunc.add(afs);
+        }
+
+        passiveFunc = new ArrayList<PassiveFunc>();
+        for (PassiveFunc pf : a.passiveFunc){
+            passiveFunc.add(new PassiveFunc(pf));
+        }
+    }
+
     public void UseEventFunc(Event event){
         for( ActiveFunc af : eventFunc ){
-            if (af.event.equals(event.getClass())) {
+            if (af.event.getName().equals(event.getClass().getName())) {
                 af.function.call(CoerceJavaToLua.coerce(this), CoerceJavaToLua.coerce(event));
             }
         }
     }
 
-    public boolean CheckCooldown(int index) {
-        if (eventFunc.get(index).cooldown.maxCooldown <= 0) return true;
+    public boolean CheckCooldown(Player player, int index) {
+        if (eventFunc.get(index).cooldown.maxCooldown <= 0) {
+            return true;
+        }
 
         if (eventFunc.get(index).cooldown.currentCooldown >= eventFunc.get(index).cooldown.maxCooldown) {
             LAbilityMain.plugin.getServer().getScheduler().cancelTask(eventFunc.get(index).cooldown.currentSchedule);
@@ -116,8 +157,11 @@ public class Ability {
                     eventFunc.get(index).cooldown.currentCooldown++;
                 }
             }, 0, 1);
+            player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b능력을 사용했습니다." );
             return true;
         }
+        float cooldown = ((eventFunc.get(index).cooldown.maxCooldown - eventFunc.get(index).cooldown.currentCooldown) / 20f);
+        player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b쿨타임 입니다. (" + cooldown + "s)" );
 
         return false;
     }

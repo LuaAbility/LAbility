@@ -9,10 +9,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
-import org.luaj.vm2.lib.OneArgFunction;
-import org.luaj.vm2.lib.ThreeArgFunction;
-import org.luaj.vm2.lib.VarArgFunction;
-import org.luaj.vm2.lib.ZeroArgFunction;
+import org.luaj.vm2.lib.*;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 public class GameWrapper extends LuaTable {
@@ -46,7 +43,7 @@ public class GameWrapper extends LuaTable {
                         if (players.getPlayer().equals(player)) {
                             for (Ability abilities : players.getAbility()) {
                                 if (abilities.equals(ability)) {
-                                    return CoerceJavaToLua.coerce(abilities.CheckCooldown(funcID));
+                                    return CoerceJavaToLua.coerce(abilities.CheckCooldown(player, funcID));
                                 }
                             }
                         }
@@ -83,6 +80,26 @@ public class GameWrapper extends LuaTable {
                 }
 
                 return CoerceJavaToLua.coerce(false);
+            }
+        });
+
+
+        set("sendMessage", new TwoArgFunction() {
+            @Override
+            public LuaValue call(LuaValue arg1, LuaValue arg2) {
+                Player player = (Player) arg1.checkuserdata(Player.class);
+                String message = arg2.checkjstring();
+                player.sendMessage(message);
+                return CoerceJavaToLua.coerce(true);
+            }
+        });
+
+        set("broadcastMessage", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue arg) {
+                String message = arg.checkjstring();
+                Bukkit.broadcastMessage(message);
+                return CoerceJavaToLua.coerce(true);
             }
         });
     }

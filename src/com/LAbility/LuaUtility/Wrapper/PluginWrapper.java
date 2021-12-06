@@ -4,6 +4,7 @@ import com.LAbility.Ability;
 import com.LAbility.LAbilityMain;
 import com.LAbility.LuaUtility.LuaException;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventException;
 import org.bukkit.event.EventPriority;

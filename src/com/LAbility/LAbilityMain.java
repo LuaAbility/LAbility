@@ -19,6 +19,7 @@ import org.luaj.vm2.LuaFunction;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class LAbilityMain extends JavaPlugin implements Listener {
     public static LAbilityMain instance;
@@ -26,7 +27,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
     public UtilitiesWrapper utilitiesWrapper;
     public GameManager gameManager;
     public int hasError = 0;
-    public ArrayList<Class<? extends Event>> registerdClassList = new ArrayList<Class<? extends Event>>();
+    public ArrayList<EventExecutor> oldExcutor = new ArrayList<>();
     public AbilityList<Ability> abilities = new AbilityList<>();
 
     @Override
@@ -61,8 +62,6 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         ability.eventFunc.add( new Ability.ActiveFunc(event, cooldown, function) );
         Listener listener = new Listener() {};
 
-        if (registerdClassList.contains(event)) return null;
-        registerdClassList.add(event);
         this.getServer().getPluginManager().registerEvent(event, listener, EventPriority.NORMAL, new EventExecutor() {
             @Override
             public void execute(Listener listener, Event event) throws EventException {

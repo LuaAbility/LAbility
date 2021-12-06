@@ -156,7 +156,7 @@ public class CommandManager implements CommandExecutor {
 								if (index2 >= 0) {
 									Ability a = main.abilities.get(index2);
 									if (!p.hasAbility(a)) {
-										p.ability.add(a);
+										p.ability.add(new Ability(a));
 										if (!senderPlayer.equals(p.player)) {
 											sender.sendMessage("\2478[\2477LAbility\2478] \2477" + args[1] + " 가 \2478" + a.abilityName + "\2477 능력을 얻었습니다.");
 											sender.sendMessage("\2478[\2477LAbility\2478] \2477" + "해당 유저는 해당 능력을 사용할 수 있습니다.");
@@ -324,11 +324,17 @@ public class CommandManager implements CommandExecutor {
 					main.getServer().broadcastMessage("\2474[\247cLAbility\2474] \247c게임이 중단되었습니다.");
 				}
 
+				if (args[0].equalsIgnoreCase("test")) {
+					main.gameManager.RunAllPassive();
+				}
+
 				if (args[0].equalsIgnoreCase("reload")) {
+					main.gameManager.StopAllPassive();
+					main.gameManager.StopAllActiveTimer();
 					main.onEnable();
-					if (main.hasError > 0) sender.sendMessage("\2474[\247cLAbility\2474] \247c" + main.hasError + "개의 능력을 로드하는데 문제가 생겼습니다. 해당 능력들은 로드하지 않습니다.");
-					sender.sendMessage("\2478[\2477LAbility\2478] \2477" + main.abilities.size() + "개의 능력을 로드했습니다.");
 					sender.sendMessage("\2478[\2477LAbility\2478] \2477Reload Complete.");
+					if (main.hasError > 0) sender.sendMessage("\2474[\247cLAbility\2474] \247c" + main.hasError + "개의 능력을 로드하는데 문제가 생겼습니다. 해당 능력들은 로드하지 않습니다.");
+					sender.sendMessage("\2478[\2477LAbility\2478] \2477" + main.abilities.size() + "개 능력 로드 완료!");
 				}
 			}
 		}

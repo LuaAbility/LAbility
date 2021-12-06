@@ -2,6 +2,7 @@ package com.LAbility.LuaUtility.Wrapper;
 
 import com.LAbility.LAbilityMain;
 import com.LAbility.LuaUtility.LuaException;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.luaj.vm2.LuaFunction;
@@ -26,6 +27,20 @@ public class UtilitiesWrapper extends LuaTable {
         this.plugin = plugin;
         this.runDelayedThreadPool = Executors.newScheduledThreadPool(1);
 
+        set("getEnum", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue arg) {
+                String path = arg.checkjstring();
+                if (path.startsWith("$"))
+                    path = "org.bukkit" + path.substring(1);
+                try {
+                    return CoerceJavaToLua.coerce((Class<Enum>)Class.forName(path));
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+                return NIL;
+            }
+        });
 
         set("getTableFromList", new OneArgFunction() {
             @Override
@@ -55,7 +70,6 @@ public class UtilitiesWrapper extends LuaTable {
             @Override
             public LuaValue call(LuaValue arg) {
                 Object[] list = (Object[]) arg.touserdata();
-
                 LuaTable t = new LuaTable();
                 for (int i = 0; i < list.length; i++) {
                     t.set(LuaValue.valueOf(i + 1), CoerceJavaToLua.coerce(list[i]));

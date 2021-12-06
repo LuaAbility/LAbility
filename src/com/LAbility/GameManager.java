@@ -32,7 +32,7 @@ public class GameManager {
         if (isGameStarted){
             for (LAPlayer player : players){
                 for (Ability ab : player.ability){
-                    if (ab.equals(ability) && ab.eventFunc.contains(event)){
+                    if (ab.abilityID.equals(ability.abilityID) && ab.eventFunc.contains(event)){
                         ab.UseEventFunc(event);
                         return;
                     }
@@ -41,19 +41,17 @@ public class GameManager {
         }
     }
 
-    public void RunAllPassive(){
-        if (isGameStarted){
-            for (LAPlayer player : players){
-                for (Ability ability : player.ability){
-                    for (Ability.PassiveFunc pf : ability.passiveFunc) {
-                        Integer temp = 0;
-                        temp = LAbilityMain.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(LAbilityMain.plugin, new Runnable() {
-                            public void run() {
-                                pf.function.call(CoerceJavaToLua.coerce(player.player));
-                            }
-                        }, 0, pf.delay);
-                        passiveScheduler.add(temp);
-                    };
+    public void RunAllPassive() {
+        for (LAPlayer player : players) {
+            for (Ability ability : player.ability) {
+                for (Ability.PassiveFunc pf : ability.passiveFunc) {
+                    Integer temp = 0;
+                    temp = LAbilityMain.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(LAbilityMain.plugin, new Runnable() {
+                        public void run() {
+                            pf.function.call(CoerceJavaToLua.coerce(player.player));
+                        }
+                    }, 0, pf.delay);
+                    passiveScheduler.add(temp);
                 }
             }
         }
@@ -66,6 +64,15 @@ public class GameManager {
         passiveScheduler = new ArrayList<>();
     }
 
+    public void StopAllActiveTimer(){
+        for (Ability ability : LAbilityMain.instance.abilities) {
+            for (Ability.ActiveFunc af : ability.eventFunc) {
+                Bukkit.getScheduler().cancelTask(af.cooldown.currentSchedule);
+            }
+        }
+        passiveScheduler = new ArrayList<>();
+    }
+
     public void AbilityShuffle(boolean resetShuffleIndex) {
         Random random = new Random();
         int size = 0;
@@ -73,7 +80,7 @@ public class GameManager {
         if (resetShuffleIndex) {
             size = LAbilityMain.instance.abilities.size();
             for (int i = 0; i < size; i++) {
-                shuffledAbilityIndex.add(i);
+                if (!LAbilityMain.instance.abilities.get(i).abilityID.contains("HIDDEN")) shuffledAbilityIndex.add(i);
             }
         }
         else {
@@ -97,7 +104,7 @@ public class GameManager {
     }
 
     public void AssignAbility(LAPlayer player) {
-        player.ability.add(LAbilityMain.instance.abilities.get(shuffledAbilityIndex.get(0)));
+        player.ability.add(new Ability(LAbilityMain.instance.abilities.get(shuffledAbilityIndex.get(0))));
         shuffledAbilityIndex.remove(0);
 
         player.player.sendMessage("\2472[\247aLAbility\2472] \247a" + "능력이 무작위 배정되었습니다.");
@@ -107,7 +114,7 @@ public class GameManager {
     public void ResignAbility(LAPlayer player, Ability ability) {
         if (player.ability.contains(ability.abilityID)) {
             player.ability.remove(ability);
-            shuffledAbilityIndex.add(LAbilityMain.instance.abilities.indexOf(ability));
+            if (!ability.abilityID.contains("HIDDEN")) shuffledAbilityIndex.add(LAbilityMain.instance.abilities.indexOf(ability));
             AbilityShuffle(false);
         }
     }
@@ -116,7 +123,7 @@ public class GameManager {
         ArrayList<Ability> tempArray = player.ability;
         if (tempArray.size() > 0) {
             for (Ability a : tempArray) {
-                shuffledAbilityIndex.add(LAbilityMain.instance.abilities.indexOf(a.abilityID));
+                if (!a.abilityID.contains("HIDDEN")) shuffledAbilityIndex.add(LAbilityMain.instance.abilities.indexOf(a.abilityID));
             }
             AbilityShuffle(false);
 

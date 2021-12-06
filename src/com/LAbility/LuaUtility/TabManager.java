@@ -38,7 +38,6 @@ public class TabManager implements TabCompleter {
                     basicCommand.add("skip");
                     basicCommand.add("start");
                     basicCommand.add("stop");
-                    basicCommand.add("reload");
                 }
                 basicCommand.add("check");
                 basicCommand.add("ablist");
