@@ -4,7 +4,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 
 public class CommandManager implements CommandExecutor {
 	public final LAbilityMain main;
@@ -269,7 +272,6 @@ public class CommandManager implements CommandExecutor {
 						sender.sendMessage(abilityString);
 					}
 				}
-
 				if (args[0].equalsIgnoreCase("reroll")) {
 					if ((args.length > 1)) {
 						int index = main.gameManager.players.indexOf(args[1]);
@@ -358,8 +360,8 @@ public class CommandManager implements CommandExecutor {
 				}
 
 				if (args[0].equalsIgnoreCase("test")) {
-					main.gameManager.RunAllPassive();
 					main.gameManager.isGameStarted = true;
+					main.gameManager.RunAllPassive();
 				}
 
 				if (args[0].equalsIgnoreCase("reload")) {

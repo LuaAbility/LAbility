@@ -137,7 +137,7 @@ public class Ability {
 
     public void UseEventFunc(Event event){
         for( ActiveFunc af : eventFunc ){
-            if (af.event.getName().equals(event.getClass().getName())) {
+            if (af.event.isAssignableFrom(event.getClass()) || af.event.equals(event.getClass()) || af.event.isInstance(event)) {
                 af.function.call(CoerceJavaToLua.coerce(this), CoerceJavaToLua.coerce(event));
             }
         }

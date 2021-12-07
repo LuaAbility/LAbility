@@ -15,6 +15,7 @@ import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.*;
 import java.util.stream.Stream;
 
@@ -200,6 +201,32 @@ public class UtilitiesWrapper extends LuaTable {
                 }
 
                 return NIL;
+            }
+        });
+
+        set("hasClass", new TwoArgFunction() {
+            @Override
+            public LuaValue call(LuaValue userdata, LuaValue clazz) {
+                String className = clazz.checkjstring();
+                Object obj = userdata.checkuserdata();
+
+                if (className.startsWith("$"))
+                    className = "org.bukkit" + className.substring(1);
+
+                try {
+                    Class<?> caster = Class.forName(className);
+                    if (caster.isInstance(obj) ) return CoerceJavaToLua.coerce(true);
+                    else return CoerceJavaToLua.coerce(false);
+                } catch (ClassNotFoundException e) {
+                    plugin.getLogger().warning("Could not find class " + className);
+                } catch (ClassCastException e) {
+                    plugin.getLogger().warning("Provided userdata cannot be casted to " + className);
+                } catch (LinkageError e) {
+                    plugin.getLogger().warning("There was an unknown issue casting the object to " + className);
+                    e.printStackTrace();
+                }
+
+                return CoerceJavaToLua.coerce(false);
             }
         });
     }
