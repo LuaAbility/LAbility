@@ -11,25 +11,25 @@ function main(abilityData)
 						local randomNumber = math.random(100)
 						if randomNumber <= 1 then
 							local itemStack = newInstance("$.inventory.ItemStack", {material.ELYTRA, 1})
-							plugin.getServer():getWorlds():get(0):dropItemNaturally(e:getPlayer():getLocation(), itemStack)
+							e:getPlayer():getWorld():dropItemNaturally(e:getPlayer():getLocation(), itemStack)
 						elseif randomNumber <= 10 then
 							local itemStack = newInstance("$.inventory.ItemStack", {material.ENDER_PEARL, math.random(10)})
-							plugin.getServer():getWorlds():get(0):dropItemNaturally(e:getPlayer():getLocation(), itemStack)
+							e:getPlayer():getWorld():dropItemNaturally(e:getPlayer():getLocation(), itemStack)
 						elseif randomNumber <= 20 then
 							local itemStack = newInstance("$.inventory.ItemStack", {material.PHANTOM_MEMBRANE, math.random(5)})
-							plugin.getServer():getWorlds():get(0):dropItemNaturally(e:getPlayer():getLocation(), itemStack)
+							e:getPlayer():getWorld():dropItemNaturally(e:getPlayer():getLocation(), itemStack)
 						elseif randomNumber <= 30 then
 							local itemStack = newInstance("$.inventory.ItemStack", {material.STRING, math.random(10)})
-							plugin.getServer():getWorlds():get(0):dropItemNaturally(e:getPlayer():getLocation(), itemStack)
+							e:getPlayer():getWorld():dropItemNaturally(e:getPlayer():getLocation(), itemStack)
 						elseif randomNumber <= 50 then
 							local itemStack = newInstance("$.inventory.ItemStack", {material.WHITE_WOOL, math.random(5)})
-							plugin.getServer():getWorlds():get(0):dropItemNaturally(e:getPlayer():getLocation(), itemStack)
+							e:getPlayer():getWorld():dropItemNaturally(e:getPlayer():getLocation(), itemStack)
 						elseif randomNumber <= 70 then
 							local itemStack = newInstance("$.inventory.ItemStack", {material.RABBIT, math.random(5)})
-							plugin.getServer():getWorlds():get(0):dropItemNaturally(e:getPlayer():getLocation(), itemStack)
+							e:getPlayer():getWorld():dropItemNaturally(e:getPlayer():getLocation(), itemStack)
 						else
 							local itemStack = newInstance("$.inventory.ItemStack", {material.CHICKEN, math.random(3)})
-							plugin.getServer():getWorlds():get(0):dropItemNaturally(e:getPlayer():getLocation(), itemStack)
+							e:getPlayer():getWorld():dropItemNaturally(e:getPlayer():getLocation(), itemStack)
 						end
 					end
 				end
