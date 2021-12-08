@@ -83,6 +83,36 @@ public class GameWrapper extends LuaTable {
             }
         });
 
+        set("hasAbility", new VarArgFunction() {
+            @Override
+            public LuaValue invoke(Varargs vargs) {
+                Player player = (Player) vargs.checkuserdata(1, Player.class);
+                Ability ability = (Ability) vargs.checkuserdata(2, Ability.class);
+
+                for (LAPlayer players : LAbilityMain.instance.gameManager.players) {
+                    if (players.getPlayer().equals(player)) {
+                        return CoerceJavaToLua.coerce(players.hasAbility(ability));
+                    }
+                }
+                return CoerceJavaToLua.coerce(false);
+            }
+        });
+
+        set("getPlayerAbility", new VarArgFunction() {
+            @Override
+            public LuaValue invoke(Varargs vargs) {
+                Player player = (Player) vargs.checkuserdata(1, Player.class);
+                Ability ability = (Ability) vargs.checkuserdata(2, Ability.class);
+
+                for (LAPlayer players : LAbilityMain.instance.gameManager.players) {
+                    if (players.getPlayer().equals(player)) {
+                        return CoerceJavaToLua.coerce(players.getAbility());
+                    }
+                }
+                return CoerceJavaToLua.coerce(NIL);
+            }
+        });
+
 
         set("sendMessage", new TwoArgFunction() {
             @Override

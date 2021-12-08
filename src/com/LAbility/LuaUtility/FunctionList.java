@@ -13,6 +13,7 @@ public class FunctionList<E extends Ability.ActiveFunc> extends ArrayList<Abilit
         if (o instanceof Ability.ActiveFunc) return super.contains(o);
         if (o instanceof Event event) {
             for (Ability.ActiveFunc af : this) {
+
                 if (af.event.isAssignableFrom(event.getClass())) return true;
                 if (af.event.equals(event.getClass())) return true;
                 if (af.event.isInstance(event)) return true;
