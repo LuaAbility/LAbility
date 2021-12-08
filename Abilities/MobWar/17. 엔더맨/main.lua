@@ -5,7 +5,7 @@ function main(abilityData)
 	plugin.registerEvent(abilityData, "PlayerInteractEvent", 600, function(a, e)
 		if e:getAction():toString() == "RIGHT_CLICK_AIR" or e:getAction():toString() == "RIGHT_CLICK_BLOCK" then
 			if e:getItem() ~= nil then
-				if e:getItem():getType():toString() == "IRON_INGOT" then
+				if game.isAbilityItem(e:getItem(), "IRON_INGOT") then
 					if e:getPlayer():getTargetBlock(nil, 30):getType():toString() ~= "AIR" then
 						if game.checkCooldown(e:getPlayer(), a, 0) then
 							teleport(e:getPlayer(), e:getPlayer():getTargetBlock(nil, 30))

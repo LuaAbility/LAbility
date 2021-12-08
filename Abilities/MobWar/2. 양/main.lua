@@ -12,7 +12,7 @@ function main(abilityData)
 	plugin.registerEvent(abilityData, "PlayerInteractEvent", 400, function(a, e)
 		if e:getAction():toString() == "RIGHT_CLICK_AIR" or e:getAction():toString() == "RIGHT_CLICK_BLOCK" then
 			if e:getItem() ~= nil then
-				if e:getItem():getType():toString() == "GRASS" then
+				if game.isAbilityItem(e:getItem(), "GRASS") then
 					if game.checkCooldown(e:getPlayer(), a, 1) then
 						e:setCancelled(true)
 						e:getPlayer():setFoodLevel(e:getPlayer():getFoodLevel() + 4)

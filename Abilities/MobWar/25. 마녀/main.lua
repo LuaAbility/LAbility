@@ -5,7 +5,7 @@ function main(abilityData)
 		if e:getAction():toString() == "RIGHT_CLICK_AIR" or e:getAction():toString() == "RIGHT_CLICK_BLOCK" then
 			local arrow = {newInstance("$.inventory.ItemStack", { import("$.Material").ARROW, 1 }) }
 			if e:getItem() ~= nil then
-				if e:getItem():getType():toString() == "GLASS_BOTTLE" then
+				if game.isAbilityItem(e:getItem(), "GLASS_BOTTLE") then
 					if game.checkCooldown(e:getPlayer(), a, 0) then
 						local maxHealth = e:getPlayer():getAttribute(attribute.GENERIC_MAX_HEALTH):getValue()
 						if (e:getPlayer():getHealth() + 8 >= maxHealth) then e:getPlayer():setHealth(maxHealth)

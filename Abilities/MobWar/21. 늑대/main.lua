@@ -5,7 +5,7 @@ function main(abilityData)
 	plugin.registerEvent(abilityData, "EntityDamageByEntityEvent", 1200, function(a, e)
 		if e:getDamager():getType():toString() == "PLAYER" and e:getEntity():getType():toString() == "PLAYER" then
 			local item = e:getDamager():getInventory():getItemInMainHand()
-			if item:getType():toString() == "BONE" then
+			if game.isAbilityItem(item:getType(), "BONE") then
 				if game.checkCooldown(e:getDamager(), a, 0) then
 					for i = 1, 5 do
 						local entity = e:getDamager():getWorld():spawnEntity(e:getEntity():getLocation(), types.WOLF)

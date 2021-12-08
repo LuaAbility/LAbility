@@ -7,7 +7,7 @@ function main(abilityData)
 	plugin.registerEvent(abilityData, "PlayerInteractEvent", 1200, function(a, e)
 		if e:getAction():toString() == "RIGHT_CLICK_AIR" or e:getAction():toString() == "RIGHT_CLICK_BLOCK" then
 			if e:getItem() ~= nil then
-				if e:getItem():getType():toString() == "GUNPOWDER" then
+				if game.isAbilityItem(e:getItem(), "GUNPOWDER") then
 					if game.checkCooldown(e:getPlayer(), a, 0) then
 						playerName = e:getPlayer():getName()
 						e:getPlayer():getLocation():getWorld():createExplosion(e:getPlayer():getLocation(), 10.0 * lightningStack)

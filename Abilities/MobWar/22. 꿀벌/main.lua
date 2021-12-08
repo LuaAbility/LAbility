@@ -4,7 +4,7 @@ function main(abilityData)
 	plugin.registerEvent(abilityData, "EntityDamageByEntityEvent", 900, function(a, e)
 		if e:getDamager():getType():toString() == "PLAYER" and e:getEntity():getType():toString() == "PLAYER" then
 			local item = e:getDamager():getInventory():getItemInMainHand()
-			if item:getType():toString() == "IRON_INGOT" then
+			if game.isAbilityItem(item:getType(), "IRON_INGOT") then
 				if game.checkCooldown(e:getDamager(), a, 0) then
 					e:getDamager():addPotionEffect(newInstance("$.potion.PotionEffect", {effect.CONFUSION, 400, 0}))
 					e:getDamager():addPotionEffect(newInstance("$.potion.PotionEffect", {effect.WEAKNESS, 400, 0}))

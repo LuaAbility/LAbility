@@ -11,7 +11,9 @@ function main(abilityData)
 	
 	plugin.registerEvent(abilityData, "EntityDamageEvent", 0, function(a, e)
 		if e:getCause():toString() == "FALL" then
-			e:setCancelled(true);
+			if game.checkCooldown(e:getPlayer(), a, 1) then
+				e:setCancelled(true)
+			end
 		end
 	end)
 end

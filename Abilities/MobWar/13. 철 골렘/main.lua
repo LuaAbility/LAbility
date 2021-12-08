@@ -10,7 +10,7 @@ function main(abilityData)
 					vector:setY(1.3)
 					vector:setZ(vector:getZ() / 4)
 					e:getEntity():setVelocity(vector)
-					e:getEntity():damage(e:getDamage())
+					e:getEntity():damage(e:getDamage(), e:getDamager())
 					e:setCancelled(true)
 				end
 			end
@@ -31,7 +31,7 @@ function main(abilityData)
 	plugin.registerEvent(abilityData, "PlayerInteractEvent", 600, function(a, e)
 		if e:getAction():toString() == "RIGHT_CLICK_AIR" or e:getAction():toString() == "RIGHT_CLICK_BLOCK" then
 			if e:getItem() ~= nil then
-				if e:getItem():getType():toString() == "IRON_INGOT" then
+				if game.isAbilityItem(e:getItem(), "IRON_INGOT") then
 					local maxHealth = e:getPlayer():getAttribute(attribute.GENERIC_MAX_HEALTH):getValue()
 					if e:getPlayer():getHealth() < maxHealth then
 						if game.checkCooldown(e:getPlayer(), a, 2) then

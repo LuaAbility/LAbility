@@ -5,7 +5,7 @@ function main(abilityData)
 		if e:getAction():toString() == "RIGHT_CLICK_AIR" or e:getAction():toString() == "RIGHT_CLICK_BLOCK" then
 			local arrow = {newInstance("$.inventory.ItemStack", { import("$.Material").ARROW, 1 }) }
 			if e:getItem() ~= nil then
-				if e:getItem():getType():toString() == "BOW" and e:getPlayer():getInventory():containsAtLeast(arrow[1], 1) == false then
+				if game.isAbilityItem(e:getItem(), "BOW") and e:getPlayer():getInventory():containsAtLeast(arrow[1], 1) == false then
 					if game.checkCooldown(e:getPlayer(), a, 0) then
 						e:getPlayer():getInventory():addItem(arrow)
 					end

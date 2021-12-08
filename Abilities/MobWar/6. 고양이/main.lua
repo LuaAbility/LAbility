@@ -3,9 +3,9 @@ function main(abilityData)
 	local material = import("$.Material")
 		
 	plugin.registerEvent(abilityData, "PlayerInteractEvent", 400, function(a, e)
-		if e:getAction():toString() == "RIGHT_CLICK_BLOCK" then
-			if e:getClickedBlock() ~= nil then
-				if string.find(e:getClickedBlock():toString(), "BED") and e:getClickedBlock():toString() ~= "BEDROCK" then
+		if e:getAction():toString() == "RIGHT_CLICK_AIR" or e:getAction():toString() == "RIGHT_CLICK_BLOCK" then
+			if e:getItem() ~= nil then
+				if game.isAbilityItem(e:getItem(), "BED") and e:getItem():toString() ~= "BEDROCK" then
 					if game.checkCooldown(e:getPlayer(), a, 0) then
 						e:setCancelled(true)
 						local randomNumber = math.random(100)

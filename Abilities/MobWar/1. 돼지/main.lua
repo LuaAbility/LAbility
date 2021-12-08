@@ -12,7 +12,7 @@ function main(abilityData)
 	plugin.registerEvent(abilityData, "PlayerInteractEvent", 2000, function(a, e)
 		if e:getAction():toString() == "RIGHT_CLICK_AIR" or e:getAction():toString() == "RIGHT_CLICK_BLOCK" then
 			if e:getItem() ~= nil then
-				if e:getItem():getType():toString() == "CARROT_ON_A_STICK" then
+				if game.isAbilityItem(e:getItem(), "CARROT_ON_A_STICK") then
 					if game.checkCooldown(e:getPlayer(), a, 1) then
 						e:getPlayer():addPotionEffect(newInstance("$.potion.PotionEffect", {effect.SPEED, 800, 0}))
 					end
