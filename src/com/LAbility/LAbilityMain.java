@@ -62,9 +62,11 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         ability.eventFunc.add( new Ability.ActiveFunc(event, cooldown, function) );
         Listener listener = new Listener() {};
 
+        Bukkit.getConsoleSender().sendMessage(ability.abilityName + " / " + event.getName());
         this.getServer().getPluginManager().registerEvent(event, listener, EventPriority.NORMAL, new EventExecutor() {
             @Override
             public void execute(Listener listener, Event event) throws EventException {
+                Bukkit.getConsoleSender().sendMessage(ability.abilityName + " / " + event.getClass().getName());
                 gameManager.RunEvent(ability, event);
             }
         }, this, false);

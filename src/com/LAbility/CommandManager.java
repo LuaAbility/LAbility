@@ -1,5 +1,6 @@
 package com.LAbility;
 
+import com.LAbility.LuaUtility.LuaAbilityLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -362,15 +363,6 @@ public class CommandManager implements CommandExecutor {
 				if (args[0].equalsIgnoreCase("test")) {
 					main.gameManager.isGameStarted = true;
 					main.gameManager.RunAllPassive();
-				}
-
-				if (args[0].equalsIgnoreCase("reload")) {
-					main.gameManager.StopAllPassive();
-					main.gameManager.StopAllActiveTimer();
-					main.onEnable();
-					sender.sendMessage("\2478[\2477LAbility\2478] \2477Reload Complete.");
-					if (main.hasError > 0) sender.sendMessage("\2474[\247cLAbility\2474] \247c" + main.hasError + "개의 능력을 로드하는데 문제가 생겼습니다. 해당 능력들은 로드하지 않습니다.");
-					sender.sendMessage("\2478[\2477LAbility\2478] \2477" + main.abilities.size() + "개 능력 로드 완료!");
 				}
 			}
 		}

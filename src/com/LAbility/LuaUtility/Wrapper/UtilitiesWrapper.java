@@ -140,6 +140,21 @@ public class UtilitiesWrapper extends LuaTable {
             }
         });
 
+        set("runLater", new TwoArgFunction() {
+            // Delay is in milliseconds.
+            @Override
+            public LuaValue call(LuaValue function, LuaValue time) {
+
+                var task = LAbilityMain.instance.getServer().getScheduler().runTaskLater(LAbilityMain.plugin, new Runnable() {
+                    @Override
+                    public void run() {
+                        function.checkfunction().call();
+                    }
+                }, time.checklong());
+                return CoerceJavaToLua.coerce(task);
+            }
+        });
+
         set("getBukkitRunnable", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue function) {
