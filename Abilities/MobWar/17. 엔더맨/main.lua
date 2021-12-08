@@ -19,7 +19,7 @@ function main(abilityData)
 	
 	
 	plugin.registerEvent(abilityData, "EntityDamageByEntityEvent", 200, function(a, e)
-		if e:getCause().toString() == "PROJECTILE" and e:getEntity():getType():toString() == "PLAYER" then
+		if e:getCause():toString() == "PROJECTILE" and e:getEntity():getType():toString() == "PLAYER" then
 			if game.checkCooldown(e:getEntity(), a, 1) then
 				e:setCancelled(true)
 			end
@@ -28,10 +28,12 @@ function main(abilityData)
 	
 		
 	plugin.registerEvent(abilityData, "EntityTargetLivingEntityEvent", 0, function(a, e)
-		if e:getTarget():getType():toString() == "PLAYER" and e:getEntity():getType():toString() == "ENDERMAN" then
-			if game.checkCooldown(e:getTarget(), a, 2) then
-				e:setTarget(nil)
-				e:setCancelled(true)
+		if e:getTarget() ~= nil and e:getEntity() ~= nil then
+			if e:getTarget():getType():toString() == "PLAYER" and e:getEntity():getType():toString() == "ENDERMAN" then
+				if game.checkCooldown(e:getTarget(), a, 2) then
+					e:setTarget(nil)
+					e:setCancelled(true)
+				end
 			end
 		end
 	end)

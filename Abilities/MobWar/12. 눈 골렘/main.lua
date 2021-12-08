@@ -11,4 +11,15 @@ function main(abilityData)
 			end
 		end
 	end)
+	
+	plugin.registerEvent(abilityData, "EntityTargetLivingEntityEvent", 0, function(a, e)
+		if e:getTarget() ~= nil and e:getEntity() ~= nil then
+			if e:getTarget():getType():toString() == "PLAYER" and e:getEntity():getType():toString() == "SNOW_GOLEM" then
+				if game.checkCooldown(e:getTarget(), a, 1) then
+					e:setTarget(nil);
+					e:setCancelled(true);
+				end
+			end
+		end
+	end)
 end

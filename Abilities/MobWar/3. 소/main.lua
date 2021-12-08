@@ -1,3 +1,4 @@
+cowBlindness = true
 function main(abilityData)
 	local effect = import("$.potion.PotionEffectType")
 		
@@ -5,11 +6,14 @@ function main(abilityData)
 		if e:getItem():getType():toString() == "COOKED_BEEF" or e:getItem():getType():toString() == "BEEF" then
 			if game.checkCooldown(e:getPlayer(), a, 0) then
 				e:getPlayer():addPotionEffect(newInstance("$.potion.PotionEffect", {effect.BLINDNESS, 100, 0}))
+				cowBlindness = false
+				util.runLater(function() cowBlindness = false end, 100)
 			end
 		end
 	end)
 	
 	plugin.addPassiveScript(abilityData, 1, function(p)
+		if (p:hasPotionEffect(effect.BLINDNESS) and cowBlindness) then p:removePotionEffect(effect.BLINDNESS) end
 		if (p:hasPotionEffect(effect.CONFUSION)) then p:removePotionEffect(effect.CONFUSION) end
 		if (p:hasPotionEffect(effect.HUNGER)) then p:removePotionEffect(effect.HUNGER) end
 		if (p:hasPotionEffect(effect.LEVITATION)) then p:removePotionEffect(effect.LEVITATION) end

@@ -6,10 +6,14 @@ function main(abilityData)
 	end)
 	
 	plugin.registerEvent(abilityData, "EntityDamageByEntityEvent", 0, function(a, e)
-		if e:getDamager():getType():toString() == "PLAYER" and e:getEntity():getType():toString() == "PLAYER" then
-			if math.random(100) <= 5 then
-				if game.checkCooldown(e:getEntity(), a, 0) then
-					game.changeAbility(e:getEntity(), a, "LA-MW-007-HIDDEN", false)
+		local damagee = e:getEntity()
+		local damager = e:getDamager()
+		if e:getCause():toString() == "PROJECTILE" then damager = e:getDamager():getShooter() end
+		
+		if damager:getType():toString() == "PLAYER" and damagee:getType():toString() == "PLAYER" then
+			if math.random(100) <= 10 then
+				if game.checkCooldown(damagee, a, 0) then
+					game.changeAbility(damagee, a, "LA-MW-007-HIDDEN", false)
 				end
 			end
 		end

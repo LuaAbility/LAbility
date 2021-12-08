@@ -2,19 +2,25 @@ function main(abilityData)
 	local effect = import("$.potion.PotionEffectType")
 	
 	plugin.registerEvent(abilityData, "EntityDamageByEntityEvent", 1200, function(a, e)
-		if e:getDamager():getType():toString() == "PLAYER" and e:getEntity():getType():toString() == "PLAYER" then
+		local damagee = e:getEntity()
+		local damager = e:getDamager()
+		if e:getCause():toString() == "PROJECTILE" then damager = e:getDamager():getShooter() end
+		
+		if damager:getType():toString() == "PLAYER" and damagee:getType():toString() == "PLAYER" then
 			if game.checkCooldown(e:getEntity(), a, 0) then
-				e:getEntity():addPotionEffect(newInstance("$.potion.PotionEffect", {effect.SPEED, 600, 1}))
-				e:getEntity():addPotionEffect(newInstance("$.potion.PotionEffect", {effect.INCREASE_DAMAGE, 600, 0}))
+				damagee:addPotionEffect(newInstance("$.potion.PotionEffect", {effect.SPEED, 600, 1}))
+				damagee:addPotionEffect(newInstance("$.potion.PotionEffect", {effect.INCREASE_DAMAGE, 600, 0}))
 			end
 		end
 	end)
 	
 	plugin.registerEvent(abilityData, "EntityTargetLivingEntityEvent", 0, function(a, e)
-		if e:getTarget():getType():toString() == "PLAYER" and e:getEntity():getType():toString() == "ZOMBIFIED_PIGLIN" then
-			if game.checkCooldown(e:getTarget(), a, 1) then
-				e:setTarget(nil);
-				e:setCancelled(true);
+		if e:getTarget() ~= nil and e:getEntity() ~= nil then
+			if e:getTarget():getType():toString() == "PLAYER" and e:getEntity():getType():toString() == "ZOMBIFIED_PIGLIN" then
+				if game.checkCooldown(e:getTarget(), a, 1) then
+					e:setTarget(nil);
+					e:setCancelled(true);
+				end
 			end
 		end
 	end)
