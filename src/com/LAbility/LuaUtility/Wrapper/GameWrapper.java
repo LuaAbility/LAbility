@@ -6,6 +6,7 @@ import com.LAbility.LAbilityMain;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
@@ -130,6 +131,16 @@ public class GameWrapper extends LuaTable {
                 String message = arg.checkjstring();
                 Bukkit.broadcastMessage(message);
                 return CoerceJavaToLua.coerce(true);
+            }
+        });
+
+        set("isAbilityItem", new VarArgFunction() {
+            @Override
+            public LuaValue invoke(Varargs vargs) {
+                ItemStack item = (ItemStack) vargs.checkuserdata(1, ItemStack.class);
+                String targetItem = vargs.checkjstring(2);
+
+                return CoerceJavaToLua.coerce(item.getType().toString().contains(targetItem));
             }
         });
     }

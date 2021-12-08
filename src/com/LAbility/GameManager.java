@@ -3,6 +3,7 @@ package com.LAbility;
 import com.LAbility.LuaUtility.PlayerList;
 import joptsimple.util.KeyValuePair;
 import org.bukkit.Bukkit;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.luaj.vm2.LuaFunction;
@@ -61,6 +62,7 @@ public class GameManager {
     }
 
     public void StopAllPassive(){
+        for (LAPlayer player : players) player.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
         for (int i = 0; i < passiveScheduler.size(); i++){
             Bukkit.getScheduler().cancelTask(passiveScheduler.get(i));
         }
