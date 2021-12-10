@@ -18,11 +18,14 @@ function main(abilityData)
 	
 	plugin.registerEvent(abilityData, "EntityDamageByEntityEvent", 500, function(a, e)
 		if e:getDamager():getType():toString() == "PLAYER" and e:getEntity():getType():toString() == "PLAYER" then
-			if game.checkCooldown(e:getDamager(), a, 1) then
-				local randomData = math.random(3)
-				if randomData == 1 then e:getEntity():addPotionEffect(newInstance("$.potion.PotionEffect", {effect.SLOW, 300, 0})) end
-				if randomData == 2 then e:getEntity():addPotionEffect(newInstance("$.potion.PotionEffect", {effect.POISON, 300, 0})) end
-				if randomData == 3 then e:getEntity():addPotionEffect(newInstance("$.potion.PotionEffect", {effect.WEAKNESS, 300, 0})) end
+			local item = { e:getDamager():getInventory():getItemInMainHand() }
+			if game.isAbilityItem(item[1], "GLASS_BOTTLE") then
+				if game.checkCooldown(e:getDamager(), a, 1) then
+					local randomData = math.random(3)
+					if randomData == 1 then e:getEntity():addPotionEffect(newInstance("$.potion.PotionEffect", {effect.SLOW, 300, 0})) end
+					if randomData == 2 then e:getEntity():addPotionEffect(newInstance("$.potion.PotionEffect", {effect.POISON, 300, 0})) end
+					if randomData == 3 then e:getEntity():addPotionEffect(newInstance("$.potion.PotionEffect", {effect.WEAKNESS, 300, 0})) end
+				end
 			end
 		end
 	end)

@@ -5,12 +5,14 @@ function main(abilityData)
 		if e:getDamager():getType():toString() == "PLAYER" and e:getEntity():getType():toString() == "PLAYER" then
 			if math.random() <= 0.2 then
 				if game.checkCooldown(e:getDamager(), a, 0) then
-					local vector = e:getDamager():getEyeLocation():getDirection()
-					vector:setX(vector:getX() / 4)
-					vector:setY(1.3)
-					vector:setZ(vector:getZ() / 4)
-					e:getEntity():setVelocity(vector)
 					e:getEntity():damage(e:getDamage(), e:getDamager())
+					util.runLater(function() 
+						local vector = e:getDamager():getEyeLocation():getDirection()
+						vector:setX(vector:getX() / 4)
+						vector:setY(1.2)
+						vector:setZ(vector:getZ() / 4)
+						e:getEntity():setVelocity(vector)
+					end, 2)
 					e:setCancelled(true)
 				end
 			end

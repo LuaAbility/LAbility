@@ -12,6 +12,9 @@ function main(abilityData)
 						pos:setY(pos:getY() + 1)
 						pos:setZ(pos:getZ() + (playerEye:getZ() * 1.5))
 						local fireball = e:getPlayer():getWorld():spawnEntity(pos, import("$.entity.EntityType").FIREBALL)
+						util.runLater(function()
+							if fireball:isValid() then fireball:remove() end
+						end, 600)
 					end
 				end
 			end
