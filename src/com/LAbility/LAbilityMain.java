@@ -62,11 +62,11 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         ability.eventFunc.add( new Ability.ActiveFunc(event, cooldown, function) );
         Listener listener = new Listener() {};
 
-        Bukkit.getConsoleSender().sendMessage(ability.abilityName + " / " + event.getName());
+        //Bukkit.getConsoleSender().sendMessage(ability.abilityName + " / " + event.getName());
         this.getServer().getPluginManager().registerEvent(event, listener, EventPriority.NORMAL, new EventExecutor() {
             @Override
             public void execute(Listener listener, Event event) throws EventException {
-                Bukkit.getConsoleSender().sendMessage(ability.abilityName + " / " + event.getClass().getName());
+                //Bukkit.getConsoleSender().sendMessage(ability.abilityName + " / " + event.getClass().getName());
                 gameManager.RunEvent(ability, event);
             }
         }, this, false);
@@ -76,6 +76,11 @@ public class LAbilityMain extends JavaPlugin implements Listener {
 
     public int addPassiveScript(Ability ability, int tick, LuaFunction function) {
         ability.passiveFunc.add(new Ability.PassiveFunc(tick, function));
+        return 0;
+    }
+
+    public int addResetScript(Ability ability, LuaFunction function) {
+        ability.resetFunc.add(function);
         return 0;
     }
 

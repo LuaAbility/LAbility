@@ -48,13 +48,16 @@ public class GameManager {
             for (LAPlayer player : players) {
                 for (Ability ability : player.ability) {
                     for (Ability.PassiveFunc pf : ability.passiveFunc) {
-                        Integer temp = 0;
-                        temp = LAbilityMain.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(LAbilityMain.plugin, new Runnable() {
-                            public void run() {
-                                pf.function.call(CoerceJavaToLua.coerce(player.player));
-                            }
-                        }, 0, pf.delay);
-                        passiveScheduler.add(temp);
+                        if (pf.delay > 0) {
+                            Integer temp = 0;
+                            temp = LAbilityMain.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(LAbilityMain.plugin, new Runnable() {
+                                public void run() {
+                                    pf.function.call(CoerceJavaToLua.coerce(player.player));
+                                }
+                            }, 0, pf.delay);
+                            passiveScheduler.add(temp);
+                        }
+                        else pf.function.call(CoerceJavaToLua.coerce(player.player));
                     }
                 }
             }
@@ -62,7 +65,14 @@ public class GameManager {
     }
 
     public void StopAllPassive(){
-        for (LAPlayer player : players) player.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
+        for (LAPlayer player : players) {
+            for (Ability ability : player.getAbility()){
+                for (LuaFunction func : ability.resetFunc){
+                    func.call(CoerceJavaToLua.coerce(player));
+                }
+            }
+        }
+
         for (int i = 0; i < passiveScheduler.size(); i++){
             Bukkit.getScheduler().cancelTask(passiveScheduler.get(i));
         }

@@ -107,6 +107,7 @@ public class Ability {
         }
     };
     public ArrayList<PassiveFunc> passiveFunc = new ArrayList<PassiveFunc>();
+    public ArrayList<LuaFunction> resetFunc = new ArrayList<LuaFunction>();
 
     public Ability(String id, String type, String name, String rank, String desc) {
         abilityID = id;
@@ -132,6 +133,11 @@ public class Ability {
         passiveFunc = new ArrayList<PassiveFunc>();
         for (PassiveFunc pf : a.passiveFunc){
             passiveFunc.add(new PassiveFunc(pf));
+        }
+
+        resetFunc = new ArrayList<LuaFunction>();
+        for (LuaFunction pf : a.resetFunc){
+            resetFunc.add(pf);
         }
     }
 
