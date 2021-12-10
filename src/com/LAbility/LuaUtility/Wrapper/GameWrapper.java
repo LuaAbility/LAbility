@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.luaj.vm2.LuaFunction;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
@@ -103,7 +104,6 @@ public class GameWrapper extends LuaTable {
             @Override
             public LuaValue invoke(Varargs vargs) {
                 Player player = (Player) vargs.checkuserdata(1, Player.class);
-                Ability ability = (Ability) vargs.checkuserdata(2, Ability.class);
 
                 for (LAPlayer players : LAbilityMain.instance.gameManager.players) {
                     if (players.getPlayer().equals(player)) {
