@@ -1,5 +1,5 @@
-useSpiderAbility = true
 function main(abilityData)
+	useSpiderAbility = true
 	local blockFace = import("$.block.BlockFace")
 	
 	plugin.registerEvent(abilityData, "PlayerMoveEvent", 0, function(a, e)

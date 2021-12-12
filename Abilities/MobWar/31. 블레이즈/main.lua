@@ -29,7 +29,7 @@ function main(abilityData)
 	plugin.registerEvent(abilityData, "EntityDamageByEntityEvent", 0, function(a, e)
 		if e:getDamager():getType():toString() == "SMALL_FIREBALL" and e:getEntity():getType():toString() == "PLAYER" then
 			if game.checkCooldown(e:getEntity(), a, 2) then
-				e:setDamage(100000)
+				e:setCancelled(true)
 			end
 		end
 	end)
@@ -42,7 +42,8 @@ function fireball(e)
 	pos:setY(pos:getY() + 1)
 	pos:setZ(pos:getZ() + (playerEye:getZ() * 1.5))
 	local fireball = e:getPlayer():getWorld():spawnEntity(pos, import("$.entity.EntityType").SMALL_FIREBALL)
+	fireball:setShooter(e:getPlayer())
 	util.runLater(function() 
 		if fireball:isValid() then fireball:remove() end
-	end, 600)
+	end, 200)
 end

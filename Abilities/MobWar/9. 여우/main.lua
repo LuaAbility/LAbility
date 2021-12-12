@@ -10,7 +10,7 @@ function main(abilityData)
 					if game.checkCooldown(e:getDamager(), a, 0) then
 						e:getEntity():getInventory():removeItem(item)
 						e:getDamager():getInventory():addItem(item)
-						game.sendMessage(e:getEntity(), "§a쇽!");
+						game.sendMessage(e:getEntity(), "§a쇽!")
 					end
 				end
 			end

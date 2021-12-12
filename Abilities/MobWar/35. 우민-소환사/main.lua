@@ -40,12 +40,15 @@ function evoker(player)
 		util.runLater(function()
 			local loc1 = newInstance("org.bukkit.util.Vector", {firstLoc:getX() + (dir:getX() * i), firstLoc:getY(), firstLoc:getZ() + (dir:getZ() * i)})
 			local fangs1 = player:getWorld():spawnEntity(newInstance("org.bukkit.Location", {player:getWorld(), loc1:getX(), loc1:getY(), loc1:getZ()}), import("$.entity.EntityType").EVOKER_FANGS)
+			fangs1:setOwner(e:getPlayer())
 			
 			local loc2 = newInstance("org.bukkit.util.Vector", {loc1:getX() + -dir:getZ(), loc1:getY(), loc1:getZ() + dir:getX()})
 			local fangs2 = player:getWorld():spawnEntity(newInstance("org.bukkit.Location", {player:getWorld(), loc2:getX(), loc2:getY(), loc2:getZ()}), import("$.entity.EntityType").EVOKER_FANGS)
+			fangs1:setOwner(e:getPlayer())
 			
 			local loc3 = newInstance("org.bukkit.util.Vector", {loc1:getX() + dir:getZ(), loc1:getY(), loc1:getZ() + -dir:getX()})
 			local fangs3 = player:getWorld():spawnEntity(newInstance("org.bukkit.Location", {player:getWorld(), loc3:getX(), loc3:getY(), loc3:getZ()}), import("$.entity.EntityType").EVOKER_FANGS)
+			fangs1:setOwner(e:getPlayer())
 		end, (i - 1) * 1)
 	end
 end

@@ -48,10 +48,10 @@ function phantom(p)
 		if (currentTime < 13500 or currentTime > 23500) then 
 			if abilityPlayer ~= nil then p:damage(4, abilityPlayer) 
 			else p:damage(4, p) end
-			game.sendMessage(p, "§4[§c팬텀§4] §c낮의 영향으로 데미지를 입습니다.");
+			game.sendMessage(p, "§4[§c팬텀§4] §c낮의 영향으로 데미지를 입습니다.")
 		else 
 			p:setHealth(newHealth) 
-			game.sendMessage(p, "§1[§b팬텀§1] §b밤의 영향으로 체력을 회복합니다.");
+			game.sendMessage(p, "§1[§b팬텀§1] §b밤의 영향으로 체력을 회복합니다.")
 		end
 	end
 end

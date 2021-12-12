@@ -23,8 +23,8 @@ function main(abilityData)
 		if e:getTarget() ~= nil and e:getEntity() ~= nil then
 			if e:getTarget():getType():toString() == "PLAYER" and e:getEntity():getType():toString() == "IRON_GOLEM" then
 				if game.checkCooldown(e:getTarget(), a, 1) then
-					e:setTarget(nil);
-					e:setCancelled(true);
+					e:setTarget(nil)
+					e:setCancelled(true)
 				end
 			end
 		end

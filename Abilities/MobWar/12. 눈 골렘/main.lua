@@ -6,7 +6,7 @@ function main(abilityData)
 		for i = 1, #players do
 			if players[i]:getPlayer() ~= p then
 				if (p:getLocation():distance(players[i]:getPlayer():getLocation()) <= 10) then
-					players[i]:getPlayer():setFreezeTicks(200);
+					players[i]:getPlayer():setFreezeTicks(200)
 				end
 			end
 		end
@@ -16,8 +16,8 @@ function main(abilityData)
 		if e:getTarget() ~= nil and e:getEntity() ~= nil then
 			if e:getTarget():getType():toString() == "PLAYER" and e:getEntity():getType():toString() == "SNOW_GOLEM" then
 				if game.checkCooldown(e:getTarget(), a, 1) then
-					e:setTarget(nil);
-					e:setCancelled(true);
+					e:setTarget(nil)
+					e:setCancelled(true)
 				end
 			end
 		end

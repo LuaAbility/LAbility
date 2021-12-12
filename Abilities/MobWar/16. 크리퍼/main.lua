@@ -40,8 +40,8 @@ function main(abilityData)
 				if lightningStack > 3 then 
 					lightningStack = 3
 				else 
-					game.sendMessage(e:getEntity(), "§2[§a크리퍼§2] §a폭발 강도가 강해졌습니다.");
-					game.sendMessage(e:getEntity(), "§2[§a크리퍼§2] §a현재 폭발 강도 : " .. lightningStack);
+					game.sendMessage(e:getEntity(), "§2[§a크리퍼§2] §a폭발 강도가 강해졌습니다.")
+					game.sendMessage(e:getEntity(), "§2[§a크리퍼§2] §a현재 폭발 강도 : " .. lightningStack)
 				end
 			end
 		end

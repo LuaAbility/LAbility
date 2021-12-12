@@ -8,7 +8,9 @@ function main(abilityData)
 				if (p:getLocation():distance(players[i]:getPlayer():getLocation()) <= 10) then
 					local pos = p:getLocation()
 					pos:setY(pos:getY() + 1)
-					p:getWorld():spawnEntity(pos, import("$.entity.EntityType").SHULKER_BULLET):setTarget(players[i]:getPlayer())
+					local bullet = p:getWorld():spawnEntity(pos, import("$.entity.EntityType").SHULKER_BULLET)
+					bullet:setTarget(players[i]:getPlayer())
+					bullet:setShooter(e:getPlayer())
 				end
 			end
 		end
@@ -19,6 +21,10 @@ function main(abilityData)
 			p:addPotionEffect(newInstance("$.potion.PotionEffect", {effect.DAMAGE_RESISTANCE, 20, 0}))
 			p:setWalkSpeed(0)
 		else p:setWalkSpeed(0.2) end
+	end)
+	
+	plugin.onPlayerEnd(abilityData, function(p)
+		p:setWalkSpeed(0.2)
 	end)
 	
 	plugin.registerEvent(abilityData, "EntityTargetLivingEntityEvent", 0, function(a, e)

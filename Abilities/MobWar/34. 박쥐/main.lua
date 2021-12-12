@@ -6,6 +6,10 @@ function main(abilityData)
 		p:getAttribute(attribute.GENERIC_MAX_HEALTH):setBaseValue(6)
 	end)
 	
+	plugin.onPlayerEnd(abilityData, function(p)
+		p:getAttribute(attribute.GENERIC_MAX_HEALTH):setBaseValue(p:getAttribute(attribute.GENERIC_MAX_HEALTH):getDefaultValue())
+	end)
+	
 	plugin.addPassiveScript(abilityData, 1800, function(p)
 		if math.random(2) == 1 then
 			playerType = "동물"

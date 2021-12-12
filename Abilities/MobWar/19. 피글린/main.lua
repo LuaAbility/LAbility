@@ -65,7 +65,7 @@ function main(abilityData)
 			local item = e:getDamager():getInventory():getItemInMainHand()
 			if string.find(item:getType():toString(), "GOLD") then
 				if game.checkCooldown(e:getDamager(), a, 2) then
-					e:setDamage(e:getDamage() * 1.5);
+					e:setDamage(e:getDamage() * 1.5)
 				end
 			end
 		end

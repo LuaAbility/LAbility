@@ -10,7 +10,7 @@ function main(abilityData)
 						if game.checkCooldown(e:getPlayer(), a, 0) then
 							teleport(e:getPlayer(), e:getPlayer():getTargetBlock(nil, 30))
 						end
-					else game.sendMessage(e:getPlayer(), "§4[§c엔더맨§4] §c허공엔 사용이 불가능합니다.");
+					else game.sendMessage(e:getPlayer(), "§4[§c엔더맨§4] §c허공엔 사용이 불가능합니다.")
 					end
 				end
 			end

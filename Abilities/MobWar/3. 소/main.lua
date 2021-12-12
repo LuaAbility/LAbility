@@ -1,5 +1,5 @@
-cowBlindness = true
 function main(abilityData)
+	cowBlindness = true
 	local effect = import("$.potion.PotionEffectType")
 		
 	plugin.registerEvent(abilityData, "PlayerItemConsumeEvent", 0, function(a, e)
