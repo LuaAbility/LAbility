@@ -67,7 +67,6 @@ public class PluginWrapper extends LuaTable {
             public LuaValue call(LuaValue arg1,LuaValue arg2) {
                 Ability ability = (Ability)arg1.checkuserdata(Ability.class);
                 LuaFunction func = arg2.checkfunction();
-                func.call();
                 return CoerceJavaToLua.coerce(plugin.addResetScript(ability, func));
             }
         });
