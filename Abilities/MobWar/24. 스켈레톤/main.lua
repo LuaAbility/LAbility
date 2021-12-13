@@ -8,6 +8,7 @@ function main(abilityData)
 				if game.isAbilityItem(e:getItem(), "BOW") and e:getPlayer():getInventory():containsAtLeast(arrow[1], 1) == false then
 					if game.checkCooldown(e:getPlayer(), a, 0) then
 						e:getPlayer():getInventory():addItem(arrow)
+						e:getPlayer():getWorld():spawnParticle(import("$.Particle").SMOKE_NORMAL, e:getPlayer():getLocation():add(0,1,0), 100, 0.5, 1, 0.5, 1)
 					end
 				end
 			end
@@ -19,6 +20,8 @@ function main(abilityData)
 			if math.random(10) <= 2 then
 				if game.checkCooldown(e:getDamager(), a, 1) then
 					e:getEntity():addPotionEffect(newInstance("$.potion.PotionEffect", {effect.WITHER, 200, 0}))
+					e:getEntity():getWorld():spawnParticle(import("$.Particle").SMOKE_NORMAL, e:getEntity():getLocation():add(0,1,0), 150, 0.5, 1, 0.5, 0.05)
+					e:getDamager():getWorld():playSound(e:getDamager():getLocation(), import("$.Sound").ENTITY_WITHER_SKELETON_AMBIENT, 0.25, 1)
 				end
 			end
 		end

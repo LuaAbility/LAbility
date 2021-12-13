@@ -23,6 +23,8 @@ function main(abilityData)
 						end
 						local itemStack = { newInstance("$.inventory.ItemStack", {e:getMaterial(), 1}) }
 						e:getPlayer():getInventory():removeItem(itemStack)
+						e:getPlayer():getWorld():spawnParticle(import("$.Particle").ITEM_CRACK, e:getPlayer():getLocation():add(0,1,0), 100, 0.5, 1, 0.5, 0.05, newInstance("$.inventory.ItemStack", {import("$.Material").KELP}))
+						e:getPlayer():getWorld():playSound(e:getPlayer():getLocation(), import("$.Sound").ENTITY_SHEEP_AMBIENT, 0.25, 1)
 					end
 				end
 			end

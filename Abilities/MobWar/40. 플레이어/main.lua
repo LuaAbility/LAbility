@@ -5,19 +5,14 @@ function main(abilityData)
 			if e:getItem() ~= nil then
 				if game.isAbilityItem(e:getItem(), "IRON_INGOT") then
 					if game.checkCooldown(e:getPlayer(), a, 0) then
-						difficult = math.random(1, 5)
-						if difficult == 1 then game.sendMessage(e:getPlayer(), "§2[§a플레이어§2] §a난이도가 §b평화로움§a이 되었습니다.")
-						elseif difficult == 2 then game.sendMessage(e:getPlayer(), "§2[§a플레이어§2] §a난이도가 §e쉬움§a이 되었습니다.")
-						elseif difficult == 3 then game.sendMessage(e:getPlayer(), "§2[§a플레이어§2] §a난이도가 §6보통§a이 되었습니다.")
-						elseif difficult == 4 then game.sendMessage(e:getPlayer(), "§2[§a플레이어§2] §a난이도가 §c어려움§a이 되었습니다.")
-						else game.sendMessage(e:getPlayer(), "§2[§a플레이어§2] §a난이도가 §4하드코어§a가 되었습니다.") end
+						setDifficult(e:getPlayer())
 					end
 				end
 			end
 		end
 	end)
 	
-	plugin.registerEvent(abilityData, "EntityDamageByEntityEvent", 0, function(a, e)
+	plugin.registerEvent(abilityData, "EntityDamageByEntityEvent", 6000, function(a, e)
 		local damagee = e:getEntity()
 		local damager = e:getDamager()
 		if e:getCause():toString() == "PROJECTILE" then damager = e:getDamager():getShooter() end
@@ -42,11 +37,17 @@ function main(abilityData)
 	end)
 	
 	plugin.addPassiveScript(abilityData, 0, function(p)
-		difficult = math.random(1, 5)
-		if difficult == 1 then game.sendMessage(p, "§2[§a플레이어§2] §a난이도가 §b평화로움§a이 되었습니다.")
-		elseif difficult == 2 then game.sendMessage(p, "§2[§a플레이어§2] §a난이도가 §e쉬움§a이 되었습니다.")
-		elseif difficult == 3 then game.sendMessage(p, "§2[§a플레이어§2] §a난이도가 §6보통§a이 되었습니다.")
-		elseif difficult == 4 then game.sendMessage(p, "§2[§a플레이어§2] §a난이도가 §c어려움§a이 되었습니다.")
-		else game.sendMessage(p, "§2[§a플레이어§2] §a난이도가 §4하드코어§a가 되었습니다.") end
+		setDifficult(p)
 	end)
+end
+
+function setDifficult(p)
+	difficult = math.random(1, 5)
+	if difficult == 1 then game.sendMessage(p, "§2[§a플레이어§2] §a난이도가 §b평화로움§a이 되었습니다.")
+	elseif difficult == 2 then game.sendMessage(p, "§2[§a플레이어§2] §a난이도가 §e쉬움§a이 되었습니다.")
+	elseif difficult == 3 then game.sendMessage(p, "§2[§a플레이어§2] §a난이도가 §6보통§a이 되었습니다.")
+	elseif difficult == 4 then game.sendMessage(p, "§2[§a플레이어§2] §a난이도가 §c어려움§a이 되었습니다.")
+	else game.sendMessage(p, "§2[§a플레이어§2] §a난이도가 §4하드코어§a가 되었습니다.") end
+	p:getWorld():spawnParticle(import("$.Particle").COMPOSTER, p:getLocation():add(0,1,0), 100, 0.5, 1, 0.5, 0.05)
+	p:getWorld():playSound(p:getLocation(), import("$.Sound").ENTITY_PLAYER_LEVELUP, 1, 1)
 end

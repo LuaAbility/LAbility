@@ -10,6 +10,8 @@ function main(abilityData)
 			if game.checkCooldown(e:getEntity(), a, 0) then
 				damagee:addPotionEffect(newInstance("$.potion.PotionEffect", {effect.SPEED, 600, 1}))
 				damagee:addPotionEffect(newInstance("$.potion.PotionEffect", {effect.INCREASE_DAMAGE, 600, 0}))
+				damagee:getWorld():spawnParticle(import("$.Particle").VILLAGER_ANGRY, damagee:getLocation():add(0,1,0), 20, 0.5, 1, 0.5, 0.05)
+				damagee:getWorld():playSound(damagee:getLocation(), import("$.Sound").ENTITY_ZOMBIFIED_PIGLIN_ANGRY, 1, 1)
 			end
 		end
 	end)

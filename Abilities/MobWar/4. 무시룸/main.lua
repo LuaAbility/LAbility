@@ -15,6 +15,9 @@ function main(abilityData)
 				if game.isAbilityItem(e:getItem(), "SHEARS") then
 					if game.checkCooldown(e:getPlayer(), a, 1) then
 						game.changeAbility(e:getPlayer(), a, "LA-MW-003", false)
+						e:getPlayer():getWorld():spawnParticle(import("$.Particle").ITEM_CRACK, e:getPlayer():getLocation():add(0,1,0), 100, 0.5, 1, 0.5, 0.05, newInstance("$.inventory.ItemStack", {import("$.Material").RED_MUSHROOM}))
+						e:getPlayer():getWorld():playSound(e:getPlayer():getLocation(), import("$.Sound").ENTITY_MOOSHROOM_SHEAR, 0.25, 1)
+						e:getPlayer():getWorld():playSound(e:getPlayer():getLocation(), import("$.Sound").ENTITY_COW_AMBIENT, 0.25, 1)
 					end
 				end
 			end

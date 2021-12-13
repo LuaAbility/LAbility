@@ -12,6 +12,7 @@ function main(abilityData)
 						e:getPlayer():setVelocity(vector)
 						abilityTime = true
 						util.runLater(function() abilityTime = false end, 12)
+						e:getPlayer():getWorld():playSound(e:getPlayer():getLocation(), import("$.Sound").ENTITY_GOAT_SCREAMING_PREPARE_RAM, 1, 1)
 					end
 				end
 			end
@@ -36,11 +37,15 @@ function main(abilityData)
 						vector:setZ(vector:getZ() * 0.75)
 						p:setVelocity(vector)
 						abilityTime = false
+						players[i]:getPlayer():getWorld():playSound(players[i]:getPlayer():getLocation(), import("$.Sound").ENTITY_GOAT_SCREAMING_RAM_IMPACT, 1, 1)
 					end
 				end
 			end
+			
+			p:getWorld():spawnParticle(import("$.Particle").SMOKE_NORMAL, p:getLocation():add(0,1,0), 30, 0.5, 1, 0.5, 0.05)
 		end
 	end)
+
 	
 	plugin.registerEvent(abilityData, "EntityTargetLivingEntityEvent", 0, function(a, e)
 		if e:getTarget() ~= nil and e:getEntity() ~= nil then

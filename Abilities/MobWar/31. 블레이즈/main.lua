@@ -1,7 +1,7 @@
 function main(abilityData)
 	local effect = import("$.potion.PotionEffectType")
 
-	plugin.registerEvent(abilityData, "PlayerInteractEvent", 800, function(a, e)
+	plugin.registerEvent(abilityData, "PlayerInteractEvent", 600, function(a, e)
 		if e:getAction():toString() == "RIGHT_CLICK_AIR" or e:getAction():toString() == "RIGHT_CLICK_BLOCK" then
 			if e:getItem() ~= nil then
 				if game.isAbilityItem(e:getItem(), "IRON_INGOT") then
@@ -43,6 +43,7 @@ function fireball(e)
 	pos:setZ(pos:getZ() + (playerEye:getZ() * 1.5))
 	local fireball = e:getPlayer():getWorld():spawnEntity(pos, import("$.entity.EntityType").SMALL_FIREBALL)
 	fireball:setShooter(e:getPlayer())
+	e:getPlayer():getWorld():playSound(e:getPlayer():getLocation(), import("$.Sound").ENTITY_BLAZE_SHOOT, 0.25, 1)
 	util.runLater(function() 
 		if fireball:isValid() then fireball:remove() end
 	end, 200)

@@ -7,7 +7,7 @@ function main(abilityData)
 	end)
 	
 	plugin.onPlayerEnd(abilityData, function(p)
-		p:getAttribute(attribute.GENERIC_MAX_HEALTH):setBaseValue(p:getAttribute(attribute.GENERIC_MAX_HEALTH):getDefaultValue())
+		p:getPlayer():getAttribute(attribute.GENERIC_MAX_HEALTH):setBaseValue(p:getPlayer():getAttribute(attribute.GENERIC_MAX_HEALTH):getDefaultValue())
 	end)
 	
 	plugin.addPassiveScript(abilityData, 1800, function(p)
@@ -20,6 +20,7 @@ function main(abilityData)
 			game.sendMessage(p, "§2[§a박쥐§2] §a능력 타입이 §2몬스터§a가 되었습니다.")
 			game.sendMessage(p, "§2[§a박쥐§2] §a몬스터 능력자에게는 데미지를 입지 않습니다.")
 		end
+		p:getWorld():playSound(p:getLocation(), import("$.Sound").ENTITY_BAT_AMBIENT, 1, 1)
 	end)
 	
 	plugin.registerEvent(abilityData, "EntityDamageByEntityEvent", 0, function(a, e)
@@ -33,6 +34,8 @@ function main(abilityData)
 				if game.checkCooldown(damagee, a, 0) then
 					e:setCancelled(true)
 				end
+			else
+				damagee:getWorld():playSound(damagee:getLocation(), import("$.Sound").ENTITY_BAT_HURT, 0.25, 1)
 			end
 		end
 	end)

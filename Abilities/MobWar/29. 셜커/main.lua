@@ -10,7 +10,9 @@ function main(abilityData)
 					pos:setY(pos:getY() + 1)
 					local bullet = p:getWorld():spawnEntity(pos, import("$.entity.EntityType").SHULKER_BULLET)
 					bullet:setTarget(players[i]:getPlayer())
-					bullet:setShooter(e:getPlayer())
+					bullet:setShooter(p)
+					p:getWorld():spawnParticle(import("$.Particle").SMOKE_NORMAL, p:getLocation():add(0,1,0), 100, 0.5, 1, 0.5, 0.05)
+					p:getWorld():playSound(p:getLocation(), import("$.Sound").ENTITY_SHULKER_SHOOT, 0.25, 1)
 				end
 			end
 		end
@@ -18,13 +20,15 @@ function main(abilityData)
 	
 	plugin.addPassiveScript(abilityData, 1, function(p)
 		if p:isSneaking() then
-			p:addPotionEffect(newInstance("$.potion.PotionEffect", {effect.DAMAGE_RESISTANCE, 20, 0}))
+			p:addPotionEffect(newInstance("$.potion.PotionEffect", {effect.DAMAGE_RESISTANCE, 2, 0}))
 			p:setWalkSpeed(0)
-		else p:setWalkSpeed(0.2) end
+		else 
+			p:setWalkSpeed(0.2) 
+		end
 	end)
 	
 	plugin.onPlayerEnd(abilityData, function(p)
-		p:setWalkSpeed(0.2)
+		p:getPlayer():setWalkSpeed(0.2)
 	end)
 	
 	plugin.registerEvent(abilityData, "EntityTargetLivingEntityEvent", 0, function(a, e)

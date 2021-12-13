@@ -11,17 +11,20 @@ function main(abilityData)
 		if targetPlayer ~= nil then phantom(targetPlayer) end
 	end)
 	
-	plugin.registerEvent(abilityData, "EntityDamageByEntityEvent", 24000, function(a, e)
+	plugin.registerEvent(abilityData, "EntityDamageByEntityEvent", 24001, function(a, e)
 		if e:getDamager():getType():toString() == "PLAYER" and e:getEntity():getType():toString() == "PLAYER" then
 			local item = { e:getDamager():getInventory():getItemInMainHand() }
 			if game.isAbilityItem(item[1], "IRON_INGOT") then
 				if game.checkCooldown(e:getDamager(), a, 0) then
 					targetPlayer = e:getEntity()
 					game.sendMessage(e:getEntity(), "§c팬텀에게 능력이 공유되었습니다. 게임시간 기준 24시간이 지나면 능력 공유가 해제됩니다.")
+					e:getEntity():getWorld():spawnParticle(import("$.Particle").REDSTONE, e:getEntity():getLocation():add(0,1,0), 150, 0.5, 1, 0.5, 0.05, newInstance("$.Particle$DustOptions", {import("$.Color").RED, 1}))
+					e:getEntity():getWorld():playSound(e:getEntity():getLocation(), import("$.Sound").ENTITY_PHANTOM_BITE, 0.25, 1)
+					
 					util.runLater(function() 
 						game.sendMessage(e:getEntity(), "§7팬텀의 능력 공유가 해제되었습니다.")
-						targetPlayer = 
-					nil end, 24000)
+						targetPlayer = nil
+					end, 24000)
 				end
 			end
 		end
@@ -49,6 +52,7 @@ function phantom(p)
 			if abilityPlayer ~= nil then p:damage(4, abilityPlayer) 
 			else p:damage(4, p) end
 			game.sendMessage(p, "§4[§c팬텀§4] §c낮의 영향으로 데미지를 입습니다.")
+			p:getWorld():playSound(p:getLocation(), import("$.Sound").ENTITY_PHANTOM_HURT, 0.25, 1)
 		else 
 			p:setHealth(newHealth) 
 			game.sendMessage(p, "§1[§b팬텀§1] §b밤의 영향으로 체력을 회복합니다.")

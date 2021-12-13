@@ -32,9 +32,13 @@ function main(abilityData)
 						if useSpiderAbility then
 							useSpiderAbility = false
 							game.sendMessage(e:getPlayer(), "§2[§a거미§2] §a능력을 비활성화했습니다.")
+							e:getPlayer():getWorld():spawnParticle(import("$.Particle").SMOKE_NORMAL, e:getPlayer():getLocation():add(0,1,0), 100, 0.5, 1, 0.5, 0.05)
+							e:getPlayer():getWorld():playSound(e:getPlayer():getLocation(), import("$.Sound").ENTITY_SPIDER_DEATH, 0.25, 1)
 						else
 							useSpiderAbility = true
 							game.sendMessage(e:getPlayer(), "§2[§a거미§2] §a능력을 활성화했습니다.")
+							e:getPlayer():getWorld():spawnParticle(import("$.Particle").SMOKE_NORMAL, e:getPlayer():getLocation():add(0,1,0), 100, 0.5, 1, 0.5, 0.05)
+							e:getPlayer():getWorld():playSound(e:getPlayer():getLocation(), import("$.Sound").ENTITY_SPIDER_AMBIENT, 0.25, 1)
 						end
 					end
 				end

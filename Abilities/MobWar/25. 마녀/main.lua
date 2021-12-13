@@ -10,6 +10,8 @@ function main(abilityData)
 						local maxHealth = e:getPlayer():getAttribute(attribute.GENERIC_MAX_HEALTH):getValue()
 						if (e:getPlayer():getHealth() + 8 >= maxHealth) then e:getPlayer():setHealth(maxHealth)
 						else e:getPlayer():setHealth(e:getPlayer():getHealth() + 8) end
+						e:getPlayer():getWorld():spawnParticle(import("$.Particle").HEART, e:getPlayer():getEyeLocation(), 10, 0.5, 1, 0.5, 0.05)
+						e:getPlayer():getWorld():playSound(e:getPlayer():getLocation(), import("$.Sound").ENTITY_WITCH_DRINK, 0.25, 1)
 					end
 				end
 			end
@@ -25,6 +27,8 @@ function main(abilityData)
 					if randomData == 1 then e:getEntity():addPotionEffect(newInstance("$.potion.PotionEffect", {effect.SLOW, 300, 0})) end
 					if randomData == 2 then e:getEntity():addPotionEffect(newInstance("$.potion.PotionEffect", {effect.POISON, 300, 0})) end
 					if randomData == 3 then e:getEntity():addPotionEffect(newInstance("$.potion.PotionEffect", {effect.WEAKNESS, 300, 0})) end
+					e:getEntity():getWorld():spawnParticle(import("$.Particle").SPELL_WITCH, e:getEntity():getEyeLocation(), 150, 0.5, 1, 0.5, 0.05)
+					e:getEntity():getWorld():playSound(e:getEntity():getLocation(), import("$.Sound").ENTITY_WITCH_CELEBRATE, 0.25, 1)
 				end
 			end
 		end

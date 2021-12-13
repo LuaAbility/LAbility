@@ -12,6 +12,9 @@ function main(abilityData)
 						vector:setY(1.2)
 						vector:setZ(vector:getZ() / 4)
 						e:getEntity():setVelocity(vector)
+						e:getEntity():getWorld():spawnParticle(import("$.Particle").ITEM_CRACK, e:getEntity():getLocation():add(0,1,0), 50, 0.5, 1, 0.5, 0.05, newInstance("$.inventory.ItemStack", {import("$.Material").IRON_BLOCK}))
+						e:getDamager():getWorld():spawnParticle(import("$.Particle").ITEM_CRACK, e:getEntity():getLocation():add(0,1,0), 50, 0.5, 1, 0.5, 0.05, newInstance("$.inventory.ItemStack", {import("$.Material").IRON_BLOCK}))
+						e:getDamager():getWorld():playSound(e:getDamager():getLocation(), import("$.Sound").ENTITY_IRON_GOLEM_ATTACK, 0.5, 1)
 					end, 2)
 					e:setCancelled(true)
 				end
@@ -43,6 +46,8 @@ function main(abilityData)
 							e:getPlayer():setHealth(newHealth)
 							local itemStack = { newInstance("$.inventory.ItemStack", {e:getMaterial(), 1}) }
 							e:getPlayer():getInventory():removeItem(itemStack)
+							e:getPlayer():getWorld():spawnParticle(import("$.Particle").COMPOSTER, e:getPlayer():getLocation():add(0,1,0), 100, 0.5, 1, 0.5, 0.05)
+							e:getPlayer():getWorld():playSound(e:getPlayer():getLocation(), import("$.Sound").ENTITY_IRON_GOLEM_REPAIR, 0.5, 1)
 						end
 					end
 				end

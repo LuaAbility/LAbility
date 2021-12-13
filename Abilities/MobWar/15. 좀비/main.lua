@@ -32,8 +32,11 @@ function main(abilityData)
 			if damageEvent:getCause():toString() == "PROJECTILE" then damager = damageEvent:getDamager():getShooter() end
 			
 			if damager:getType():toString() == "PLAYER" and damagee:getType():toString() == "PLAYER" then
-				if game.checkCooldown(e:getEntity(), a, 1) then
+				if game.checkCooldown(e:getEntity(), a, 2) then
 					game.changeAbility(damager, a, "LA-MW-015", true)
+					damager:getWorld():spawnParticle(import("$.Particle").REDSTONE, damager:getLocation():add(0,1,0), 300, 0.5, 1, 0.5, 0.05, newInstance("$.Particle$DustOptions", {import("$.Color").RED, 1}))
+					damager:getWorld():playSound(damager:getLocation(), import("$.Sound").ENTITY_ZOMBIE_INFECT, 1, 1)
+					damager:getWorld():playSound(damager:getLocation(), import("$.Sound").ENTITY_ZOMBIE_AMBIENT, 1, 1)
 				end
 			end
 		end

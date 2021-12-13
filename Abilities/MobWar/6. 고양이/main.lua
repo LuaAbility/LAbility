@@ -31,6 +31,8 @@ function main(abilityData)
 							local itemStack = newInstance("$.inventory.ItemStack", {material.CHICKEN, math.random(3)})
 							e:getPlayer():getWorld():dropItemNaturally(e:getPlayer():getLocation(), itemStack)
 						end
+						e:getPlayer():getWorld():spawnParticle(import("$.Particle").ITEM_CRACK, e:getPlayer():getLocation():add(0,1,0), 50, 0.5, 1, 0.5, 0.05, newInstance("$.inventory.ItemStack", {import("$.Material").WHITE_WOOL}))
+						e:getPlayer():getWorld():playSound(e:getPlayer():getLocation(), import("$.Sound").ENTITY_CAT_AMBIENT, 0.25, 1)
 					end
 				end
 			end

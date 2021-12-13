@@ -7,6 +7,7 @@ import com.LAbility.LuaUtility.Wrapper.LoggerWrapper;
 import com.LAbility.LuaUtility.Wrapper.PluginWrapper;
 import com.LAbility.LuaUtility.Wrapper.UtilitiesWrapper;
 import org.bukkit.Bukkit;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.luaj.vm2.*;
 import org.luaj.vm2.lib.OneArgFunction;

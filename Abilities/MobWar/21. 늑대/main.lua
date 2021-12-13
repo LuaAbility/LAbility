@@ -14,6 +14,9 @@ function main(abilityData)
 							if entity:isValid() then entity:remove() end
 						end, 600)
 					end
+					
+					e:getEntity():getWorld():spawnParticle(import("$.Particle").SMOKE_NORMAL, e:getEntity():getEyeLocation(), 150, 0.5, 1, 0.5, 0.05)
+					e:getDamager():getWorld():playSound(e:getDamager():getLocation(), import("$.Sound").ENTITY_WOLF_HOWL, 1, 1)
 				end
 			end
 		end

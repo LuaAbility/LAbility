@@ -43,6 +43,8 @@ function main(abilityData)
 							local itemStack = newInstance("$.inventory.ItemStack", {material.IRON_INGOT, math.random(3, 15)})
 							e:getPlayer():getWorld():dropItemNaturally(e:getPlayer():getLocation(), itemStack)
 						end
+						e:getPlayer():getWorld():spawnParticle(import("$.Particle").SMOKE_NORMAL, e:getPlayer():getLocation():add(0,1,0), 150, 0.5, 1, 0.5, 0.05)
+						e:getPlayer():getWorld():playSound(e:getPlayer():getLocation(), import("$.Sound").ENTITY_PIGLIN_CELEBRATE, 0.5, 1)
 					end
 				end
 			end

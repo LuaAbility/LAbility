@@ -3,7 +3,7 @@ function main(abilityData)
 		if e:getAction():toString() == "RIGHT_CLICK_AIR" or e:getAction():toString() == "RIGHT_CLICK_BLOCK" then
 			if e:getItem() ~= nil then
 				if game.isAbilityItem(e:getItem(), "WHEAT") then
-					if game.checkCooldown(e:getPlayer(), a, 1) then
+					if game.checkCooldown(e:getPlayer(), a, 0) then
 						rollStat(e:getPlayer())
 					end
 				end
@@ -22,19 +22,17 @@ function main(abilityData)
 	end)
 	
 	plugin.onPlayerEnd(abilityData, function(p)
-		player:getAttribute(attribute.GENERIC_MAX_HEALTH):setHealth(player:getAttribute(attribute.GENERIC_MAX_HEALTH):getDefaultValue())
-		player:setWalkSpeed(speedStat)
+		p:getPlayer():getAttribute(attribute.GENERIC_MAX_HEALTH):setBaseValue(p:getPlayer():getAttribute(attribute.GENERIC_MAX_HEALTH):getDefaultValue())
+		p:getPlayer():setWalkSpeed(0.2)
 	end)
 end
 
 function rollStat(player)
 	local healthStat = math.random(15, 30)
-	local speedStat = math.random()
-	while (speedStat >= 0.25 and speedStat <= 0.5) do
-		speedStat = math.random()
-	end
+	local speedStat = math.random(2500, 5000)
 	
-	player:getAttribute(attribute.GENERIC_MAX_HEALTH):setHealth(healthStat)
-	player:setWalkSpeed(speedStat)
-	game.sendMessage(player, "§2[§a말§2] §a체력 : " .. healthStat .. " / 속도 : " .. speedStat "로 재설정 되었습니다.")
+	player:getAttribute(attribute.GENERIC_MAX_HEALTH):setBaseValue(healthStat)
+	player:setWalkSpeed(speedStat / 10000.0)
+	game.sendMessage(player, "§2[§a말§2] §a체력 : " .. healthStat .. " / 속도 : " .. speedStat / 10000.0 .. "로 재설정 되었습니다.")
+	player:getWorld():playSound(player:getLocation(), import("$.Sound").ENTITY_HORSE_AMBIENT, 1, 1)
 end

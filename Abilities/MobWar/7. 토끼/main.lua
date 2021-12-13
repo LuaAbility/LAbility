@@ -20,7 +20,8 @@ function main(abilityData)
 			if math.random(100) <= 10 and not redrum then
 				if game.checkCooldown(damagee, a, 0) then
 					redrum = true
-					game.sendMessage(damagee, "§c살인 ON")
+					damagee:getWorld():spawnParticle(import("$.Particle").REDSTONE, damagee:getLocation():add(0,1,0), 150, 0.5, 1, 0.5, 0.05, newInstance("$.Particle$DustOptions", {import("$.Color").RED, 1}))
+					damagee:getWorld():playSound(damagee:getLocation(), import("$.Sound").ENTITY_RABBIT_ATTACK, 0.5, 1)
 				end
 			end
 		end

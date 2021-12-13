@@ -21,6 +21,9 @@ function main(abilityData)
 						if abilityUse == 4 then game.sendMessage(e:getPlayer(), "§6[§e주민§6] §6기능공§e이 되었습니다. 다음 능력 발동부터 적용됩니다.") end
 						if abilityUse == 6 then game.sendMessage(e:getPlayer(), "§6[§e주민§6] §a전문가§e가 되었습니다. 다음 능력 발동부터 적용됩니다.") end
 						if abilityUse == 8 then game.sendMessage(e:getPlayer(), "§6[§e주민§6] §b달인§e이 되었습니다. 다음 능력 발동부터 적용됩니다.") end
+						
+						e:getPlayer():getWorld():spawnParticle(import("$.Particle").VILLAGER_HAPPY, e:getPlayer():getLocation():add(0,1,0), 100, 0.5, 1, 0.5, 0.05)
+						e:getPlayer():getWorld():playSound(e:getPlayer():getLocation(), import("$.Sound").ENTITY_VILLAGER_YES, 0.25, 1)
 					end
 				end
 			end

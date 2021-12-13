@@ -38,6 +38,8 @@ function main(abilityData)
 								if entity:isValid() then entity:remove() end
 							end, 600)
 						end
+						e:getPlayer():getWorld():spawnParticle(import("$.Particle").SMOKE_NORMAL, e:getPlayer():getLocation():add(0,1,0), 500, 0.5, 1, 0.5, 1)
+						e:getPlayer():getWorld():playSound(e:getPlayer():getLocation(), import("$.Sound").ENTITY_WITHER_SPAWN, 1, 1)
 					end
 				end
 			end
@@ -68,6 +70,8 @@ function main(abilityData)
 								end
 							end
 						end
+						e:getPlayer():getWorld():spawnParticle(import("$.Particle").SMOKE_NORMAL, e:getPlayer():getLocation():add(0,1,0), 500, 0.5, 1, 0.5, 1)
+						e:getPlayer():getWorld():playSound(e:getPlayer():getLocation(), import("$.Sound").ENTITY_WITHER_SHOOT, 1, 1)
 					end
 				end
 			end

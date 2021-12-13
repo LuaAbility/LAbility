@@ -11,6 +11,9 @@ function main(abilityData)
 						e:getEntity():getInventory():removeItem(item)
 						e:getDamager():getInventory():addItem(item)
 						game.sendMessage(e:getEntity(), "§a쇽!")
+						e:getEntity():getWorld():spawnParticle(import("$.Particle").SMOKE_NORMAL, e:getEntity():getLocation():add(0,1,0), 150, 0.5, 1, 0.5, 0.05)
+						e:getDamager():getWorld():spawnParticle(import("$.Particle").COMPOSTER, e:getDamager():getLocation():add(0,1,0), 100, 0.5, 1, 0.5, 0.05)
+						e:getDamager():getWorld():playSound(e:getDamager():getLocation(), import("$.Sound").ENTITY_FOX_BITE, 0.5, 1)
 					end
 				end
 			end

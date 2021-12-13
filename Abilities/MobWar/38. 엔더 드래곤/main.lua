@@ -51,6 +51,8 @@ function main(abilityData)
 								end
 							end
 						end
+						e:getPlayer():getWorld():spawnParticle(import("$.Particle").SMOKE_NORMAL, e:getPlayer():getLocation():add(0,1,0), 500, 0.5, 1, 0.5, 1)
+						e:getPlayer():getWorld():playSound(e:getPlayer():getLocation(), import("$.Sound").ENTITY_ENDER_DRAGON_GROWL, 1, 1)
 					end
 				end
 			end
@@ -70,6 +72,7 @@ function main(abilityData)
 						util.runLater(function()
 							if fireball:isValid() then fireball:remove() end
 						end, 100)
+						e:getPlayer():getWorld():playSound(e:getPlayer():getLocation(), import("$.Sound").ENTITY_ENDER_DRAGON_SHOOT, 1, 1)
 					end
 				end
 			end
@@ -77,9 +80,8 @@ function main(abilityData)
 	end)
 	
 	plugin.registerEvent(abilityData, "EntityDamageByEntityEvent", 0, function(a, e)
-		print(e:getDamager():getType():toString())
 		if (e:getDamager():getType():toString() == "DRAGON_FIREBALL" or e:getDamager():getType():toString() == "AREA_EFFECT_CLOUD") and e:getEntity():getType():toString() == "PLAYER" then
-			if game.checkCooldown(e:getEntity(), a, 2) then
+			if game.checkCooldown(e:getEntity(), a, 1) then
 				e:setCancelled(true)
 			end
 		end

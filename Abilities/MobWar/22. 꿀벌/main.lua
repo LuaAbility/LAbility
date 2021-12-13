@@ -9,7 +9,10 @@ function main(abilityData)
 					e:getDamager():addPotionEffect(newInstance("$.potion.PotionEffect", {effect.CONFUSION, 400, 0}))
 					e:getDamager():addPotionEffect(newInstance("$.potion.PotionEffect", {effect.WEAKNESS, 400, 0}))
 					e:getEntity():addPotionEffect(newInstance("$.potion.PotionEffect", {effect.CONFUSION, 400, 0}))
-					e:getEntity():addPotionEffect(newInstance("$.potion.PotionEffect", {effect.POISON, 400, 1}))
+					e:getEntity():addPotionEffect(newInstance("$.potion.PotionEffect", {effect.POISON, 400, 0}))
+					
+					e:getEntity():getWorld():spawnParticle(import("$.Particle").ITEM_CRACK, e:getEntity():getLocation():add(0,1,0), 100, 0.5, 1, 0.5, 0.05, newInstance("$.inventory.ItemStack", {import("$.Material").HONEYCOMB_BLOCK}))
+					e:getDamager():getWorld():playSound(e:getDamager():getLocation(), import("$.Sound").ENTITY_BEE_STING, 1, 1)
 				end
 			end
 		end

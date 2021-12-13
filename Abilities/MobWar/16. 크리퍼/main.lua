@@ -13,6 +13,7 @@ function main(abilityData)
 						e:getPlayer():getLocation():getWorld():createExplosion(e:getPlayer():getLocation(), 10.0 * lightningStack)
 						local itemStack = { newInstance("$.inventory.ItemStack", {e:getMaterial(), 1}) }
 						e:getPlayer():getInventory():removeItem(itemStack)
+						e:getPlayer():getWorld():spawnParticle(import("$.Particle").EXPLOSION_HUGE, e:getPlayer():getLocation():add(0,1,0), 10, 4, 1, 4, 0.05)
 					end
 				end
 			end
@@ -42,6 +43,8 @@ function main(abilityData)
 				else 
 					game.sendMessage(e:getEntity(), "§2[§a크리퍼§2] §a폭발 강도가 강해졌습니다.")
 					game.sendMessage(e:getEntity(), "§2[§a크리퍼§2] §a현재 폭발 강도 : " .. lightningStack)
+					e:getEntity():getWorld():spawnParticle(import("$.Particle").SMOKE_LARGE, e:getEntity():getLocation():add(0,1,0), 100, 0.5, 1, 0.5, 0.05)
+					e:getEntity():getWorld():playSound(e:getEntity():getLocation(), import("$.Sound").ENTITY_CREEPER_HURT, 0.5, 1)
 				end
 			end
 		end

@@ -12,6 +12,8 @@ function main(abilityData)
 						pos:setY(pos:getY() + 1)
 						pos:setZ(pos:getZ() + (playerEye:getZ() * 1.5))
 						local fireball = e:getPlayer():getWorld():spawnEntity(pos, import("$.entity.EntityType").FIREBALL)
+						e:getPlayer():getWorld():playSound(e:getPlayer():getLocation(), import("$.Sound").ENTITY_GHAST_SHOOT, 0.25, 1)
+						e:getPlayer():getWorld():playSound(e:getPlayer():getLocation(), import("$.Sound").ENTITY_GHAST_WARN, 0.5, 1)
 						fireball:setShooter(e:getPlayer())
 						util.runLater(function()
 							if fireball:isValid() then fireball:remove() end
@@ -37,6 +39,8 @@ function main(abilityData)
 		if e:getDamager():getType():toString() == "FIREBALL" and e:getEntity():getType():toString() == "PLAYER" then
 			if game.checkCooldown(e:getEntity(), a, 2) then
 				e:setDamage(100000)
+				e:getEntity():getWorld():playSound(e:getEntity():getLocation(), import("$.Sound").ENTITY_GHAST_DEATH, 1, 1)
+				e:getEntity():getWorld():spawnParticle(import("$.Particle").SMOKE_NORMAL, e:getEntity():getLocation():add(0,1,0), 200, 0.5, 1, 0.5, 1)
 			end
 		end
 	end)

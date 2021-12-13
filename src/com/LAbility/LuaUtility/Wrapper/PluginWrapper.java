@@ -4,6 +4,7 @@ import com.LAbility.Ability;
 import com.LAbility.LAbilityMain;
 import com.LAbility.LuaUtility.LuaException;
 import org.bukkit.Bukkit;
+import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventException;
@@ -27,6 +28,7 @@ public class PluginWrapper extends LuaTable {
         set("registerEvent", new VarArgFunction() {
             @Override
             public LuaValue invoke(Varargs vargs) {
+
                 Ability ability = (Ability) vargs.checkuserdata(1, Ability.class);
                 String eventName = vargs.checkjstring(2);
                 int cooldown = vargs.checkint(3);
