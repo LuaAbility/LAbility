@@ -1,0 +1,6 @@
+id: 'LA-MW-012'
+type: '몬스터'
+name: '눈 골렘'
+rank: 'A'
+description: | 
+    주변 10칸 내 모든 플레이어가 동결 상태가 됩니다.
