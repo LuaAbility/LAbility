@@ -52,15 +52,18 @@ public class Ability {
     public static class PassiveFunc {
         public int delay;
         public LuaFunction function;
+        public int scheduler;
 
         public PassiveFunc(int del, LuaFunction func) {
             delay = del;
             function = func;
+            scheduler = 0;
         }
 
         public PassiveFunc(PassiveFunc pf) {
             delay = pf.delay;
             function = pf.function;
+            scheduler = 0;
         }
     }
 

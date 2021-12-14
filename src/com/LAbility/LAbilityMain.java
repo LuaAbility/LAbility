@@ -3,32 +3,24 @@ package com.LAbility;
 import com.LAbility.LuaUtility.AbilityList;
 import com.LAbility.LuaUtility.LuaAbilityLoader;
 import com.LAbility.LuaUtility.TabManager;
+import com.LAbility.LuaUtility.Wrapper.GameWrapper;
 import com.LAbility.LuaUtility.Wrapper.UtilitiesWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.EventException;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.*;
 import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitScheduler;
 import org.luaj.vm2.LuaFunction;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 public class LAbilityMain extends JavaPlugin implements Listener {
     public static LAbilityMain instance;
     public static Plugin plugin;
     public UtilitiesWrapper utilitiesWrapper;
+    public GameWrapper gameWrapper;
     public GameManager gameManager;
     public int hasError = 0;
-    public ArrayList<EventExecutor> oldExcutor = new ArrayList<>();
     public AbilityList<Ability> abilities = new AbilityList<>();
 
     @Override
@@ -36,15 +28,13 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         instance = this;
         plugin = this.getServer().getPluginManager().getPlugin("LAbility");
         hasError = 0;
-        abilities = LuaAbilityLoader.LoadAllLuaAbilities();
         gameManager = new GameManager();
+        LuaAbilityLoader.LoadLuaRules();
+        abilities = LuaAbilityLoader.LoadAllLuaAbilities();
 
         getCommand("la").setExecutor(new CommandManager(this));
         getCommand("la").setTabCompleter(new TabManager(this));
         getServer().getPluginManager().registerEvents(new EventManager(), this);
-
-        getConfig().options().copyDefaults(true);
-        saveConfig();
 
         assignAllPlayer();
         if (hasError > 0) Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c" + hasError + "개의 능력을 로드하는데 문제가 생겼습니다. 해당 능력들은 로드하지 않습니다.");
@@ -66,14 +56,50 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         ability.eventFunc.add( new Ability.ActiveFunc(event, cooldown, function) );
         Listener listener = new Listener() {};
 
-        //Bukkit.getConsoleSender().sendMessage(ability.abilityName + " / " + event.getName());
         this.getServer().getPluginManager().registerEvent(event, listener, EventPriority.NORMAL, new EventExecutor() {
             @Override
             public void execute(Listener listener, Event event) throws EventException {
-                //Bukkit.getConsoleSender().sendMessage(ability.abilityName + " / " + event.getClass().getName());
-                gameManager.RunEvent(ability, event);
+                if (gameManager.isGameStarted) {
+                    if (event.getClass().isAssignableFrom(Cancellable.class)) {
+                        Cancellable temp = (Cancellable)event;
+                        if (temp.isCancelled()) return;
+                    }
+                    gameManager.RunEvent(ability, event);
+                }
             }
         }, this, false);
+
+        return null;
+    }
+
+    public Listener registerRuleEvent(Class<? extends Event> event, LuaFunction function) {
+        Listener listener = new Listener() {};
+
+        this.getServer().getPluginManager().registerEvent(event, listener, EventPriority.NORMAL, new EventExecutor() {
+            @Override
+            public void execute(Listener listener, Event event) throws EventException {
+                if (gameManager.isGameStarted) {
+                    if (event.getClass().isAssignableFrom(Cancellable.class)) {
+                        Cancellable temp = (Cancellable)event;
+                        if (temp.isCancelled()) return;
+                    }
+                    function.call(CoerceJavaToLua.coerce(event));
+                }
+            }
+        }, this, false);
+
+        return null;
+    }
+
+    public Listener registerRuleTimer(long delay, LuaFunction function) {
+        ScheduleManager.timerFunc.put(function, delay);
+
+        return null;
+    }
+
+    public Listener registerRuleLoopTimer(long delay, boolean runOnZeroTick, LuaFunction function) {
+        if (runOnZeroTick) ScheduleManager.timerFunc.put(function, 0L);
+        ScheduleManager.loopTimerFunc.put(function, delay);
 
         return null;
     }

@@ -75,7 +75,7 @@ public class CommandManager implements CommandExecutor {
 					}
 				}
 
-				if (args[0].equalsIgnoreCase("ob")) {
+				if (args[0].equalsIgnoreCase("ob") && senderPlayer.isOp()) {
 					if ((args.length > 1)) {
 						for (Player p : main.getServer().getOnlinePlayers()) {
 							if (p.getName().equals(args[1])) {
@@ -135,7 +135,7 @@ public class CommandManager implements CommandExecutor {
 					}
 				}
 
-				if (args[0].equalsIgnoreCase("see")) {
+				if (args[0].equalsIgnoreCase("see") && senderPlayer.isOp()) {
 					if ((args.length > 1)) {
 						int index = main.gameManager.players.indexOf(args[1]);
 						if (index >= 0) {
@@ -153,7 +153,7 @@ public class CommandManager implements CommandExecutor {
 					}
 				}
 
-				if (args[0].equalsIgnoreCase("add")) {
+				if (args[0].equalsIgnoreCase("add") && senderPlayer.isOp()) {
 					if ((args.length > 1)) {
 						int index = main.gameManager.players.indexOf(args[1]);
 						if (index >= 0) {
@@ -171,8 +171,7 @@ public class CommandManager implements CommandExecutor {
 										p.player.sendMessage("\2476[\247eLAbility\2476] \2476" + a.abilityName + "\247e 능력을 얻었습니다.");
 										p.player.sendMessage("\2476[\247eLAbility\2476] \247a" + "/la check " + (p.ability.size() - 1) + "\247e로 확인가능합니다.");
 
-										LAbilityMain.instance.gameManager.StopAllPassive();
-										LAbilityMain.instance.gameManager.RunAllPassive();
+										LAbilityMain.instance.gameManager.RunPassive(p, p.ability.get(p.ability.indexOf(a.abilityID)));
 										return true;
 									}
 									else {
@@ -198,7 +197,7 @@ public class CommandManager implements CommandExecutor {
 					}
 				}
 
-				if (args[0].equalsIgnoreCase("remove")) {
+				if (args[0].equalsIgnoreCase("remove") && senderPlayer.isOp()) {
 					if ((args.length > 1)) {
 						int index = main.gameManager.players.indexOf(args[1]);
 						if (index >= 0) {
@@ -208,7 +207,6 @@ public class CommandManager implements CommandExecutor {
 								if (index2 >= 0) {
 									Ability a = main.abilities.get(index2);
 									if (p.hasAbility(a)) {
-										p.ability.remove(a);
 										if (!senderPlayer.equals(p.player)) {
 											sender.sendMessage("\2478[\2477LAbility\2478] \2477" + args[1] + " 가 \2478" + a.abilityName + "\2477 능력을 잃었습니다.");
 											sender.sendMessage("\2478[\2477LAbility\2478] \2477" + "해당 유저는 더이상 해당 능력 사용이 불가능합니다.");
@@ -216,8 +214,10 @@ public class CommandManager implements CommandExecutor {
 										p.player.sendMessage("\2474[\247cLAbility\2474] \2474" + a.abilityName + "\247c 능력을 잃었습니다.");
 										p.player.sendMessage("\2474[\247cLAbility\2474] \247c" + "해당 능력은, 더 이상 사용하실 수 없습니다.");
 
-										LAbilityMain.instance.gameManager.StopAllPassive();
-										LAbilityMain.instance.gameManager.RunAllPassive();
+										int abilityIndex = p.getAbility().indexOf(a.abilityID);
+										LAbilityMain.instance.gameManager.StopPassive(p, p.getAbility().get(abilityIndex));
+										LAbilityMain.instance.gameManager.StopActiveTimer(p, p.getAbility().get(abilityIndex));
+										p.getAbility().remove(abilityIndex);
 										return true;
 									}
 									else {
@@ -230,7 +230,6 @@ public class CommandManager implements CommandExecutor {
 							}
 							else {
 								if (p.ability.size() > 0) {
-									p.ability.clear();
 									if (!senderPlayer.equals(p.player)) {
 										sender.sendMessage("\2478[\2477LAbility\2478] \2477" + args[1] + " 가 \2478모든\2477 능력을 잃었습니다.");
 										sender.sendMessage("\2478[\2477LAbility\2478] \2477" + "해당 유저는 더이상 능력 사용이 불가능합니다.");
@@ -238,8 +237,12 @@ public class CommandManager implements CommandExecutor {
 									p.player.sendMessage("\2474[\247cLAbility\2474] \2474모든\247c 능력을 잃었습니다.");
 									p.player.sendMessage("\2474[\247cLAbility\2474] \247c능력을 더 이상 사용하실 수 없습니다.");
 
-									LAbilityMain.instance.gameManager.StopAllPassive();
-									LAbilityMain.instance.gameManager.RunAllPassive();
+									for (Ability a : p.getAbility()){
+										LAbilityMain.instance.gameManager.StopPassive(p, a);
+										LAbilityMain.instance.gameManager.StopActiveTimer(p, a);
+									}
+
+									p.ability.clear();
 								}
 								else {
 									sender.sendMessage("\2474[\247cLAbility\2474] \247c해당 유저는 능력을 소지 중이 아닙니다.");
@@ -273,16 +276,13 @@ public class CommandManager implements CommandExecutor {
 						sender.sendMessage(abilityString);
 					}
 				}
-				if (args[0].equalsIgnoreCase("reroll")) {
+				if (args[0].equalsIgnoreCase("reroll") && senderPlayer.isOp()) {
 					if ((args.length > 1)) {
 						int index = main.gameManager.players.indexOf(args[1]);
 						if (index >= 0) {
 							LAPlayer p = main.gameManager.players.get(index);
 							main.gameManager.ResignAbility(p);
 							main.gameManager.AssignAbility(p);
-
-							LAbilityMain.instance.gameManager.StopAllPassive();
-							LAbilityMain.instance.gameManager.RunAllPassive();
 						} else {
 							sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 플레이어 입니다.");
 						}
@@ -290,9 +290,6 @@ public class CommandManager implements CommandExecutor {
 					else {
 						main.gameManager.ResignAbility();
 						main.gameManager.AssignAbility();
-
-						LAbilityMain.instance.gameManager.StopAllPassive();
-						LAbilityMain.instance.gameManager.RunAllPassive();
 					}
 				}
 
@@ -330,7 +327,7 @@ public class CommandManager implements CommandExecutor {
 					}
 				}
 
-				if (args[0].equalsIgnoreCase("skip")) {
+				if (args[0].equalsIgnoreCase("skip") && senderPlayer.isOp()) {
 					if (main.gameManager.isGameStarted) {
 						for (LAPlayer lap : main.gameManager.players) lap.isAssign = true;
 						main.getServer().broadcastMessage("\2474[\247cLAbility\2474] \247c관리자가 모든 능력을 강제로 할당시켰습니다.");
@@ -339,7 +336,7 @@ public class CommandManager implements CommandExecutor {
 					}
 				}
 
-				if (args[0].equalsIgnoreCase("start")) {
+				if (args[0].equalsIgnoreCase("start") && senderPlayer.isOp()) {
 					if (!main.gameManager.isGameStarted) {
 						ScheduleManager.PrepareTimer();
 					}
@@ -348,7 +345,7 @@ public class CommandManager implements CommandExecutor {
 					}
 				}
 
-				if (args[0].equalsIgnoreCase("stop")) {
+				if (args[0].equalsIgnoreCase("stop") && senderPlayer.isOp()) {
 					if (main.gameManager.isGameStarted) {
 						ScheduleManager.ClearTimer();
 						main.gameManager.ResetAll();
@@ -360,9 +357,15 @@ public class CommandManager implements CommandExecutor {
 					}
 				}
 
-				if (args[0].equalsIgnoreCase("test")) {
+				if (args[0].equalsIgnoreCase("test") && senderPlayer.isOp()) {
+					sender.sendMessage("\2472[\247aLAbility\2472] \247a테스트 모드입니다. 게임 시작상태가 되며, 능력 사용이 가능합니다.");
 					main.gameManager.isGameStarted = true;
 					main.gameManager.RunAllPassive();
+				}
+
+				if (args[0].equalsIgnoreCase("cooldown") && senderPlayer.isOp()) {
+					sender.sendMessage("\2472[\247aLAbility\2472] \247a쿨타임이 초기화되었습니다.");
+					main.gameManager.StopAllActiveTimer();
 				}
 			}
 		}

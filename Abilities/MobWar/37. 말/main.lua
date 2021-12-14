@@ -16,8 +16,8 @@ function main(abilityData)
 	end)
 
 	plugin.registerEvent(abilityData, "PlayerDeathEvent", 0, function(a, e)
-		if game.checkCooldown(e:getPlayer(), a, 1) then
-			rollStat(e:getPlayer())
+		if game.checkCooldown(e:getEntity(), a, 1) then
+			rollStat(e:getEntity())
 		end
 	end)
 	

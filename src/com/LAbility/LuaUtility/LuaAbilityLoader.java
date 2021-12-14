@@ -80,6 +80,27 @@ public class LuaAbilityLoader {
         return luaAbilities;
     }
 
+    public static void LoadLuaRules() {
+        Globals globals = JsePlatform.standardGlobals();
+
+        File ruleFile = new File(LAbilityMain.instance.getDataFolder() + "/rule.lua");
+        if (!ruleFile.exists()) {
+            Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c룰이 존재하지 않습니다. 아무런 룰도 적용되지 않습니다.");
+            return;
+        }
+
+        try {
+            LuaValue luaScript = globals.loadfile(ruleFile.toString());
+            luaScript.call();
+            globals = setGlobals(globals);
+            globals.get("rule").call();
+            Bukkit.getConsoleSender().sendMessage("\2472[\247aLAbility\2472] \247a룰 로드에 성공했습니다.");
+        } catch (Exception e) {
+            Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c룰을 로드하는데 문제가 생겼습니다. 아무런 룰도 적용되지 않습니다.");
+            Bukkit.getConsoleSender().sendMessage(e.getMessage());
+        }
+    }
+
     public static boolean isClassPathValid(String classPath) {
         try {
             Class.forName(classPath);
@@ -95,7 +116,8 @@ public class LuaAbilityLoader {
         globals.set("logger", new LoggerWrapper(LAbilityMain.plugin));
         LAbilityMain.instance.utilitiesWrapper = new UtilitiesWrapper(LAbilityMain.instance);
         globals.set("util", LAbilityMain.instance.utilitiesWrapper);
-        globals.set("game", new GameWrapper(LAbilityMain.instance));
+        LAbilityMain.instance.gameWrapper = new GameWrapper(LAbilityMain.instance);
+        globals.set("game", LAbilityMain.instance.gameWrapper);
         globals.set("require", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue luaValue) {

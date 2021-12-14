@@ -1,10 +1,17 @@
 package com.LAbility;
 
 import org.bukkit.Bukkit;
+import org.bukkit.attribute.Attribute;
+import org.luaj.vm2.LuaFunction;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ScheduleManager {
     static int time_Prepare = 0, Prepare_Scheduler = 0;
     static int time_Main = 0, Main_Scheduler = 0;
+    static Map<LuaFunction, Long> timerFunc = new HashMap<>();
+    static Map<LuaFunction, Long> loopTimerFunc = new HashMap<>();
 
     public static void ClearTimer(){
         Bukkit.getScheduler().cancelTask(Prepare_Scheduler);
@@ -21,6 +28,7 @@ public class ScheduleManager {
                 switch (time_Prepare) {
                     case 0:
                         Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e게임을 시작합니다.");
+                        if (!LAbilityMain.instance.gameManager.raffleAbility) time_Prepare = 26;
                         break;
                     case 1:
                         Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e능력 추첨을 시작합니다.");
@@ -98,15 +106,23 @@ public class ScheduleManager {
 
         Main_Scheduler = LAbilityMain.instance.getServer().getScheduler().scheduleSyncRepeatingTask(LAbilityMain.instance, new Runnable() {
             public void run() {
-                switch (time_Main){
-                    case 0:
-                        Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e게임 시작!");
-                        LAbilityMain.instance.gameManager.RunAllPassive();
-                        for (LAPlayer lap : LAbilityMain.instance.gameManager.players) {
-                            lap.player.teleport(LAbilityMain.instance.getServer().getWorlds().get(0).getSpawnLocation());
-                        }
-                        break;
-                    default:
+                if (time_Main == 0) {
+                    Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e게임 시작!");
+                    for (LAPlayer lap : LAbilityMain.instance.gameManager.players) {
+                        lap.isSurvive = true;
+                        lap.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(lap.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue());
+                    }
+                    LAbilityMain.instance.gameManager.RunAllPassive();
+                }
+
+                else {
+                    for (Map.Entry<LuaFunction, Long> func : loopTimerFunc.entrySet()) {
+                        if (time_Main % func.getValue() == 0) func.getKey().call();
+                    }
+                }
+
+                for (Map.Entry<LuaFunction, Long> func : timerFunc.entrySet()) {
+                    if (time_Main == func.getValue()) func.getKey().call();
                 }
                 time_Main++;
             }

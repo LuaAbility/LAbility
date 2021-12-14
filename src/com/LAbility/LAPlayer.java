@@ -10,6 +10,7 @@ public class LAPlayer {
     AbilityList<Ability> ability = new AbilityList<>();
     ArrayList<String> variable = new ArrayList<String>();
     boolean isAssign = false;
+    public boolean isSurvive = true;
 
     public LAPlayer(Player p){
         player = p;
