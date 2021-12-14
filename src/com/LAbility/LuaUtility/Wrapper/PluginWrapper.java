@@ -144,6 +144,16 @@ public class PluginWrapper extends LuaTable {
             }
         });
 
+        set("cooldownMultiplyOption", new VarArgFunction() {
+            @Override
+            public LuaValue invoke(Varargs vargs) {
+                double cooldownMultiply = vargs.checkdouble(1);
+
+                plugin.gameManager.cooldownMultiply = cooldownMultiply;
+                return NIL;
+            }
+        });
+
         set("onPlayerEnd", new TwoArgFunction() {
             @Override
             public LuaValue call(LuaValue arg1,LuaValue arg2) {

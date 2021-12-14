@@ -153,11 +153,11 @@ public class Ability {
     }
 
     public boolean CheckCooldown(Player player, int index) {
-        if (eventFunc.get(index).cooldown.maxCooldown <= 0) {
+        if ((eventFunc.get(index).cooldown.maxCooldown * LAbilityMain.instance.gameManager.cooldownMultiply) <= 0) {
             return true;
         }
 
-        if (eventFunc.get(index).cooldown.currentCooldown >= eventFunc.get(index).cooldown.maxCooldown) {
+        if (eventFunc.get(index).cooldown.currentCooldown >= (eventFunc.get(index).cooldown.maxCooldown * LAbilityMain.instance.gameManager.cooldownMultiply)) {
             LAbilityMain.plugin.getServer().getScheduler().cancelTask(eventFunc.get(index).cooldown.currentSchedule);
             eventFunc.get(index).cooldown.currentCooldown = 0;
             eventFunc.get(index).cooldown.currentSchedule = LAbilityMain.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(LAbilityMain.plugin, new Runnable() {
@@ -169,7 +169,7 @@ public class Ability {
             player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b능력을 사용했습니다." );
             return true;
         }
-        float cooldown = ((eventFunc.get(index).cooldown.maxCooldown - eventFunc.get(index).cooldown.currentCooldown) / 20f);
+        double cooldown = (((eventFunc.get(index).cooldown.maxCooldown * LAbilityMain.instance.gameManager.cooldownMultiply) - eventFunc.get(index).cooldown.currentCooldown) / 20.0);
         player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b쿨타임 입니다. (" + cooldown + "s)" );
 
         return false;

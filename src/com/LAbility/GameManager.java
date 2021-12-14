@@ -24,6 +24,7 @@ public class GameManager {
     public int abilityAmount = 1;
     public boolean overlapAbility = false;
     public boolean raffleAbility = true;
+    public double cooldownMultiply = 1;
 
     public void ResetAll(){
         isGameStarted = false;

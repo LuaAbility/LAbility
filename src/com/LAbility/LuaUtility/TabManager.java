@@ -28,6 +28,12 @@ public class TabManager implements TabCompleter {
                 basicCommand.add("player");
                 basicCommand.add("admin");
                 basicCommand.add("util");
+                basicCommand.add("debug");
+                basicCommand.add("check");
+                basicCommand.add("ablist");
+                basicCommand.add("ability");
+                basicCommand.add("yes");
+                basicCommand.add("no");
                 if (commandSender.isOp()) {
                     basicCommand.add("ob");
                     basicCommand.add("see");
@@ -38,12 +44,9 @@ public class TabManager implements TabCompleter {
                     basicCommand.add("skip");
                     basicCommand.add("start");
                     basicCommand.add("stop");
+                    basicCommand.add("test");
+                    basicCommand.add("cooldown");
                 }
-                basicCommand.add("check");
-                basicCommand.add("ablist");
-                basicCommand.add("ability");
-                basicCommand.add("yes");
-                basicCommand.add("no");
 
                 Collections.sort(basicCommand);
                 return basicCommand;

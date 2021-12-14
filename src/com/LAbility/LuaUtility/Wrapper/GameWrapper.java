@@ -24,6 +24,13 @@ public class GameWrapper extends LuaTable {
     public boolean overrideItem = false;
 
     public GameWrapper(LAbilityMain plugin) {
+        set("getAbilityList", new ZeroArgFunction() {
+            @Override
+            public LuaValue call() {
+                return CoerceJavaToLua.coerce(plugin.abilities);
+            }
+        });
+
         set("getPlayers", new ZeroArgFunction() {
             @Override
             public LuaValue call() {

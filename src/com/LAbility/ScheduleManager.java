@@ -28,19 +28,30 @@ public class ScheduleManager {
                 switch (time_Prepare) {
                     case 0:
                         Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e게임을 시작합니다.");
-                        if (!LAbilityMain.instance.gameManager.raffleAbility) time_Prepare = 26;
                         break;
                     case 1:
-                        Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e능력 추첨을 시작합니다.");
+                        Bukkit.broadcastMessage("\2476-------[\247eGame Settings\2476]-------");
+                        Bukkit.broadcastMessage("\247b능력 추첨 여부 \247f: \247a" + LAbilityMain.instance.gameManager.raffleAbility);
+                        if (LAbilityMain.instance.gameManager.raffleAbility) {
+                            Bukkit.broadcastMessage("\247b능력 추첨 개수 \247f: \247a" + LAbilityMain.instance.gameManager.abilityAmount);
+                            Bukkit.broadcastMessage("\247b능력 중복 여부 \247f: \247a" + LAbilityMain.instance.gameManager.overlapAbility);
+                        }
+                        Bukkit.broadcastMessage("\247b능력 시전 아이템 통일 \247f: \247a" + LAbilityMain.instance.gameWrapper.overrideItem);
+                        if (LAbilityMain.instance.gameWrapper.overrideItem)
+                            Bukkit.broadcastMessage("\247b능력 추첨 여부 \247f: \247a" + LAbilityMain.instance.gameWrapper.targetItem.toString());
+                        Bukkit.broadcastMessage("\247b능력 쿨타임 배율 \247f: \247ax" + LAbilityMain.instance.gameManager.cooldownMultiply);
+                        Bukkit.broadcastMessage("\2476--------\2476-------------\2476--------");
+                        if (!LAbilityMain.instance.gameManager.raffleAbility) time_Prepare = 26;
                         break;
                     case 2:
+                        Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e능력 추첨을 시작합니다.");
+                        break;
+                    case 3:
                         LAbilityMain.instance.gameManager.isGameStarted = true;
                         Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e능력 추첨이 완료되었습니다.");
                         Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e/la check로 능력 확인 후, /la yes 또는 /la no를 통해 능력을 결정해주세요.");
                         LAbilityMain.instance.gameManager.AbilityShuffle(true);
                         LAbilityMain.instance.gameManager.AssignAbility();
-                        break;
-                    case 3:
                     case 4:
                     case 5:
                     case 6:

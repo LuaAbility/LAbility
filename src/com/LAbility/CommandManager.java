@@ -28,6 +28,7 @@ public class CommandManager implements CommandExecutor {
 				sender.sendMessage("\2476/la \247eplayer \247f: \247a플레이어 용 명령어를 확인합니다."); // OK
 				sender.sendMessage("\2476/la \247eadmin \247f: \247a관리자 용 명령어를 확인합니다."); // OK
 				sender.sendMessage("\2476/la \247eutil \247f: \247a유틸 명령어를 확인합니다."); // OK
+				sender.sendMessage("\2476/la \247edebug \247f: \247a디버그 명령어를 확인합니다."); // OK
 				sender.sendMessage();
 				return true;
 			}
@@ -39,6 +40,7 @@ public class CommandManager implements CommandExecutor {
 					sender.sendMessage("\2476/la \247eno \247f: \247a현재 능력을 사용하지 않습니다. 이 때, 다른 능력으로 변경됩니다."); // OK
 					return true;
 				}
+
 				if (args[0].equalsIgnoreCase("admin")) {
 					sender.sendMessage("\2476-------[\247eAdmin Command\2476]-------");
 					sender.sendMessage("\2476/la \247estart \247f: \247a게임을 시작합니다.");
@@ -52,12 +54,21 @@ public class CommandManager implements CommandExecutor {
 					sender.sendMessage("\2476/la \247elist \247f: \247a모든 플레이어의 능력을 확인합니다."); // OK
 					return true;
 				}
+
 				if (args[0].equalsIgnoreCase("util")) {
 					sender.sendMessage("\2476-------[\247eAdmin Command\2476]-------");
 					sender.sendMessage("\2476/la \247eablist <Page> \247f: \247a현재 로드된 능력 리스트를 확인합니다.");  // OK
 					sender.sendMessage("\2476/la \247eability <AbilityID> \247f: \247a해당 능력의 정보를 확인합니다.");  // OK
 					return true;
 				}
+
+				if (args[0].equalsIgnoreCase("debug")) {
+					sender.sendMessage("\2476-------[\247eDebug Command\2476]-------");
+					sender.sendMessage("\2476/la \247etest \247f: \247a테스트 모드에 진입합니다. 게임 시작을 하지 않아도 능력 사용이 가능합니다.\n테스트 모드를 종료하려면 /la stop을 입력하세요.");  // OK
+					sender.sendMessage("\2476/la \247ecooldown \247f: \247a쿨타임을 모두 초기화합니다.");  // OK
+					return true;
+				}
+
 				if (args[0].equalsIgnoreCase("check")) {
 					int index = main.gameManager.players.indexOf(senderPlayer.getName());
 					if (index >= 0){
@@ -260,7 +271,7 @@ public class CommandManager implements CommandExecutor {
 					}
 				}
 
-				if (args[0].equalsIgnoreCase("list")) {
+				if (args[0].equalsIgnoreCase("list") && senderPlayer.isOp()) {
 					sender.sendMessage("\2476-------[\247eAbility List\2476]-------");
 					for (LAPlayer lap : main.gameManager.players) {
 						String abilityString = "";
@@ -276,6 +287,7 @@ public class CommandManager implements CommandExecutor {
 						sender.sendMessage(abilityString);
 					}
 				}
+
 				if (args[0].equalsIgnoreCase("reroll") && senderPlayer.isOp()) {
 					if ((args.length > 1)) {
 						int index = main.gameManager.players.indexOf(args[1]);
@@ -338,7 +350,14 @@ public class CommandManager implements CommandExecutor {
 
 				if (args[0].equalsIgnoreCase("start") && senderPlayer.isOp()) {
 					if (!main.gameManager.isGameStarted) {
-						ScheduleManager.PrepareTimer();
+						if (!LAbilityMain.instance.gameManager.overlapAbility && (LAbilityMain.instance.gameManager.abilityAmount * LAbilityMain.instance.gameManager.players.size()) > LAbilityMain.instance.abilities.size() - 1) {
+							senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c인원 수가 너무 많아 게임 플레이가 불가능합니다.");
+							senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c현재 로드된 능력들로 플레이 가능한 최대 인원은 " + LAbilityMain.instance.abilities.size() / LAbilityMain.instance.gameManager.abilityAmount + "명 입니다.");
+							if (LAbilityMain.instance.gameManager.abilityAmount > 1) senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c추첨하는 능력의 개수가 너무 많습니다. 추첨 개수를 줄이거나 능력 중복 추첨을 허용해주세요.");
+						} else if (LAbilityMain.instance.gameManager.players.size() < 2){
+							senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c한 명일때는 게임 시작이 불가능합니다.");
+						}
+						else ScheduleManager.PrepareTimer();
 					}
 					else {
 						senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c게임이 진행 중입니다.");
