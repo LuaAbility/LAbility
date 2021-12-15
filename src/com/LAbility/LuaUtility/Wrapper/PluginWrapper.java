@@ -122,6 +122,16 @@ public class PluginWrapper extends LuaTable {
             }
         });
 
+        set("abilityCheckOption", new VarArgFunction() {
+            @Override
+            public LuaValue invoke(Varargs vargs) {
+                boolean canCheckAbility  = vargs.checkboolean(1);
+
+                plugin.gameManager.canCheckAbility = canCheckAbility;
+                return NIL;
+            }
+        });
+
         set("abilityItemOption", new VarArgFunction() {
             @Override
             public LuaValue invoke(Varargs vargs) {

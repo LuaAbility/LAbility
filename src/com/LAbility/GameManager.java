@@ -24,6 +24,7 @@ public class GameManager {
     public int abilityAmount = 1;
     public boolean overlapAbility = false;
     public boolean raffleAbility = true;
+    public boolean canCheckAbility = true;
     public double cooldownMultiply = 1;
 
     public void ResetAll(){
@@ -148,7 +149,7 @@ public class GameManager {
         if (overlapAbility) {
             Random random = new Random();
             Ability temp = LAbilityMain.instance.abilities.get(random.nextInt(LAbilityMain.instance.abilities.size() - 1));
-            while (player.ability.contains(temp.abilityID)) temp = LAbilityMain.instance.abilities.get(random.nextInt(LAbilityMain.instance.abilities.size() - 1));
+            while (player.ability.contains(temp.abilityID) || temp.abilityID.contains("HIDDEN")) temp = LAbilityMain.instance.abilities.get(random.nextInt(LAbilityMain.instance.abilities.size() - 1));
             player.ability.add(new Ability(temp));
         }
         else player.ability.add(new Ability(LAbilityMain.instance.abilities.get(shuffledAbilityIndex.get(0))));
@@ -160,6 +161,8 @@ public class GameManager {
 
     public void ResignAbility(LAPlayer player, Ability ability) {
         if (player.ability.contains(ability.abilityID)) {
+            LAbilityMain.instance.gameManager.StopPassive(player, ability);
+            LAbilityMain.instance.gameManager.StopActiveTimer(player, ability);
             player.ability.remove(ability);
             if (!ability.abilityID.contains("HIDDEN")) shuffledAbilityIndex.add(LAbilityMain.instance.abilities.indexOf(ability));
             AbilityShuffle(false);
@@ -175,8 +178,7 @@ public class GameManager {
             AbilityShuffle(false);
 
             for (Ability a : player.ability){
-                LAbilityMain.instance.gameManager.StopPassive(player, a);
-                LAbilityMain.instance.gameManager.StopActiveTimer(player, a);
+                ResignAbility(player, a);
             }
             player.ability.clear();
         }
