@@ -232,10 +232,10 @@ public class GameWrapper extends LuaTable {
             @Override
             public LuaValue invoke(Varargs vargs) {
                 ItemStack item = (ItemStack) vargs.checkuserdata(1, ItemStack.class);
-                String targetItem = vargs.checkjstring(2);
+                String targetItems = vargs.checkjstring(2);
 
                 if (overrideItem) return CoerceJavaToLua.coerce(item.getType().equals(targetItem));
-                else return CoerceJavaToLua.coerce(item.getType().toString().contains(targetItem));
+                else return CoerceJavaToLua.coerce(item.getType().toString().contains(targetItems));
             }
         });
 

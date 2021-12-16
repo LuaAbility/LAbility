@@ -47,7 +47,7 @@ public class ScheduleManager {
                         Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e능력 추첨을 시작합니다.");
                         break;
                     case 3:
-                        LAbilityMain.instance.gameManager.isGameStarted = true;
+                        LAbilityMain.instance.gameManager.isGameReady = true;
                         Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e능력 추첨이 완료되었습니다.");
                         LAbilityMain.instance.gameManager.AbilityShuffle(true);
                         LAbilityMain.instance.gameManager.AssignAbility();
@@ -83,8 +83,11 @@ public class ScheduleManager {
                         break;
                     case 23:
                         if (!LAbilityMain.instance.gameManager.IsAllAsigned()){
-                            Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e능력 결정이 완료되지 않았습니다.");
-                            Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e/la check로 능력 확인 후, /la yes 또는 /la no를 통해 능력을 결정해주세요.");
+                            Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e능력이 결정되지 않은 플레이어가 있습니다. 능력을 결정해주세요.");
+                            for (LAPlayer lap : LAbilityMain.instance.gameManager.players) if (!lap.isAssign) {
+                                lap.player.sendMessage("\2476[\247eLAbility\2476] \247e능력 결정이 완료되지 않았습니다.");
+                                lap.player.sendMessage("\2476[\247eLAbility\2476] \247e/la check로 능력 확인 후, /la yes 또는 /la no를 통해 능력을 결정해주세요.");
+                            }
                             time_Prepare = 3;
                         }
                         break;
@@ -127,9 +130,11 @@ public class ScheduleManager {
             public void run() {
                 if (time_Main == 0) {
                     Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e게임 시작!");
+                    LAbilityMain.instance.gameManager.isGameStarted = true;
                     for (LAPlayer lap : LAbilityMain.instance.gameManager.players) {
                         lap.isSurvive = true;
                         lap.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(lap.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue());
+                        lap.player.setWalkSpeed(0.2f);
                     }
                     LAbilityMain.instance.gameManager.RunAllPassive();
                 }
