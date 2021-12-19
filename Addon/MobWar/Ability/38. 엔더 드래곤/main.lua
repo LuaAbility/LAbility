@@ -51,7 +51,7 @@ function main(abilityData)
 								end
 							end
 						end
-						e:getPlayer():getWorld():spawnParticle(import("$.Particle").SMOKE_NORMAL, e:getPlayer():getLocation():add(0,1,0), 500, 0.5, 1, 0.5, 1)
+						e:getPlayer():getWorld():spawnParticle(import("$.Particle").SMOKE_NORMAL, e:getPlayer():getLocation():add(0,1,0), 500, 0.5, 1, 0.5)
 						e:getPlayer():getWorld():playSound(e:getPlayer():getLocation(), import("$.Sound").ENTITY_ENDER_DRAGON_GROWL, 1, 1)
 					end
 				end
