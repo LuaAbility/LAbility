@@ -20,10 +20,15 @@ import org.luaj.vm2.lib.*;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 public class GameWrapper extends LuaTable {
-    public Material targetItem = Material.IRON_INGOT;
-    public boolean overrideItem = false;
 
     public GameWrapper(LAbilityMain plugin) {
+        set("getAbilityList", new ZeroArgFunction() {
+            @Override
+            public LuaValue call() {
+                return CoerceJavaToLua.coerce(plugin.abilities);
+            }
+        });
+
         set("getPlayers", new ZeroArgFunction() {
             @Override
             public LuaValue call() {
@@ -225,10 +230,10 @@ public class GameWrapper extends LuaTable {
             @Override
             public LuaValue invoke(Varargs vargs) {
                 ItemStack item = (ItemStack) vargs.checkuserdata(1, ItemStack.class);
-                String targetItem = vargs.checkjstring(2);
+                String targetItems = vargs.checkjstring(2);
 
-                if (overrideItem) return CoerceJavaToLua.coerce(item.getType().equals(targetItem));
-                else return CoerceJavaToLua.coerce(item.getType().toString().contains(targetItem));
+                if (LAbilityMain.instance.gameManager.overrideItem) return CoerceJavaToLua.coerce(item.getType().equals(LAbilityMain.instance.gameManager.targetItem));
+                else return CoerceJavaToLua.coerce(item.getType().toString().contains(targetItems));
             }
         });
 

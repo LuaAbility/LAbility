@@ -28,6 +28,7 @@ public class CommandManager implements CommandExecutor {
 				sender.sendMessage("\2476/la \247eplayer \247f: \247a플레이어 용 명령어를 확인합니다."); // OK
 				sender.sendMessage("\2476/la \247eadmin \247f: \247a관리자 용 명령어를 확인합니다."); // OK
 				sender.sendMessage("\2476/la \247eutil \247f: \247a유틸 명령어를 확인합니다."); // OK
+				sender.sendMessage("\2476/la \247edebug \247f: \247a디버그 명령어를 확인합니다."); // OK
 				sender.sendMessage();
 				return true;
 			}
@@ -39,6 +40,7 @@ public class CommandManager implements CommandExecutor {
 					sender.sendMessage("\2476/la \247eno \247f: \247a현재 능력을 사용하지 않습니다. 이 때, 다른 능력으로 변경됩니다."); // OK
 					return true;
 				}
+
 				if (args[0].equalsIgnoreCase("admin")) {
 					sender.sendMessage("\2476-------[\247eAdmin Command\2476]-------");
 					sender.sendMessage("\2476/la \247estart \247f: \247a게임을 시작합니다.");
@@ -52,22 +54,36 @@ public class CommandManager implements CommandExecutor {
 					sender.sendMessage("\2476/la \247elist \247f: \247a모든 플레이어의 능력을 확인합니다."); // OK
 					return true;
 				}
+
 				if (args[0].equalsIgnoreCase("util")) {
 					sender.sendMessage("\2476-------[\247eAdmin Command\2476]-------");
 					sender.sendMessage("\2476/la \247eablist <Page> \247f: \247a현재 로드된 능력 리스트를 확인합니다.");  // OK
 					sender.sendMessage("\2476/la \247eability <AbilityID> \247f: \247a해당 능력의 정보를 확인합니다.");  // OK
 					return true;
 				}
+
+				if (args[0].equalsIgnoreCase("debug")) {
+					sender.sendMessage("\2476-------[\247eDebug Command\2476]-------");
+					sender.sendMessage("\2476/la \247etest \247f: \247a테스트 모드에 진입합니다. 게임 시작을 하지 않아도 능력 사용이 가능합니다.\n테스트 모드를 종료하려면 /la stop을 입력하세요.");  // OK
+					sender.sendMessage("\2476/la \247ecooldown \247f: \247a쿨타임을 모두 초기화합니다.");  // OK
+					return true;
+				}
+
 				if (args[0].equalsIgnoreCase("check")) {
 					int index = main.gameManager.players.indexOf(senderPlayer.getName());
-					if (index >= 0){
-						LAPlayer lap = main.gameManager.players.get(index);
-						if ((args.length > 1)) {
-							lap.CheckAbility(senderPlayer, Integer.parseInt(args[1]));
-							return true;
-						} else {
-							lap.CheckAbility(senderPlayer, -1);
-							return true;
+					if (index >= 0) {
+						if (main.gameManager.canCheckAbility) {
+							LAPlayer lap = main.gameManager.players.get(index);
+							if ((args.length > 1)) {
+								lap.CheckAbility(senderPlayer, Integer.parseInt(args[1]));
+								return true;
+							} else {
+								lap.CheckAbility(senderPlayer, -1);
+								return true;
+							}
+						}
+						else {
+							senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c현재 게임 설정에서는 자신의 능력을 확인할 수 없습니다.");
 						}
 					} else {
 						senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c게임에 참여 중이 아닙니다.");
@@ -76,30 +92,32 @@ public class CommandManager implements CommandExecutor {
 				}
 
 				if (args[0].equalsIgnoreCase("ob") && senderPlayer.isOp()) {
-					if ((args.length > 1)) {
-						for (Player p : main.getServer().getOnlinePlayers()) {
-							if (p.getName().equals(args[1])) {
-								if (main.gameManager.players.contains(p)){
-									main.gameManager.players.remove(p);
-									if (!senderPlayer.equals(p)) {
-										sender.sendMessage("\2478[\2477LAbility\2478] \2477" + args[1] + " 플레이어가 옵저버로 설정되었습니다.");
-										sender.sendMessage("\2478[\2477LAbility\2478] \2477" + "재 접속 시, 게임에 다시 참여할 수 있습니다.");
+					if (!main.gameManager.isGameReady) {
+						if ((args.length > 1)) {
+							for (Player p : main.getServer().getOnlinePlayers()) {
+								if (p.getName().equals(args[1])) {
+									if (main.gameManager.players.contains(p)) {
+										main.gameManager.players.remove(p);
+										if (!senderPlayer.equals(p)) {
+											sender.sendMessage("\2478[\2477LAbility\2478] \2477" + args[1] + " 플레이어가 옵저버로 설정되었습니다.");
+											sender.sendMessage("\2478[\2477LAbility\2478] \2477" + "재 접속 시, 게임에 다시 참여할 수 있습니다.");
+										}
+										p.sendMessage("\2478[\2477LAbility\2478] \2477" + "옵저버로 설정되었습니다.");
+										p.sendMessage("\2478[\2477LAbility\2478] \2477" + "재 접속 시, 게임에 다시 참여할 수 있습니다.");
+									} else {
+										sender.sendMessage("\2474[\247cLAbility\2474] \247c해당 플레이어는 게임에 참가하고 있지 않습니다.");
 									}
-									p.sendMessage("\2478[\2477LAbility\2478] \2477" + "옵저버로 설정되었습니다.");
-									p.sendMessage("\2478[\2477LAbility\2478] \2477" + "재 접속 시, 게임에 다시 참여할 수 있습니다.");
+									return true;
 								}
-								else {
-									sender.sendMessage("\2474[\247cLAbility\2474] \247c해당 플레이어는 게임에 참가하고 있지 않습니다.");
-								}
-								return true;
 							}
+							sender.sendMessage("\2474[\247cLAbility\2474] \247c플레이어가 존재하지 않습니다.");
+						} else {
+							sender.sendMessage("\2474[\247cLAbility\2474] \247c플레이어 이름을 입력해주세요.");
 						}
-						sender.sendMessage("\2474[\247cLAbility\2474] \247c플레이어가 존재하지 않습니다.");
+						return true;
+					} else {
+						senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c게임이 진행 중입니다.");
 					}
-					else {
-						sender.sendMessage("\2474[\247cLAbility\2474] \247c플레이어 이름을 입력해주세요.");
-					}
-					return true;
 				}
 
 				if (args[0].equalsIgnoreCase("ablist")) {
@@ -171,7 +189,9 @@ public class CommandManager implements CommandExecutor {
 										p.player.sendMessage("\2476[\247eLAbility\2476] \2476" + a.abilityName + "\247e 능력을 얻었습니다.");
 										p.player.sendMessage("\2476[\247eLAbility\2476] \247a" + "/la check " + (p.ability.size() - 1) + "\247e로 확인가능합니다.");
 
-										LAbilityMain.instance.gameManager.RunPassive(p, p.ability.get(p.ability.indexOf(a.abilityID)));
+										if (main.gameManager.isGameReady) {
+											LAbilityMain.instance.gameManager.RunPassive(p, p.ability.get(p.ability.indexOf(a.abilityID)));
+										}
 										return true;
 									}
 									else {
@@ -215,9 +235,11 @@ public class CommandManager implements CommandExecutor {
 										p.player.sendMessage("\2474[\247cLAbility\2474] \247c" + "해당 능력은, 더 이상 사용하실 수 없습니다.");
 
 										int abilityIndex = p.getAbility().indexOf(a.abilityID);
-										LAbilityMain.instance.gameManager.StopPassive(p, p.getAbility().get(abilityIndex));
-										LAbilityMain.instance.gameManager.StopActiveTimer(p, p.getAbility().get(abilityIndex));
-										p.getAbility().remove(abilityIndex);
+										if (main.gameManager.isGameReady) {
+											LAbilityMain.instance.gameManager.StopPassive(p, p.getAbility().get(abilityIndex));
+											LAbilityMain.instance.gameManager.StopActiveTimer(p, p.getAbility().get(abilityIndex));
+											p.getAbility().remove(abilityIndex);
+										}
 										return true;
 									}
 									else {
@@ -237,9 +259,11 @@ public class CommandManager implements CommandExecutor {
 									p.player.sendMessage("\2474[\247cLAbility\2474] \2474모든\247c 능력을 잃었습니다.");
 									p.player.sendMessage("\2474[\247cLAbility\2474] \247c능력을 더 이상 사용하실 수 없습니다.");
 
-									for (Ability a : p.getAbility()){
-										LAbilityMain.instance.gameManager.StopPassive(p, a);
-										LAbilityMain.instance.gameManager.StopActiveTimer(p, a);
+									if (main.gameManager.isGameReady) {
+										for (Ability a : p.getAbility()) {
+											LAbilityMain.instance.gameManager.StopPassive(p, a);
+											LAbilityMain.instance.gameManager.StopActiveTimer(p, a);
+										}
 									}
 
 									p.ability.clear();
@@ -260,7 +284,7 @@ public class CommandManager implements CommandExecutor {
 					}
 				}
 
-				if (args[0].equalsIgnoreCase("list")) {
+				if (args[0].equalsIgnoreCase("list") && senderPlayer.isOp()) {
 					sender.sendMessage("\2476-------[\247eAbility List\2476]-------");
 					for (LAPlayer lap : main.gameManager.players) {
 						String abilityString = "";
@@ -276,59 +300,73 @@ public class CommandManager implements CommandExecutor {
 						sender.sendMessage(abilityString);
 					}
 				}
+
 				if (args[0].equalsIgnoreCase("reroll") && senderPlayer.isOp()) {
-					if ((args.length > 1)) {
-						int index = main.gameManager.players.indexOf(args[1]);
-						if (index >= 0) {
-							LAPlayer p = main.gameManager.players.get(index);
-							main.gameManager.ResignAbility(p);
-							main.gameManager.AssignAbility(p);
+					if (main.gameManager.isGameReady) {
+						if ((args.length > 1)) {
+							int index = main.gameManager.players.indexOf(args[1]);
+							if (index >= 0) {
+								LAPlayer p = main.gameManager.players.get(index);
+								main.gameManager.ResignAbility(p);
+								main.gameManager.AssignAbility(p);
+							} else {
+								sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 플레이어 입니다.");
+							}
 						} else {
-							sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 플레이어 입니다.");
+							main.gameManager.ResignAbility();
+							main.gameManager.AssignAbility();
 						}
-					}
-					else {
-						main.gameManager.ResignAbility();
-						main.gameManager.AssignAbility();
+					} else {
+						senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c게임 진행 중이 아닙니다.");
 					}
 				}
 
 				if (args[0].equalsIgnoreCase("yes")) {
-					int index = main.gameManager.players.indexOf(senderPlayer.getName());
-					if (index >= 0) {
-						LAPlayer lap = main.gameManager.players.get(index);
-						if (lap.isAssign) {
-							senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c이미 능력이 확정되었습니다.");
+					if (main.gameManager.isGameReady) {
+						int index = main.gameManager.players.indexOf(senderPlayer.getName());
+						if (index >= 0) {
+							LAPlayer lap = main.gameManager.players.get(index);
+							if (lap.isAssign) {
+								senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c이미 능력이 확정되었습니다.");
+								return true;
+							}
+							lap.isAssign = true;
+							sender.sendMessage("\2472[\247aLAbility\2472] \247a" + "능력을 결정했습니다. 게임 시작까지 기다려주세요.");
+							return true;
+						} else {
+							senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c게임에 참여 중이 아닙니다.");
 							return true;
 						}
-						lap.isAssign = true;
-						sender.sendMessage("\2472[\247aLAbility\2472] \247a" + "능력을 결정했습니다. 게임 시작까지 기다려주세요.");
-						return true;
 					} else {
-						senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c게임에 참여 중이 아닙니다.");
-						return true;
+						senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c게임 진행 중이 아닙니다.");
 					}
 				}
 
 				if (args[0].equalsIgnoreCase("no")) {
-					int index = main.gameManager.players.indexOf(senderPlayer.getName());
-					if (index >= 0) {
-						LAPlayer lap = main.gameManager.players.get(index);
-						if (lap.isAssign) {
-							senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c이미 능력이 확정되었습니다.");
+					if (main.gameManager.isGameReady) {
+						int index = main.gameManager.players.indexOf(senderPlayer.getName());
+						if (index >= 0) {
+							LAPlayer lap = main.gameManager.players.get(index);
+							if (lap.isAssign) {
+								senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c이미 능력이 확정되었습니다.");
+								return true;
+							}
+							main.gameManager.ResignAbility(lap);
+							main.gameManager.AssignAbility(lap);
+							lap.isAssign = true;
+							sender.sendMessage("\2472[\247aLAbility\2472] \247a" + "현재 능력을 버리고 새로운 능력을 갖습니다.");
+							return true;
+						} else {
+							senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c게임에 참여 중이 아닙니다.");
 							return true;
 						}
-						lap.ResignAbility();
-						sender.sendMessage("\2472[\247aLAbility\2472] \247a" + "현재 능력을 버리고 새로운 능력을 갖습니다.");
-						return true;
 					} else {
-						senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c게임에 참여 중이 아닙니다.");
-						return true;
+						senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c게임 진행 중이 아닙니다.");
 					}
 				}
 
 				if (args[0].equalsIgnoreCase("skip") && senderPlayer.isOp()) {
-					if (main.gameManager.isGameStarted) {
+					if (main.gameManager.isGameReady) {
 						for (LAPlayer lap : main.gameManager.players) lap.isAssign = true;
 						main.getServer().broadcastMessage("\2474[\247cLAbility\2474] \247c관리자가 모든 능력을 강제로 할당시켰습니다.");
 					} else {
@@ -337,8 +375,15 @@ public class CommandManager implements CommandExecutor {
 				}
 
 				if (args[0].equalsIgnoreCase("start") && senderPlayer.isOp()) {
-					if (!main.gameManager.isGameStarted) {
-						ScheduleManager.PrepareTimer();
+					if (!main.gameManager.isGameReady) {
+						if (!LAbilityMain.instance.gameManager.overlapAbility && (LAbilityMain.instance.gameManager.abilityAmount * LAbilityMain.instance.gameManager.players.size()) > LAbilityMain.instance.abilities.size()) {
+							senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c인원 수가 너무 많아 게임 플레이가 불가능합니다.");
+							senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c현재 로드된 능력들로 플레이 가능한 최대 인원은 " + LAbilityMain.instance.abilities.size() / LAbilityMain.instance.gameManager.abilityAmount + "명 입니다.");
+							if (LAbilityMain.instance.gameManager.abilityAmount > 1) senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c추첨하는 능력의 개수가 너무 많습니다. 추첨 개수를 줄이거나 능력 중복 추첨을 허용해주세요.");
+						} else if (LAbilityMain.instance.gameManager.players.size() < 2){
+							senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c한 명일때는 게임 시작이 불가능합니다.");
+						}
+						else ScheduleManager.PrepareTimer();
 					}
 					else {
 						senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c게임이 진행 중입니다.");
@@ -346,7 +391,7 @@ public class CommandManager implements CommandExecutor {
 				}
 
 				if (args[0].equalsIgnoreCase("stop") && senderPlayer.isOp()) {
-					if (main.gameManager.isGameStarted) {
+					if (main.gameManager.isGameReady) {
 						ScheduleManager.ClearTimer();
 						main.gameManager.ResetAll();
 						Bukkit.getScheduler().cancelTasks(LAbilityMain.plugin);
@@ -360,6 +405,7 @@ public class CommandManager implements CommandExecutor {
 				if (args[0].equalsIgnoreCase("test") && senderPlayer.isOp()) {
 					sender.sendMessage("\2472[\247aLAbility\2472] \247a테스트 모드입니다. 게임 시작상태가 되며, 능력 사용이 가능합니다.");
 					main.gameManager.isGameStarted = true;
+					main.gameManager.isGameReady = true;
 					main.gameManager.RunAllPassive();
 				}
 

@@ -35,7 +35,9 @@ function main(abilityData)
 					e:setCancelled(true)
 				end
 			else
-				damagee:getWorld():playSound(damagee:getLocation(), import("$.Sound").ENTITY_BAT_HURT, 0.25, 1)
+				if game.checkCooldown(damagee, a, 0) then
+					damagee:getWorld():playSound(damagee:getLocation(), import("$.Sound").ENTITY_BAT_HURT, 0.25, 1)
+				end
 			end
 		end
 	end)

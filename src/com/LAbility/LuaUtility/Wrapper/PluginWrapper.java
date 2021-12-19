@@ -122,14 +122,24 @@ public class PluginWrapper extends LuaTable {
             }
         });
 
+        set("abilityCheckOption", new VarArgFunction() {
+            @Override
+            public LuaValue invoke(Varargs vargs) {
+                boolean canCheckAbility  = vargs.checkboolean(1);
+
+                plugin.gameManager.canCheckAbility = canCheckAbility;
+                return NIL;
+            }
+        });
+
         set("abilityItemOption", new VarArgFunction() {
             @Override
             public LuaValue invoke(Varargs vargs) {
                 boolean overrideItem = vargs.checkboolean(1);
                 Material targetItem = (Material)vargs.checkuserdata(2, Material.class);
 
-                plugin.gameWrapper.overrideItem = overrideItem;
-                plugin.gameWrapper.targetItem = targetItem;
+                plugin.gameManager.overrideItem = overrideItem;
+                plugin.gameManager.targetItem = targetItem;
                 return NIL;
             }
         });
@@ -140,6 +150,16 @@ public class PluginWrapper extends LuaTable {
                 boolean raffleAbility = vargs.checkboolean(1);
 
                 plugin.gameManager.raffleAbility = raffleAbility;
+                return NIL;
+            }
+        });
+
+        set("cooldownMultiplyOption", new VarArgFunction() {
+            @Override
+            public LuaValue invoke(Varargs vargs) {
+                double cooldownMultiply = vargs.checkdouble(1);
+
+                plugin.gameManager.cooldownMultiply = cooldownMultiply;
                 return NIL;
             }
         });

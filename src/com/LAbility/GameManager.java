@@ -4,6 +4,7 @@ import com.LAbility.LuaUtility.AbilityList;
 import com.LAbility.LuaUtility.PlayerList;
 import joptsimple.util.KeyValuePair;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class GameManager {
+    public boolean isGameReady = false;
     public boolean isGameStarted = false;
     public PlayerList<LAPlayer> players = new PlayerList<LAPlayer>();
 
@@ -24,9 +26,14 @@ public class GameManager {
     public int abilityAmount = 1;
     public boolean overlapAbility = false;
     public boolean raffleAbility = true;
+    public boolean canCheckAbility = true;
+    public double cooldownMultiply = 1;
+    public Material targetItem = Material.IRON_INGOT;
+    public boolean overrideItem = false;
 
     public void ResetAll(){
         isGameStarted = false;
+        isGameReady = false;
         currentAbilityIndex = 0;
         shuffledAbilityIndex = new ArrayList<Integer>();
         StopAllPassive();
@@ -136,22 +143,24 @@ public class GameManager {
 
     public void AssignAbility() {
         if (shuffledAbilityIndex.size() < 1) AbilityShuffle(true);
-        for (LAPlayer player : players){
-            for (int i = 0; i < abilityAmount; i++){
-                AssignAbility(player);
-            }
+        for (LAPlayer player : players) {
+            AssignAbility(player);
         }
     }
 
     public void AssignAbility(LAPlayer player) {
-        if (overlapAbility) {
-            Random random = new Random();
-            Ability temp = LAbilityMain.instance.abilities.get(random.nextInt(LAbilityMain.instance.abilities.size() - 1));
-            while (player.ability.contains(temp.abilityID)) temp = LAbilityMain.instance.abilities.get(random.nextInt(LAbilityMain.instance.abilities.size() - 1));
-            player.ability.add(new Ability(temp));
+        for (int i = 0; i < abilityAmount; i++) {
+            if (overlapAbility) {
+                Random random = new Random();
+                Ability temp = LAbilityMain.instance.abilities.get(random.nextInt(LAbilityMain.instance.abilities.size() - 1));
+                while (player.ability.contains(temp.abilityID) || temp.abilityID.contains("HIDDEN"))
+                    temp = LAbilityMain.instance.abilities.get(random.nextInt(LAbilityMain.instance.abilities.size() - 1));
+                player.ability.add(new Ability(temp));
+            } else {
+                player.ability.add(new Ability(LAbilityMain.instance.abilities.get(shuffledAbilityIndex.get(0))));
+                shuffledAbilityIndex.remove(0);
+            }
         }
-        else player.ability.add(new Ability(LAbilityMain.instance.abilities.get(shuffledAbilityIndex.get(0))));
-        shuffledAbilityIndex.remove(0);
 
         player.player.sendMessage("\2472[\247aLAbility\2472] \247a" + "능력이 무작위 배정되었습니다.");
         player.player.sendMessage("\2472[\247aLAbility\2472] \247a" + "/la check " + (player.ability.size() - 1) + "로 능력을 확인해주세요.");
@@ -159,6 +168,8 @@ public class GameManager {
 
     public void ResignAbility(LAPlayer player, Ability ability) {
         if (player.ability.contains(ability.abilityID)) {
+            LAbilityMain.instance.gameManager.StopPassive(player, ability);
+            LAbilityMain.instance.gameManager.StopActiveTimer(player, ability);
             player.ability.remove(ability);
             if (!ability.abilityID.contains("HIDDEN")) shuffledAbilityIndex.add(LAbilityMain.instance.abilities.indexOf(ability));
             AbilityShuffle(false);
@@ -166,9 +177,8 @@ public class GameManager {
     }
 
     public void ResignAbility(LAPlayer player) {
-        ArrayList<Ability> tempArray = player.ability;
-        if (tempArray.size() > 0) {
-            for (Ability a : tempArray) {
+        if (player.ability.size() > 0) {
+            for (Ability a : player.ability) {
                 if (!a.abilityID.contains("HIDDEN")) shuffledAbilityIndex.add(LAbilityMain.instance.abilities.indexOf(a.abilityID));
             }
             AbilityShuffle(false);
