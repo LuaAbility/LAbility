@@ -1,6 +1,6 @@
 function main(abilityData)
 	difficult = 1
-	plugin.registerEvent(abilityData, "PlayerInteractEvent", 0, function(a, e)
+	plugin.registerEvent(abilityData, "PlayerInteractEvent", 6000, function(a, e)
 		if e:getAction():toString() == "RIGHT_CLICK_AIR" or e:getAction():toString() == "RIGHT_CLICK_BLOCK" then
 			if e:getItem() ~= nil then
 				if game.isAbilityItem(e:getItem(), "IRON_INGOT") then
@@ -12,7 +12,7 @@ function main(abilityData)
 		end
 	end)
 	
-	plugin.registerEvent(abilityData, "EntityDamageByEntityEvent", 6000, function(a, e)
+	plugin.registerEvent(abilityData, "EntityDamageByEntityEvent", 0, function(a, e)
 		local damagee = e:getEntity()
 		local damager = e:getDamager()
 		if e:getCause():toString() == "PROJECTILE" then damager = e:getDamager():getShooter() end

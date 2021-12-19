@@ -26,6 +26,11 @@ function main(abilityData)
 		end
 	end)
 	
+	plugin.onPlayerEnd(abilityData, function(p)
+		p:getPlayer():setAllowFlight(false)
+		p:getPlayer():setFlying(false)
+	end)
+	
 	plugin.registerEvent(abilityData, "EntityDamageEvent", 0, function(a, e)
 		if e:getCause():toString() == "FALL" and firstFallDamage then
 			if game.checkCooldown(e:getEntity(), a, 1) then

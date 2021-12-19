@@ -40,7 +40,7 @@ function main(abilityData)
 			if game.checkCooldown(e:getEntity(), a, 2) then
 				e:setDamage(100000)
 				e:getEntity():getWorld():playSound(e:getEntity():getLocation(), import("$.Sound").ENTITY_GHAST_DEATH, 1, 1)
-				e:getEntity():getWorld():spawnParticle(import("$.Particle").SMOKE_NORMAL, e:getEntity():getLocation():add(0,1,0), 200, 0.5, 1, 0.5, 1)
+				e:getEntity():getWorld():spawnParticle(import("$.Particle").SMOKE_NORMAL, e:getEntity():getLocation():add(0,1,0), 200, 0.5, 1, 0.5)
 			end
 		end
 	end)
