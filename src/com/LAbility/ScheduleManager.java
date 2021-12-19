@@ -36,11 +36,10 @@ public class ScheduleManager {
                             Bukkit.broadcastMessage("\247b능력 추첨 개수 \247f: \247a" + LAbilityMain.instance.gameManager.abilityAmount);
                             Bukkit.broadcastMessage("\247b능력 중복 여부 \247f: \247a" + LAbilityMain.instance.gameManager.overlapAbility);
                         }
-                        Bukkit.broadcastMessage("\247b능력 시전 아이템 통일 \247f: \247a" + LAbilityMain.instance.gameWrapper.overrideItem);
-                        if (LAbilityMain.instance.gameWrapper.overrideItem)
-                            Bukkit.broadcastMessage("\247b능력 추첨 여부 \247f: \247a" + LAbilityMain.instance.gameWrapper.targetItem.toString());
+                        Bukkit.broadcastMessage("\247b능력 시전 아이템 통일 \247f: \247a" + LAbilityMain.instance.gameManager.overrideItem);
+                        if (LAbilityMain.instance.gameManager.overrideItem)
+                            Bukkit.broadcastMessage("\247b통일된 아이템의 종류 \247f: \247a" + LAbilityMain.instance.gameManager.targetItem.toString());
                         Bukkit.broadcastMessage("\247b능력 쿨타임 배율 \247f: \247ax" + LAbilityMain.instance.gameManager.cooldownMultiply);
-                        Bukkit.broadcastMessage("\2476--------\2476-------------\2476--------");
                         if (!LAbilityMain.instance.gameManager.raffleAbility) time_Prepare = 26;
                         break;
                     case 2:

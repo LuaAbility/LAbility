@@ -189,7 +189,9 @@ public class CommandManager implements CommandExecutor {
 										p.player.sendMessage("\2476[\247eLAbility\2476] \2476" + a.abilityName + "\247e 능력을 얻었습니다.");
 										p.player.sendMessage("\2476[\247eLAbility\2476] \247a" + "/la check " + (p.ability.size() - 1) + "\247e로 확인가능합니다.");
 
-										LAbilityMain.instance.gameManager.RunPassive(p, p.ability.get(p.ability.indexOf(a.abilityID)));
+										if (main.gameManager.isGameReady) {
+											LAbilityMain.instance.gameManager.RunPassive(p, p.ability.get(p.ability.indexOf(a.abilityID)));
+										}
 										return true;
 									}
 									else {
@@ -233,9 +235,11 @@ public class CommandManager implements CommandExecutor {
 										p.player.sendMessage("\2474[\247cLAbility\2474] \247c" + "해당 능력은, 더 이상 사용하실 수 없습니다.");
 
 										int abilityIndex = p.getAbility().indexOf(a.abilityID);
-										LAbilityMain.instance.gameManager.StopPassive(p, p.getAbility().get(abilityIndex));
-										LAbilityMain.instance.gameManager.StopActiveTimer(p, p.getAbility().get(abilityIndex));
-										p.getAbility().remove(abilityIndex);
+										if (main.gameManager.isGameReady) {
+											LAbilityMain.instance.gameManager.StopPassive(p, p.getAbility().get(abilityIndex));
+											LAbilityMain.instance.gameManager.StopActiveTimer(p, p.getAbility().get(abilityIndex));
+											p.getAbility().remove(abilityIndex);
+										}
 										return true;
 									}
 									else {
@@ -255,9 +259,11 @@ public class CommandManager implements CommandExecutor {
 									p.player.sendMessage("\2474[\247cLAbility\2474] \2474모든\247c 능력을 잃었습니다.");
 									p.player.sendMessage("\2474[\247cLAbility\2474] \247c능력을 더 이상 사용하실 수 없습니다.");
 
-									for (Ability a : p.getAbility()){
-										LAbilityMain.instance.gameManager.StopPassive(p, a);
-										LAbilityMain.instance.gameManager.StopActiveTimer(p, a);
+									if (main.gameManager.isGameReady) {
+										for (Ability a : p.getAbility()) {
+											LAbilityMain.instance.gameManager.StopPassive(p, a);
+											LAbilityMain.instance.gameManager.StopActiveTimer(p, a);
+										}
 									}
 
 									p.ability.clear();

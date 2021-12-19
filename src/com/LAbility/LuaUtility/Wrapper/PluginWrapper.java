@@ -138,8 +138,8 @@ public class PluginWrapper extends LuaTable {
                 boolean overrideItem = vargs.checkboolean(1);
                 Material targetItem = (Material)vargs.checkuserdata(2, Material.class);
 
-                plugin.gameWrapper.overrideItem = overrideItem;
-                plugin.gameWrapper.targetItem = targetItem;
+                plugin.gameManager.overrideItem = overrideItem;
+                plugin.gameManager.targetItem = targetItem;
                 return NIL;
             }
         });

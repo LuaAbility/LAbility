@@ -4,6 +4,7 @@ import com.LAbility.LuaUtility.AbilityList;
 import com.LAbility.LuaUtility.PlayerList;
 import joptsimple.util.KeyValuePair;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -27,6 +28,8 @@ public class GameManager {
     public boolean raffleAbility = true;
     public boolean canCheckAbility = true;
     public double cooldownMultiply = 1;
+    public Material targetItem = Material.IRON_INGOT;
+    public boolean overrideItem = false;
 
     public void ResetAll(){
         isGameStarted = false;

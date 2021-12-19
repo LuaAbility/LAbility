@@ -20,8 +20,6 @@ import org.luaj.vm2.lib.*;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 public class GameWrapper extends LuaTable {
-    public Material targetItem = Material.IRON_INGOT;
-    public boolean overrideItem = false;
 
     public GameWrapper(LAbilityMain plugin) {
         set("getAbilityList", new ZeroArgFunction() {
@@ -234,7 +232,7 @@ public class GameWrapper extends LuaTable {
                 ItemStack item = (ItemStack) vargs.checkuserdata(1, ItemStack.class);
                 String targetItems = vargs.checkjstring(2);
 
-                if (overrideItem) return CoerceJavaToLua.coerce(item.getType().equals(targetItem));
+                if (LAbilityMain.instance.gameManager.overrideItem) return CoerceJavaToLua.coerce(item.getType().equals(LAbilityMain.instance.gameManager.targetItem));
                 else return CoerceJavaToLua.coerce(item.getType().toString().contains(targetItems));
             }
         });
