@@ -38,7 +38,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
 
         assignAllPlayer();
         if (hasError > 0) Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c" + hasError + "개의 능력을 로드하는데 문제가 생겼습니다. 해당 능력들은 로드하지 않습니다.");
-        Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \2477v0.1 " + abilities.size() + "개 능력 로드 완료!");
+        Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \2477v0.2 " + abilities.size() + "개 능력 로드 완료!");
         Bukkit.getConsoleSender().sendMessage("Made by MINUTE.");
     }
 
@@ -48,7 +48,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         gameManager.ResetAll();
         Bukkit.getScheduler().cancelTasks(LAbilityMain.plugin);
 
-        Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \2477v0.1 비활성화 되었습니다.");
+        Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \2477v0.2 비활성화 되었습니다.");
         Bukkit.getConsoleSender().sendMessage("Made by MINUTE.");
     }
 

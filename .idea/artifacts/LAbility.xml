@@ -2,9 +2,11 @@
   <artifact type="jar" name="LAbility">
     <output-path>$PROJECT_DIR$/../api/plugins</output-path>
     <root id="archive" name="LAbility.jar">
-      <element id="module-output" name="LAbility" />
       <element id="dir-copy" path="$PROJECT_DIR$/resources" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../../luaj-jse-3.0.1.jar" path-in-jar="/" />
+      <element id="module-output" name="LAbility" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../api/bundler/libraries/spigot-api-1.18.1-R0.1-SNAPSHOT.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../api/bundler/libraries/snakeyaml-1.30.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
