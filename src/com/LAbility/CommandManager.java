@@ -376,10 +376,13 @@ public class CommandManager implements CommandExecutor {
 
 				if (args[0].equalsIgnoreCase("start") && senderPlayer.isOp()) {
 					if (!main.gameManager.isGameReady) {
-						if (!LAbilityMain.instance.gameManager.overlapAbility && (LAbilityMain.instance.gameManager.abilityAmount * LAbilityMain.instance.gameManager.players.size()) > LAbilityMain.instance.abilities.size()) {
-							senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c인원 수가 너무 많아 게임 플레이가 불가능합니다.");
-							senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c현재 로드된 능력들로 플레이 가능한 최대 인원은 " + LAbilityMain.instance.abilities.size() / LAbilityMain.instance.gameManager.abilityAmount + "명 입니다.");
-							if (LAbilityMain.instance.gameManager.abilityAmount > 1) senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c추첨하는 능력의 개수가 너무 많습니다. 추첨 개수를 줄이거나 능력 중복 추첨을 허용해주세요.");
+						if ((!LAbilityMain.instance.gameManager.overlapAbility && (LAbilityMain.instance.gameManager.abilityAmount * LAbilityMain.instance.gameManager.players.size()) > LAbilityMain.instance.abilities.size()) ||
+								(LAbilityMain.instance.gameManager.overlapAbility && LAbilityMain.instance.gameManager.abilityAmount > LAbilityMain.instance.abilities.size())) {
+							if (!LAbilityMain.instance.gameManager.overlapAbility) {
+								senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c인원 수가 너무 많아 게임 플레이가 불가능합니다.");
+								senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c현재 로드된 능력들로 플레이 가능한 최대 인원은 " + LAbilityMain.instance.abilities.size() / LAbilityMain.instance.gameManager.abilityAmount + "명 입니다.");
+							}
+							if (LAbilityMain.instance.gameManager.abilityAmount > 1) senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c추첨하는 능력의 개수가 너무 많습니다. 추첨하는 능력의 개수를 줄여주세요.");
 						} else if (LAbilityMain.instance.gameManager.players.size() < 2){
 							senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c한 명일때는 게임 시작이 불가능합니다.");
 						}
@@ -392,9 +395,7 @@ public class CommandManager implements CommandExecutor {
 
 				if (args[0].equalsIgnoreCase("stop") && senderPlayer.isOp()) {
 					if (main.gameManager.isGameReady) {
-						ScheduleManager.ClearTimer();
-						main.gameManager.ResetAll();
-						Bukkit.getScheduler().cancelTasks(LAbilityMain.plugin);
+						LAbilityMain.instance.gameManager.OnGameEnd();
 						main.getServer().broadcastMessage("\2474[\247cLAbility\2474] \247c게임이 중단되었습니다.");
 					}
 					else {

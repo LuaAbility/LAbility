@@ -29,6 +29,8 @@ public class GameManager {
     public double cooldownMultiply = 1;
     public Material targetItem = Material.IRON_INGOT;
     public boolean overrideItem = false;
+    public boolean skipYesOrNo = false;
+    public LuaFunction onGameEnd;
 
     public void ResetAll(){
         isGameStarted = false;
@@ -151,9 +153,11 @@ public class GameManager {
         for (int i = 0; i < abilityAmount; i++) {
             if (overlapAbility) {
                 Random random = new Random();
-                Ability temp = LAbilityMain.instance.abilities.get(random.nextInt(LAbilityMain.instance.abilities.size() - 1));
-                while (player.ability.contains(temp.abilityID) || temp.abilityID.contains("HIDDEN"))
-                    temp = LAbilityMain.instance.abilities.get(random.nextInt(LAbilityMain.instance.abilities.size() - 1));
+                Ability temp = LAbilityMain.instance.abilities.get(random.nextInt(LAbilityMain.instance.abilities.size()));
+                while (player.ability.contains(temp.abilityID) || temp.abilityID.contains("HIDDEN")){
+                    Bukkit.getConsoleSender().sendMessage(player.player.getName() + " / " + temp.abilityID);
+                    temp = LAbilityMain.instance.abilities.get(random.nextInt(LAbilityMain.instance.abilities.size()));
+                }
                 player.ability.add(new Ability(temp));
             } else {
                 player.ability.add(new Ability(LAbilityMain.instance.abilities.get(shuffledAbilityIndex.get(0))));
@@ -201,5 +205,12 @@ public class GameManager {
             if (player.isAssign == false) return false;
         }
         return true;
+    }
+
+    public void OnGameEnd(){
+        ScheduleManager.ClearTimer();
+        LAbilityMain.instance.gameManager.ResetAll();
+        Bukkit.getScheduler().cancelTasks(LAbilityMain.plugin);
+        onGameEnd.invoke();
     }
 }

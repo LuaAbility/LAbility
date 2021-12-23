@@ -7,7 +7,10 @@ import com.LAbility.LuaUtility.PlayerList;
 import com.LAbility.ScheduleManager;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Keyed;
 import org.bukkit.Material;
+import org.bukkit.boss.BossBar;
+import org.bukkit.boss.KeyedBossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -18,6 +21,8 @@ import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.*;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
+
+import java.util.ArrayList;
 
 public class GameWrapper extends LuaTable {
 
@@ -51,8 +56,8 @@ public class GameWrapper extends LuaTable {
             @Override
             public LuaValue call(LuaValue arg1) {
                 Player player = (Player) arg1.checkuserdata(Player.class);
-                if (plugin.gameManager.players.indexOf(player) >= 0)
-                    return CoerceJavaToLua.coerce(plugin.gameManager.players.get(plugin.gameManager.players.indexOf(player)));
+                if (plugin.gameManager.players.indexOf(player.getName()) >= 0)
+                    return CoerceJavaToLua.coerce(plugin.gameManager.players.get(plugin.gameManager.players.indexOf(player.getName())));
                 else return CoerceJavaToLua.coerce(false);
             }
         });
@@ -196,7 +201,6 @@ public class GameWrapper extends LuaTable {
             @Override
             public LuaValue invoke(Varargs vargs) {
                 Player player = (Player) vargs.checkuserdata(1, Player.class);
-
                 for (LAPlayer players : LAbilityMain.instance.gameManager.players) {
                     if (players.getPlayer().equals(player)) {
                         return CoerceJavaToLua.coerce(players.getAbility());
@@ -241,7 +245,7 @@ public class GameWrapper extends LuaTable {
             @Override
             public LuaValue call(LuaValue arg) {
                 Player player = (Player) arg.checkuserdata(Player.class);
-                int playerIndex = plugin.gameManager.players.indexOf(player);
+                int playerIndex = plugin.gameManager.players.indexOf(player.getName());
                 if (playerIndex >= 0){
                     plugin.gameManager.players.get(playerIndex).isSurvive = false;
                     for (Ability a : plugin.gameManager.players.get(playerIndex).getAbility()){
@@ -250,6 +254,9 @@ public class GameWrapper extends LuaTable {
                     }
                     player.setGameMode(GameMode.SPECTATOR);
                 }
+                else {
+                    Bukkit.getConsoleSender().sendMessage("Error!");
+                }
                 return NIL;
             }
         });
@@ -257,9 +264,16 @@ public class GameWrapper extends LuaTable {
         set("endGame", new ZeroArgFunction() {
             @Override
             public LuaValue call() {
-                ScheduleManager.ClearTimer();
-                LAbilityMain.instance.gameManager.ResetAll();
-                Bukkit.getScheduler().cancelTasks(LAbilityMain.plugin);
+                LAbilityMain.instance.gameManager.OnGameEnd();
+                return NIL;
+            }
+        });
+
+        set("setOnGameEndFunction", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue arg) {
+                LuaFunction func = arg.checkfunction();
+                LAbilityMain.instance.gameManager.onGameEnd = func;
                 return NIL;
             }
         });

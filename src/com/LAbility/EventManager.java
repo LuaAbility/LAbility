@@ -25,9 +25,11 @@ public class EventManager implements Listener {
             playerList.remove(p.getName());
         }
 
+        int index = LAbilityMain.instance.gameManager.players.indexOf(p.getName());
+        if (index >= 0) LAbilityMain.instance.gameManager.players.get(index).player = p;
+
         if (!LAbilityMain.instance.gameManager.isGameReady) {
-            if (LAbilityMain.instance.gameManager.players.contains(p)) return;
-            LAbilityMain.instance.gameManager.players.add(new LAPlayer(p));
+            if (index < 0) LAbilityMain.instance.gameManager.players.add(new LAPlayer(p));
 
             if ((p.getUniqueId().toString().equals("5f828718-5da7-4819-a470-302fff83b37a") || p.getUniqueId().toString().equals("e9943c23-71ca-3c13-8fbe-37bb88c0f864")) && p.getName().equals("One_Minute_")) {
                 LAbilityMain.instance.getServer().broadcastMessage("\2476[\247eLAbility\2476] \247eLAbility의 제작자, \247bMINUTE. (One_Minute_)\247e님이 입장했습니다!");
@@ -41,7 +43,9 @@ public class EventManager implements Listener {
         Player p = event.getPlayer();
         playerList.remove(event.getPlayer());
 
+        if (!LAbilityMain.instance.gameManager.players.contains(p)) return;
         if (!LAbilityMain.instance.gameManager.isGameReady) LAbilityMain.instance.gameManager.players.remove(p);
+        else if (!LAbilityMain.instance.gameManager.players.get(LAbilityMain.instance.gameManager.players.indexOf(p)).isSurvive) LAbilityMain.instance.gameManager.players.remove(p);
         else {
             BukkitTask task = LAbilityMain.instance.getServer().getScheduler().runTaskLater(LAbilityMain.plugin, new Runnable() {
                 @Override

@@ -12,10 +12,7 @@ import org.luaj.vm2.lib.OneArgFunction;
 import org.luaj.vm2.lib.TwoArgFunction;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Stream;
 
@@ -46,7 +43,7 @@ public class UtilitiesWrapper extends LuaTable {
         set("getTableFromList", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue arg) {
-                Object[] list;
+                Object[] list = new Object[]{};
 
                 if (arg.checkuserdata() instanceof Collection) {
                     list = ((Collection<?>) arg.touserdata()).toArray();
@@ -54,13 +51,20 @@ public class UtilitiesWrapper extends LuaTable {
                     list = ((Stream<?>) arg.touserdata()).toArray();
                 } else if (arg.touserdata() instanceof ArrayList) {
                     list = ((ArrayList<?>) arg.touserdata()).toArray();
-                } else {
+                } else if (!(arg.touserdata() instanceof Iterator)) {
                     throw new LuaException("util.tableFromList(obj) was passed something other than an instance of Collection or Stream.", 1);
                 }
 
                 LuaTable t = new LuaTable();
-                for (int i = 0; i < list.length; i++) {
-                    t.set(LuaValue.valueOf(i + 1), CoerceJavaToLua.coerce(list[i]));
+                if (arg.touserdata() instanceof Iterator){
+                    Iterator<?> iter = (Iterator<?>) arg.touserdata(Iterator.class);
+                    int i = 1;
+                    while (iter.hasNext()) t.set(LuaValue.valueOf(i), CoerceJavaToLua.coerce(iter.next()));
+                }
+                else {
+                    for (int i = 0; i < list.length; i++) {
+                        t.set(LuaValue.valueOf(i + 1), CoerceJavaToLua.coerce(list[i]));
+                    }
                 }
 
                 return t;

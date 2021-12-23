@@ -164,6 +164,16 @@ public class PluginWrapper extends LuaTable {
             }
         });
 
+        set("skipYesOrNoOption", new VarArgFunction() {
+            @Override
+            public LuaValue invoke(Varargs vargs) {
+                boolean skipYesOrNo = vargs.checkboolean(1);
+
+                plugin.gameManager.skipYesOrNo = skipYesOrNo;
+                return NIL;
+            }
+        });
+
         set("onPlayerEnd", new TwoArgFunction() {
             @Override
             public LuaValue call(LuaValue arg1,LuaValue arg2) {
