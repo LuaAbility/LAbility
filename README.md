@@ -1,6 +1,6 @@
 ![LAbility](https://user-images.githubusercontent.com/30228621/145702029-17ecfee6-6838-4405-91e3-2bdc88564e19.png)
 ### License
-이 플러그인은 [**LAbility 라이센스**](https://github.com/MINUTE1084/LAbility/blob/master/LICENSE.md) 가 적용됩니다. 
+이 플러그인은 [**GNU General Public License v3.0**](https://www.gnu.org/licenses/gpl-3.0.en.html) 가 적용됩니다. 
 ### Contribute
 LAbility는 Lua(루아)를 기반으로 하는 능력자 플러그인입니다.\
 기존의 능력자 플러그인들에서 영감을 받아 제작되었지만, 모든 코드가 새롭게 작성되었습니다.\
