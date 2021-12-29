@@ -30,7 +30,7 @@ public class GameManager {
     public Material targetItem = Material.IRON_INGOT;
     public boolean overrideItem = false;
     public boolean skipYesOrNo = false;
-    public LuaFunction onGameEnd;
+    public LuaFunction onGameEnd = null;
 
     public void ResetAll(){
         isGameStarted = false;
@@ -212,6 +212,6 @@ public class GameManager {
         ScheduleManager.ClearTimer();
         LAbilityMain.instance.gameManager.ResetAll();
         Bukkit.getScheduler().cancelTasks(LAbilityMain.plugin);
-        onGameEnd.invoke();
+        if (onGameEnd != null) onGameEnd.invoke();
     }
 }

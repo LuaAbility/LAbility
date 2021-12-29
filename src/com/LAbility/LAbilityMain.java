@@ -14,6 +14,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.luaj.vm2.LuaFunction;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
+import java.io.*;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+
 public class LAbilityMain extends JavaPlugin implements Listener {
     public static LAbilityMain instance;
     public static Plugin plugin;
@@ -29,6 +37,13 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         plugin = this.getServer().getPluginManager().getPlugin("LAbility");
         hasError = 0;
         gameManager = new GameManager();
+
+
+        if (!LAbilityMain.instance.getDataFolder().exists()){
+            LAbilityMain.instance.getDataFolder().mkdir();
+            (new File(LAbilityMain.instance.getDataFolder().toString() + "\\Ability")).mkdir();
+        }
+
         LuaAbilityLoader.LoadLuaRules();
         abilities = LuaAbilityLoader.LoadAllLuaAbilities();
 
