@@ -115,6 +115,7 @@ public class GameManager {
         int abilityIndex = player.ability.indexOf(targetAbility.abilityID);
         if (abilityIndex < 0) return;
         for (Ability.ActiveFunc af : player.ability.get(abilityIndex).eventFunc) {
+            af.cooldown.currentCooldown = af.cooldown.maxCooldown;
             Bukkit.getScheduler().cancelTask(af.cooldown.currentSchedule);
         }
     }

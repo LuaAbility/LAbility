@@ -376,7 +376,8 @@ public class CommandManager implements CommandExecutor {
 
 				if (args[0].equalsIgnoreCase("start") && senderPlayer.isOp()) {
 					if (!main.gameManager.isGameReady) {
-						if ((!LAbilityMain.instance.gameManager.overlapAbility && (LAbilityMain.instance.gameManager.abilityAmount * LAbilityMain.instance.gameManager.players.size()) > LAbilityMain.instance.abilities.size()) ||
+						if (!LAbilityMain.instance.gameManager.raffleAbility) ScheduleManager.PrepareTimer();
+						else if ((!LAbilityMain.instance.gameManager.overlapAbility && (LAbilityMain.instance.gameManager.abilityAmount * LAbilityMain.instance.gameManager.players.size()) > LAbilityMain.instance.abilities.size()) ||
 								(LAbilityMain.instance.gameManager.overlapAbility && LAbilityMain.instance.gameManager.abilityAmount > LAbilityMain.instance.abilities.size())) {
 							if (!LAbilityMain.instance.gameManager.overlapAbility) {
 								senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c인원 수가 너무 많아 게임 플레이가 불가능합니다.");

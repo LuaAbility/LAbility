@@ -186,11 +186,11 @@ public class GameWrapper extends LuaTable {
             @Override
             public LuaValue invoke(Varargs vargs) {
                 Player player = (Player) vargs.checkuserdata(1, Player.class);
-                Ability ability = (Ability) vargs.checkuserdata(2, Ability.class);
+                String abilityID = vargs.checkjstring(2);
 
                 for (LAPlayer players : LAbilityMain.instance.gameManager.players) {
                     if (players.getPlayer().equals(player)) {
-                        return CoerceJavaToLua.coerce(players.hasAbility(ability));
+                        return CoerceJavaToLua.coerce(players.hasAbility(abilityID));
                     }
                 }
                 return CoerceJavaToLua.coerce(false);

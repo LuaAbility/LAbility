@@ -139,7 +139,6 @@ public class LuaAbilityLoader {
                     e.printStackTrace();
                 }
                 return NIL;
-
             }
         });
         globals.set("import", new OneArgFunction() {

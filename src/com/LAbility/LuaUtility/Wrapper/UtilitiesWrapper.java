@@ -25,21 +25,6 @@ public class UtilitiesWrapper extends LuaTable {
         this.plugin = plugin;
         this.runDelayedThreadPool = Executors.newScheduledThreadPool(1);
 
-        set("getEnum", new OneArgFunction() {
-            @Override
-            public LuaValue call(LuaValue arg) {
-                String path = arg.checkjstring();
-                if (path.startsWith("$"))
-                    path = "org.bukkit" + path.substring(1);
-                try {
-                    return CoerceJavaToLua.coerce((Class<Enum>)Class.forName(path));
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-                return NIL;
-            }
-        });
-
         set("getTableFromList", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue arg) {
