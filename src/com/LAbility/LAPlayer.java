@@ -28,9 +28,28 @@ public class LAPlayer {
         return variable;
     }
 
+    public void addVariable(String string) {
+        variable.add(string);
+    }
+
+    public void removeVariable(String string) {
+        variable.remove(string);
+    }
+
+    public void removeVariable(int index) {
+        variable.remove(index);
+    }
+
     public boolean hasAbility(Ability a) {
         for (Ability tempa : ability){
-            if (a.equals(tempa)) return true;
+            if (a.abilityID.equals(tempa.abilityID)) return true;
+        }
+        return false;
+    }
+
+    public boolean hasAbility(String a) {
+        for (Ability tempa : ability){
+            if (a.equals(tempa.abilityID)) return true;
         }
         return false;
     }

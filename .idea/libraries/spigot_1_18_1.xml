@@ -3,6 +3,15 @@
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/../api/bundler/libraries/spigot-api-1.18.1-R0.1-SNAPSHOT.jar!/" />
       <root url="jar://$PROJECT_DIR$/../api/bundler/libraries/snakeyaml-1.30.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../api/bundler/libraries/javabridge-1.2.24.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../api/bundler/libraries/javax.inject-1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../api/bundler/libraries/jcl-over-slf4j-1.7.30.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../api/bundler/libraries/jline-2.12.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../api/bundler/libraries/jna-5.9.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../api/bundler/libraries/jna-platform-5.9.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../api/bundler/libraries/jopt-simple-5.0.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../api/bundler/libraries/json-simple-1.1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../api/bundler/libraries/jsr305-3.0.2.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
