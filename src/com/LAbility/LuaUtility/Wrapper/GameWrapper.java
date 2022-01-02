@@ -1,10 +1,9 @@
 package com.LAbility.LuaUtility.Wrapper;
 
-import com.LAbility.Ability;
-import com.LAbility.LAPlayer;
-import com.LAbility.LAbilityMain;
+import com.LAbility.*;
 import com.LAbility.LuaUtility.PlayerList;
-import com.LAbility.ScheduleManager;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Keyed;
@@ -226,6 +225,30 @@ public class GameWrapper extends LuaTable {
             public LuaValue call(LuaValue arg) {
                 String message = arg.checkjstring();
                 Bukkit.broadcastMessage(message);
+                return CoerceJavaToLua.coerce(true);
+            }
+        });
+
+        set("sendActionBarMessage", new TwoArgFunction() {
+            @Override
+            public LuaValue call(LuaValue arg1, LuaValue arg2) {
+                Player player = (Player) arg1.checkuserdata(Player.class);
+                String message = arg2.checkjstring();
+
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
+                return CoerceJavaToLua.coerce(true);
+            }
+        });
+
+        set("sendActionBarMessageToAll", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue arg1) {
+                String message = arg1.checkjstring();
+
+                for (LAPlayer lap : plugin.gameManager.players){
+                    if (lap.isSurvive) lap.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
+                }
+
                 return CoerceJavaToLua.coerce(true);
             }
         });

@@ -4,11 +4,13 @@ import com.LAbility.LuaUtility.AbilityList;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LAPlayer {
     Player player;
     AbilityList<Ability> ability = new AbilityList<>();
-    ArrayList<String> variable = new ArrayList<String>();
+    Map<String, String> variable = new HashMap<>();
     boolean isAssign = false;
     public boolean isSurvive = true;
 
@@ -24,20 +26,26 @@ public class LAPlayer {
         return ability;
     }
 
-    public ArrayList<String> getVariable() {
+    public Map<String, String> getVariableMap(String Key) {
         return variable;
     }
 
-    public void addVariable(String string) {
-        variable.add(string);
+    public String getVariable(String key) {
+        return variable.getOrDefault(key, "");
     }
 
-    public void removeVariable(String string) {
-        variable.remove(string);
+    public void setVariable(String key, String value){
+        if (variable.containsKey(key)) variable.replace(key, value);
+        else addVariable(key, value);
     }
 
-    public void removeVariable(int index) {
-        variable.remove(index);
+    public void addVariable(String key, String value) {
+        if (!variable.containsKey(key)) variable.put(key, value);
+        else variable.replace(key, value);
+    }
+
+    public void removeVariable(String key) {
+        if (variable.containsKey(key)) variable.remove(key);
     }
 
     public boolean hasAbility(Ability a) {
