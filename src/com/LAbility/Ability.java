@@ -152,7 +152,7 @@ public class Ability {
         }
     }
 
-    public boolean CheckCooldown(Player player, int index) {
+    public boolean CheckCooldown(Player player, int index, boolean showMessage) {
         if ((eventFunc.get(index).cooldown.maxCooldown * LAbilityMain.instance.gameManager.cooldownMultiply) <= 0) {
             return true;
         }
@@ -166,11 +166,11 @@ public class Ability {
                     eventFunc.get(index).cooldown.currentCooldown++;
                 }
             }, 0, 1);
-            player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b능력을 사용했습니다." );
+            if (showMessage) player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b능력을 사용했습니다." );
             return true;
         }
         double cooldown = (((eventFunc.get(index).cooldown.maxCooldown * LAbilityMain.instance.gameManager.cooldownMultiply) - eventFunc.get(index).cooldown.currentCooldown) / 20.0);
-        player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b쿨타임 입니다. (" + cooldown + "s)" );
+        if (showMessage) player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b쿨타임 입니다. (" + cooldown + "s)" );
 
         return false;
     }

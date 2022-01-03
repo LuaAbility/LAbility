@@ -67,12 +67,13 @@ public class GameWrapper extends LuaTable {
                 Player player = (Player) vargs.checkuserdata(1, Player.class);
                 Ability ability = (Ability) vargs.checkuserdata(2, Ability.class);
                 int funcID = vargs.checkint(3);
+                boolean showMessage = vargs.isnil(4) || vargs.checkboolean(4);
 
                 for (LAPlayer players : LAbilityMain.instance.gameManager.players) {
                     if (players.getPlayer().equals(player)) {
                         for (Ability abilities : players.getAbility()) {
                             if (abilities.equals(ability)) {
-                                return CoerceJavaToLua.coerce(abilities.CheckCooldown(player, funcID));
+                                return CoerceJavaToLua.coerce(abilities.CheckCooldown(player, funcID, showMessage));
                             }
                         }
                     }
