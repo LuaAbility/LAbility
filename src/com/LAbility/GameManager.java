@@ -89,6 +89,7 @@ public class GameManager {
             if (pf.delay > 0) {
                 pf.scheduler = LAbilityMain.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(LAbilityMain.plugin, new Runnable() {
                     public void run() {
+                        if (player.getVariable("abilityLock").equals("true")) return;
                         pf.function.call(CoerceJavaToLua.coerce(player.player));
                     }
                 }, 0, pf.delay);
@@ -100,6 +101,16 @@ public class GameManager {
     public void StopPassive(LAPlayer player, Ability targetAbility){
         int abilityIndex = player.ability.indexOf(targetAbility.abilityID);
         if (abilityIndex < 0) return;
+
+        try {
+            ArrayList<String> targetVariableKey = new ArrayList<>();
+            for (String key : player.variable.keySet()) {
+                String[] aIDArray = targetAbility.abilityID.split("-");
+                String aID = aIDArray[1] + aIDArray[2];
+                if (key.contains(aID)) targetVariableKey.add(key);
+            }
+            for (String key : targetVariableKey) player.removeVariable(key);
+        } catch (Exception e) { Bukkit.getConsoleSender().sendMessage(targetAbility.abilityID + "는 정규 ID 가 아니므로 변수 삭제되 진행되지 않습니다.");}
 
         for (LuaFunction func : player.ability.get(abilityIndex).resetFunc) {
             func.call(CoerceJavaToLua.coerce(player));

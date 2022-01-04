@@ -153,6 +153,9 @@ public class Ability {
     }
 
     public boolean CheckCooldown(Player player, int index, boolean showMessage) {
+        LAPlayer lap = LAbilityMain.instance.gameManager.players.get(LAbilityMain.instance.gameManager.players.indexOf(player.getName()));
+        if (lap.getVariable("abilityLock").equals("true")) return false;
+
         if ((eventFunc.get(index).cooldown.maxCooldown * LAbilityMain.instance.gameManager.cooldownMultiply) <= 0) {
             return true;
         }
