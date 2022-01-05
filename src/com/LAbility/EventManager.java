@@ -6,6 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ public class EventManager implements Listener {
         if (playerList.containsKey(p.getName())){
             p.sendMessage("\2476[\247eLAbility\2476] \247e돌아오신 것을 환영합니다!");
             p.sendMessage("\2476[\247eLAbility\2476] \247e게임을 계속 진행해주세요.");
-            playerList.get(p.getName()).cancel();
+            if (playerList.get(p.getName()) != null) playerList.get(p.getName()).cancel();
             playerList.remove(p.getName());
         }
 
@@ -47,7 +48,7 @@ public class EventManager implements Listener {
         if (!LAbilityMain.instance.gameManager.isGameReady) LAbilityMain.instance.gameManager.players.remove(p);
         else if (!LAbilityMain.instance.gameManager.players.get(LAbilityMain.instance.gameManager.players.indexOf(p)).isSurvive) LAbilityMain.instance.gameManager.players.remove(p);
         else {
-            BukkitTask task = LAbilityMain.instance.getServer().getScheduler().runTaskLater(LAbilityMain.plugin, new Runnable() {
+            BukkitTask task = new BukkitRunnable() {
                 @Override
                 public void run() {
                     if (LAbilityMain.instance.gameManager.isGameReady) {
@@ -59,17 +60,17 @@ public class EventManager implements Listener {
                             LAbilityMain.instance.getServer().broadcastMessage("§6[§eLAbility§6] §e" + LAbilityMain.instance.gameManager.players.get(0).getPlayer().getName() + "님이 우승하셨습니다!");
                             ScheduleManager.ClearTimer();
                             LAbilityMain.instance.gameManager.ResetAll();
-                            Bukkit.getScheduler().cancelTasks(LAbilityMain.plugin);
+                            LAbilityMain.instance.getServer().getScheduler().cancelTasks(LAbilityMain.plugin);
                         } else if (LAbilityMain.instance.gameManager.players.size() < 1) {
                             LAbilityMain.instance.getServer().broadcastMessage("§6[§eLAbility§6] §e게임이 종료되었습니다.");
                             LAbilityMain.instance.getServer().broadcastMessage("§6[§eLAbility§6] §e우승자가 없습니다.");
                             ScheduleManager.ClearTimer();
                             LAbilityMain.instance.gameManager.ResetAll();
-                            Bukkit.getScheduler().cancelTasks(LAbilityMain.plugin);
+                            LAbilityMain.instance.getServer().getScheduler().cancelTasks(LAbilityMain.plugin);
                         }
                     }
                 }
-            }, 600);
+            }.runTaskLater(LAbilityMain.plugin,600);
 
             playerList.put(p.getName(), task);
         }

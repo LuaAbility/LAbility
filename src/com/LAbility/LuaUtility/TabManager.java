@@ -46,6 +46,7 @@ public class TabManager implements TabCompleter {
                     basicCommand.add("stop");
                     basicCommand.add("test");
                     basicCommand.add("cooldown");
+                    basicCommand.add("variable");
                 }
 
                 Collections.sort(basicCommand);

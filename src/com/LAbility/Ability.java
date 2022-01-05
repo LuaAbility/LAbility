@@ -4,6 +4,8 @@ import com.LAbility.LuaUtility.FunctionList;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.luaj.vm2.LuaFunction;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
@@ -16,18 +18,18 @@ public class Ability {
     public static class CooldownData {
         public int maxCooldown;
         public int currentCooldown;
-        public int currentSchedule;
+        public BukkitTask currentSchedule;
 
         public CooldownData(int cooldown){
             maxCooldown = cooldown;
             currentCooldown = cooldown;
-            currentSchedule = 0;
+            currentSchedule = null;
         }
 
         public CooldownData(CooldownData cd){
             maxCooldown = cd.maxCooldown;
             currentCooldown = cd.maxCooldown;
-            currentSchedule = 0;
+            currentSchedule = cd.currentSchedule;
         }
     }
 
@@ -52,18 +54,18 @@ public class Ability {
     public static class PassiveFunc {
         public int delay;
         public LuaFunction function;
-        public int scheduler;
+        public BukkitTask scheduler;
 
         public PassiveFunc(int del, LuaFunction func) {
             delay = del;
             function = func;
-            scheduler = 0;
+            scheduler = null;
         }
 
         public PassiveFunc(PassiveFunc pf) {
             delay = pf.delay;
             function = pf.function;
-            scheduler = 0;
+            scheduler = pf.scheduler;
         }
     }
 
@@ -154,7 +156,7 @@ public class Ability {
 
     public void ResetCooldown(Player player, int index, boolean showMessage) {
         eventFunc.get(index).cooldown.currentCooldown = (int)(eventFunc.get(index).cooldown.maxCooldown * LAbilityMain.instance.gameManager.cooldownMultiply);
-        LAbilityMain.plugin.getServer().getScheduler().cancelTask(eventFunc.get(index).cooldown.currentSchedule);
+        if (eventFunc.get(index).cooldown.currentSchedule != null) eventFunc.get(index).cooldown.currentSchedule.cancel();
         if (showMessage) player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b쿨타임이 초기화 되었습니다." );
     }
 
@@ -167,14 +169,14 @@ public class Ability {
         }
 
         if (eventFunc.get(index).cooldown.currentCooldown >= (eventFunc.get(index).cooldown.maxCooldown * LAbilityMain.instance.gameManager.cooldownMultiply)) {
-            LAbilityMain.plugin.getServer().getScheduler().cancelTask(eventFunc.get(index).cooldown.currentSchedule);
+            if (eventFunc.get(index).cooldown.currentSchedule != null) eventFunc.get(index).cooldown.currentSchedule.cancel();
             eventFunc.get(index).cooldown.currentCooldown = 0;
-            eventFunc.get(index).cooldown.currentSchedule = LAbilityMain.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(LAbilityMain.plugin, new Runnable() {
+            eventFunc.get(index).cooldown.currentSchedule = new BukkitRunnable() {
                 @Override
                 public void run() {
                     eventFunc.get(index).cooldown.currentCooldown++;
                 }
-            }, 0, 1);
+            }.runTaskTimer(LAbilityMain.plugin, 0, 1);
             if (showMessage) player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b능력을 사용했습니다." );
             return true;
         }

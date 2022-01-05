@@ -2,28 +2,29 @@ package com.LAbility;
 
 import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.luaj.vm2.LuaFunction;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class ScheduleManager {
-    static int time_Prepare = 0, Prepare_Scheduler = 0;
-    static int time_Main = 0, Main_Scheduler = 0;
+    static BukkitTask Main_Scheduler, Prepare_Scheduler;
+    static int time_Main = 0, time_Prepare = 0;
     static Map<LuaFunction, Long> timerFunc = new HashMap<>();
     static Map<LuaFunction, Long> loopTimerFunc = new HashMap<>();
 
     public static void ClearTimer(){
-        Bukkit.getScheduler().cancelTask(Prepare_Scheduler);
-        Bukkit.getScheduler().cancelTask(Main_Scheduler);
-        time_Prepare = 0; Prepare_Scheduler = 0;
-        time_Main = 0; Main_Scheduler = 0;
+        if (Prepare_Scheduler != null) Prepare_Scheduler.cancel();
+        if (Main_Scheduler != null) Main_Scheduler.cancel();
+        time_Main = 0; time_Prepare = 0;
     }
 
     public static void PrepareTimer() {
-        int Dealy = 40;
+        int Delay = 40;
 
-        Prepare_Scheduler = LAbilityMain.instance.getServer().getScheduler().scheduleSyncRepeatingTask(LAbilityMain.instance, new Runnable() {
+        Prepare_Scheduler = new BukkitRunnable() {
             public void run() {
                 switch (time_Prepare) {
                     case 0:
@@ -121,13 +122,13 @@ public class ScheduleManager {
                 }
                 time_Prepare++;
             }
-        }, 0, Dealy);
+        }.runTaskTimer(LAbilityMain.plugin, 0, Delay);
     }
 
     public static void MainTimer() {
-        int Dealy = 1;
+        int Delay = 1;
 
-        Main_Scheduler = LAbilityMain.instance.getServer().getScheduler().scheduleSyncRepeatingTask(LAbilityMain.instance, new Runnable() {
+        Main_Scheduler = new BukkitRunnable() {
             public void run() {
                 if (time_Main == 0) {
                     Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e게임 시작!");
@@ -151,6 +152,6 @@ public class ScheduleManager {
                 }
                 time_Main++;
             }
-        }, 0, Dealy);
+        }.runTaskTimer(LAbilityMain.plugin,0, Delay);
     }
 }

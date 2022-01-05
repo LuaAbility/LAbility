@@ -2,10 +2,12 @@ package com.LAbility;
 
 import com.LAbility.LuaUtility.AbilityList;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class LAPlayer {
     Player player;
@@ -60,6 +62,24 @@ public class LAPlayer {
             if (a.equals(tempa.abilityID)) return true;
         }
         return false;
+    }
+
+    public void changeAbility(ArrayList<Ability> abilities) {
+        LAPlayer lap = this;
+        for (Ability a : ability) {
+            LAbilityMain.instance.gameManager.StopPassive(lap, a);
+            LAbilityMain.instance.gameManager.StopActiveTimer(lap, a);
+        }
+        ability.clear();
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                ability.addAll(abilities);
+                for (Ability a : ability) {
+                    LAbilityMain.instance.gameManager.RunPassive(lap, a);
+                }
+            }
+        }.runTaskLater(LAbilityMain.plugin, 5);
     }
 
     public void CheckAbility(Player pl, int index) {

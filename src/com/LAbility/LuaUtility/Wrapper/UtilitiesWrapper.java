@@ -134,12 +134,12 @@ public class UtilitiesWrapper extends LuaTable {
             @Override
             public LuaValue call(LuaValue function, LuaValue time) {
 
-                var task = LAbilityMain.instance.getServer().getScheduler().runTaskLater(LAbilityMain.plugin, new Runnable() {
+                var task = new BukkitRunnable() {
                     @Override
                     public void run() {
                         function.checkfunction().call();
                     }
-                }, time.checklong());
+                }.runTaskLater(LAbilityMain.plugin, time.checklong());
                 return CoerceJavaToLua.coerce(task);
             }
         });

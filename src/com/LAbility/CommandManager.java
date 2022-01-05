@@ -66,6 +66,7 @@ public class CommandManager implements CommandExecutor {
 					sender.sendMessage("\2476-------[\247eDebug Command\2476]-------");
 					sender.sendMessage("\2476/la \247etest \247f: \247a테스트 모드에 진입합니다. 게임 시작을 하지 않아도 능력 사용이 가능합니다.\n테스트 모드를 종료하려면 /la stop을 입력하세요.");  // OK
 					sender.sendMessage("\2476/la \247ecooldown \247f: \247a쿨타임을 모두 초기화합니다.");  // OK
+					sender.sendMessage("\2476/la \247evariable \247f: \247a플레이어들의 변수를 확인합니다.");  // OK
 					return true;
 				}
 
@@ -189,7 +190,7 @@ public class CommandManager implements CommandExecutor {
 										p.player.sendMessage("\2476[\247eLAbility\2476] \2476" + a.abilityName + "\247e 능력을 얻었습니다.");
 										p.player.sendMessage("\2476[\247eLAbility\2476] \247a" + "/la check " + (p.ability.size() - 1) + "\247e로 확인가능합니다.");
 
-										if (main.gameManager.isGameReady) {
+										if (main.gameManager.isGameStarted) {
 											LAbilityMain.instance.gameManager.RunPassive(p, p.ability.get(p.ability.indexOf(a.abilityID)));
 										}
 										return true;
@@ -235,7 +236,7 @@ public class CommandManager implements CommandExecutor {
 										p.player.sendMessage("\2474[\247cLAbility\2474] \247c" + "해당 능력은, 더 이상 사용하실 수 없습니다.");
 
 										int abilityIndex = p.getAbility().indexOf(a.abilityID);
-										if (main.gameManager.isGameReady) {
+										if (main.gameManager.isGameStarted) {
 											LAbilityMain.instance.gameManager.StopPassive(p, p.getAbility().get(abilityIndex));
 											LAbilityMain.instance.gameManager.StopActiveTimer(p, p.getAbility().get(abilityIndex));
 											p.getAbility().remove(abilityIndex);
@@ -414,6 +415,17 @@ public class CommandManager implements CommandExecutor {
 				if (args[0].equalsIgnoreCase("cooldown") && senderPlayer.isOp()) {
 					sender.sendMessage("\2472[\247aLAbility\2472] \247a쿨타임이 초기화되었습니다.");
 					main.gameManager.StopAllActiveTimer();
+				}
+
+				if (args[0].equalsIgnoreCase("variable") && senderPlayer.isOp()) {
+					sender.sendMessage("\2476-------[\247eVariable\2476]-------");
+					for (LAPlayer lap : main.gameManager.players) {
+						String variables = "\247a" + lap.player.getName() + " \2476: \247b";
+						for (String key : lap.variable.keySet()) {
+							variables += key + "(" + lap.variable.get(key) + ")  ";
+						}
+						sender.sendMessage(variables);
+					}
 				}
 			}
 		}

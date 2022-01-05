@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.luaj.vm2.LuaFunction;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
@@ -87,12 +88,12 @@ public class GameManager {
         if (abilityIndex < 0) return;
         for (Ability.PassiveFunc pf : player.ability.get(abilityIndex).passiveFunc) {
             if (pf.delay > 0) {
-                pf.scheduler = LAbilityMain.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(LAbilityMain.plugin, new Runnable() {
+                pf.scheduler = new BukkitRunnable() {
                     public void run() {
                         if (player.getVariable("abilityLock").equals("true")) return;
                         pf.function.call(CoerceJavaToLua.coerce(player.player));
                     }
-                }, 0, pf.delay);
+                }.runTaskTimer(LAbilityMain.plugin, pf.delay, pf.delay);
             }
             else pf.function.call(CoerceJavaToLua.coerce(player.player));
         }
@@ -101,6 +102,15 @@ public class GameManager {
     public void StopPassive(LAPlayer player, Ability targetAbility){
         int abilityIndex = player.ability.indexOf(targetAbility.abilityID);
         if (abilityIndex < 0) return;
+
+        for (LuaFunction func : player.ability.get(abilityIndex).resetFunc) {
+            func.call(CoerceJavaToLua.coerce(player));
+        }
+        for (Ability.PassiveFunc pf : player.ability.get(abilityIndex).passiveFunc) {
+            if (pf.delay > 0) {
+                if (pf.scheduler != null) pf.scheduler.cancel();
+            }
+        }
 
         try {
             ArrayList<String> targetVariableKey = new ArrayList<>();
@@ -111,23 +121,14 @@ public class GameManager {
             }
             for (String key : targetVariableKey) player.removeVariable(key);
         } catch (Exception e) { Bukkit.getConsoleSender().sendMessage(targetAbility.abilityID + "는 정규 ID 가 아니므로 변수 삭제되 진행되지 않습니다.");}
-
-        for (LuaFunction func : player.ability.get(abilityIndex).resetFunc) {
-            func.call(CoerceJavaToLua.coerce(player));
-        }
-        for (Ability.PassiveFunc pf : player.ability.get(abilityIndex).passiveFunc) {
-            if (pf.delay > 0) {
-                Bukkit.getScheduler().cancelTask(pf.scheduler);
-            }
-        }
     }
 
     public void StopActiveTimer(LAPlayer player, Ability targetAbility){
         int abilityIndex = player.ability.indexOf(targetAbility.abilityID);
         if (abilityIndex < 0) return;
         for (Ability.ActiveFunc af : player.ability.get(abilityIndex).eventFunc) {
-            af.cooldown.currentCooldown = af.cooldown.maxCooldown;
-            Bukkit.getScheduler().cancelTask(af.cooldown.currentSchedule);
+            af.cooldown.currentCooldown = (int)(af.cooldown.maxCooldown * LAbilityMain.instance.gameManager.cooldownMultiply);
+            if (af.cooldown.currentSchedule != null) af.cooldown.currentSchedule.cancel();
         }
     }
 
@@ -147,7 +148,7 @@ public class GameManager {
 
         if (size < 2) return;
         for (int i = 0 ; i < 1000; i++) {
-            int randomIndex = random.nextInt(size - 1);
+            int randomIndex = random.nextInt(size);
             final int temp = shuffledAbilityIndex.get(0);
             shuffledAbilityIndex.set(0, shuffledAbilityIndex.get(randomIndex));
             shuffledAbilityIndex.set(randomIndex, temp);
@@ -222,7 +223,7 @@ public class GameManager {
     public void OnGameEnd(){
         ScheduleManager.ClearTimer();
         LAbilityMain.instance.gameManager.ResetAll();
-        Bukkit.getScheduler().cancelTasks(LAbilityMain.plugin);
+        LAbilityMain.instance.getServer().getScheduler().cancelTasks(LAbilityMain.plugin);
         if (onGameEnd != null) onGameEnd.invoke();
     }
 }
