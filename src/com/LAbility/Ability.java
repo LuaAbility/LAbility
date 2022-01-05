@@ -152,6 +152,12 @@ public class Ability {
         }
     }
 
+    public void ResetCooldown(Player player, int index, boolean showMessage) {
+        eventFunc.get(index).cooldown.currentCooldown = (int)(eventFunc.get(index).cooldown.maxCooldown * LAbilityMain.instance.gameManager.cooldownMultiply);
+        LAbilityMain.plugin.getServer().getScheduler().cancelTask(eventFunc.get(index).cooldown.currentSchedule);
+        if (showMessage) player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b쿨타임이 초기화 되었습니다." );
+    }
+
     public boolean CheckCooldown(Player player, int index, boolean showMessage) {
         LAPlayer lap = LAbilityMain.instance.gameManager.players.get(LAbilityMain.instance.gameManager.players.indexOf(player.getName()));
         if (lap.getVariable("abilityLock").equals("true")) return false;
