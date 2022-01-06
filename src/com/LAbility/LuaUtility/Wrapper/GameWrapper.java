@@ -301,6 +301,7 @@ public class GameWrapper extends LuaTable {
                         LAbilityMain.instance.gameManager.StopPassive(plugin.gameManager.players.get(playerIndex), a);
                         LAbilityMain.instance.gameManager.StopActiveTimer(plugin.gameManager.players.get(playerIndex), a);
                     }
+                    plugin.gameManager.players.get(playerIndex).getAbility().clear();
                     player.setGameMode(GameMode.SPECTATOR);
                 }
                 else {
