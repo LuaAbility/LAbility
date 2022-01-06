@@ -2,6 +2,7 @@ package com.LAbility;
 
 import com.LAbility.LuaUtility.LuaAbilityLoader;
 import org.bukkit.Bukkit;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -410,6 +411,11 @@ public class CommandManager implements CommandExecutor {
 						sender.sendMessage("\2472[\247aLAbility\2472] \247a테스트 모드입니다. 게임 시작상태가 되며, 능력 사용이 가능합니다.");
 						main.gameManager.isGameStarted = true;
 						main.gameManager.isGameReady = true;
+						for (LAPlayer lap : LAbilityMain.instance.gameManager.players) {
+							lap.isSurvive = true;
+							lap.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(lap.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue());
+							lap.player.setWalkSpeed(0.2f);
+						}
 						main.gameManager.RunAllPassive();
 					}
 				}
