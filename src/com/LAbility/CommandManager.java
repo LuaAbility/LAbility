@@ -406,10 +406,12 @@ public class CommandManager implements CommandExecutor {
 				}
 
 				if (args[0].equalsIgnoreCase("test") && senderPlayer.isOp()) {
-					sender.sendMessage("\2472[\247aLAbility\2472] \247a테스트 모드입니다. 게임 시작상태가 되며, 능력 사용이 가능합니다.");
-					main.gameManager.isGameStarted = true;
-					main.gameManager.isGameReady = true;
-					main.gameManager.RunAllPassive();
+					if (!main.gameManager.isGameStarted && !main.gameManager.isGameReady) {
+						sender.sendMessage("\2472[\247aLAbility\2472] \247a테스트 모드입니다. 게임 시작상태가 되며, 능력 사용이 가능합니다.");
+						main.gameManager.isGameStarted = true;
+						main.gameManager.isGameReady = true;
+						main.gameManager.RunAllPassive();
+					}
 				}
 
 				if (args[0].equalsIgnoreCase("cooldown") && senderPlayer.isOp()) {

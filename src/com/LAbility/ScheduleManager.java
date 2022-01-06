@@ -117,7 +117,7 @@ public class ScheduleManager {
                     case 32:
                         Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \24741");
                         break;
-                    default:
+                    case 33:
                         MainTimer();
                 }
                 time_Prepare++;

@@ -47,10 +47,12 @@ public class GameManager {
     public void RunEvent(Ability ability, Event event) {
         if (isGameStarted){
             for (LAPlayer player : players){
-                for (Ability ab : player.ability){
-                    if (ab.abilityID.equals(ability.abilityID) && ab.eventFunc.contains(event)){
-                        ab.UseEventFunc(event);
-                        return;
+                if (player.isSurvive) {
+                    for (Ability ab : player.ability) {
+                        if (ab.abilityID.equals(ability.abilityID) && ab.eventFunc.contains(event)) {
+                            ab.UseEventFunc(event);
+                            return;
+                        }
                     }
                 }
             }
@@ -90,6 +92,7 @@ public class GameManager {
             if (pf.delay > 0) {
                 pf.scheduler = new BukkitRunnable() {
                     public void run() {
+                        if (!player.isSurvive) return;
                         if (player.getVariable("abilityLock").equals("true")) return;
                         pf.function.call(CoerceJavaToLua.coerce(player.player));
                     }
