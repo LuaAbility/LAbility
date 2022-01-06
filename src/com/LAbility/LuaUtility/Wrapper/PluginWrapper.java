@@ -154,6 +154,16 @@ public class PluginWrapper extends LuaTable {
             }
         });
 
+        set("skipInformationOption", new VarArgFunction() {
+            @Override
+            public LuaValue invoke(Varargs vargs) {
+                boolean skipInformation = vargs.checkboolean(1);
+
+                plugin.gameManager.skipInformation = skipInformation;
+                return NIL;
+            }
+        });
+
         set("cooldownMultiplyOption", new VarArgFunction() {
             @Override
             public LuaValue invoke(Varargs vargs) {

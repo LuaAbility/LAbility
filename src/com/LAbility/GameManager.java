@@ -31,6 +31,7 @@ public class GameManager {
     public Material targetItem = Material.IRON_INGOT;
     public boolean overrideItem = false;
     public boolean skipYesOrNo = false;
+    public boolean skipInformation = false;
     public LuaFunction onGameEnd = null;
 
     public void ResetAll(){

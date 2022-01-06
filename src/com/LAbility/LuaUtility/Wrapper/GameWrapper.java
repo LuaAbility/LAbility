@@ -156,6 +156,31 @@ public class GameWrapper extends LuaTable {
             }
         });
 
+        set("removeAbilityAsID", new VarArgFunction() {
+            @Override
+            public LuaValue invoke(Varargs vargs) {
+                Player player = (Player) vargs.checkuserdata(1, Player.class);
+                String ability = vargs.checkjstring(2);
+
+                for (LAPlayer players : LAbilityMain.instance.gameManager.players) {
+                    if (players.getPlayer().equals(player)) {
+                        int abilityIndex = players.getAbility().indexOf(ability);
+                        if (abilityIndex >= 0) {
+                            players.getPlayer().sendMessage("\2474[\247cLAbility\2474] \247c자신의 능력이 제거됩니다.");
+                            players.getPlayer().sendMessage("\2474[\247cLAbility\2474] \247c/la check로 능력을 재 확인 해주세요.");
+
+                            LAbilityMain.instance.gameManager.StopPassive(players, players.getAbility().get(abilityIndex));
+                            LAbilityMain.instance.gameManager.StopActiveTimer(players, players.getAbility().get(abilityIndex));
+                            players.getAbility().remove(abilityIndex);
+                        }
+                        else Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c" + players.getPlayer().getName() + " 플레이어는 " + ability + " 능력을 가지고 있지 않습니다.");
+                    }
+                }
+
+                return CoerceJavaToLua.coerce(false);
+            }
+        });
+
         set("addAbility", new VarArgFunction() {
             @Override
             public LuaValue invoke(Varargs vargs) {
