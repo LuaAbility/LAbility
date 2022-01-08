@@ -43,8 +43,6 @@ public class LuaAbilityLoader {
                     for (File file2 : files2) {
                         if (file2.toString().toLowerCase().contains("main.lua")) {
                             luaScriptLoc = file2.toString();
-                            luaScript = globals.loadfile(file2.toString());
-                            globals = setGlobals(globals);
                         } else if (file2.toString().toLowerCase().contains("data.yml")) {
                             try {
                                 Map<String, Object> abilityData = new Yaml().load(new FileReader(file2));
@@ -59,10 +57,9 @@ public class LuaAbilityLoader {
                         }
                     }
 
-                    if (!luaScript.equals(null) && !abilityName.equals("")) {
+                    if (!luaScriptLoc.equals("") && !abilityName.equals("")) {
                         Ability a = new Ability(abilityID, abilityType, abilityName, abilityRank, abilityDesc, luaScriptLoc);
-                        luaScript.call();
-                        globals.get("Init").call(CoerceJavaToLua.coerce(a));
+                        a.InitScript();
                         luaAbilities.add(a);
                     }
                 }
@@ -88,10 +85,8 @@ public class LuaAbilityLoader {
         }
 
         try {
-            LuaValue luaScript = globals.loadfile(ruleFile.toString());
-            luaScript.call();
-            globals = setGlobals(globals);
-            globals.get("rule").call();
+            LAbilityMain.instance.ruleManager.ruleLocation = LAbilityMain.instance.getDataFolder() + "/rule.lua";
+            LAbilityMain.instance.ruleManager.InitScript();
             Bukkit.getConsoleSender().sendMessage("\2472[\247aLAbility\2472] \247a룰 로드에 성공했습니다.");
         } catch (Exception e) {
             Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c룰을 로드하는데 문제가 생겼습니다. 아무런 룰도 적용되지 않습니다.");

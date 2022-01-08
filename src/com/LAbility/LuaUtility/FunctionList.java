@@ -18,6 +18,12 @@ public class FunctionList<E extends Ability.AbilityFunc> extends ArrayList<Abili
                 if (af.funcEvent.isInstance(event)) return true;
             }
         }
+        if (o instanceof String ID) {
+            int i = 0;
+            for (Ability.AbilityFunc af : this) {
+                if (af.funcID.equals(ID)) return true;
+            }
+        }
         return false;
     }
 

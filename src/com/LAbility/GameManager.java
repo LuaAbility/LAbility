@@ -1,18 +1,12 @@
 package com.LAbility;
 
-import com.LAbility.LuaUtility.AbilityList;
 import com.LAbility.LuaUtility.PlayerList;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import org.luaj.vm2.LuaFunction;
-import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
-import javax.xml.crypto.dsig.keyinfo.KeyValue;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +15,7 @@ import java.util.Random;
 public class GameManager {
     public boolean isGameReady = false;
     public boolean isGameStarted = false;
+    public boolean isTestMode = false;
     public PlayerList<LAPlayer> players = new PlayerList<LAPlayer>();
 
     public BukkitTask passiveTask = null;
@@ -37,12 +32,12 @@ public class GameManager {
     public boolean overrideItem = false;
     public boolean skipYesOrNo = false;
     public boolean skipInformation = false;
-    public LuaFunction onGameEnd = null;
     public Map<String, String> variable = new HashMap<>();
 
     public void ResetAll(){
         isGameStarted = false;
         isGameReady = false;
+        isTestMode = false;
         currentAbilityIndex = 0;
         shuffledAbilityIndex = new ArrayList<Integer>();
         StopPassive();
@@ -59,6 +54,7 @@ public class GameManager {
                     }
                 }
             }
+            LAbilityMain.instance.ruleManager.RunEvent(event);
         }
     }
 
@@ -67,6 +63,7 @@ public class GameManager {
             passiveTask = new BukkitRunnable() {
                 @Override
                 public void run() {
+                    if (!isTestMode) LAbilityMain.instance.ruleManager.runPassiveFunc();
                     for (LAPlayer player : players){
                         if (player.isSurvive) {
                             for (Ability ab : player.ability) {
@@ -128,9 +125,13 @@ public class GameManager {
                     Bukkit.getConsoleSender().sendMessage(player.player.getName() + " / " + temp.abilityID);
                     temp = LAbilityMain.instance.abilities.get(random.nextInt(LAbilityMain.instance.abilities.size()));
                 }
-                player.ability.add(new Ability(temp));
+                Ability a = new Ability(temp);
+                player.ability.add(a);
+                a.InitScript();
             } else {
-                player.ability.add(new Ability(LAbilityMain.instance.abilities.get(shuffledAbilityIndex.get(0))));
+                Ability a = new Ability(LAbilityMain.instance.abilities.get(shuffledAbilityIndex.get(0)));
+                player.ability.add(a);
+                a.InitScript();
                 shuffledAbilityIndex.remove(0);
             }
         }
@@ -173,8 +174,8 @@ public class GameManager {
 
     public void OnGameEnd(){
         ScheduleManager.ClearTimer();
+        LAbilityMain.instance.ruleManager.runResetFunc();
         LAbilityMain.instance.gameManager.ResetAll();
         LAbilityMain.instance.getServer().getScheduler().cancelTasks(LAbilityMain.plugin);
-        if (onGameEnd != null) onGameEnd.invoke();
     }
 }

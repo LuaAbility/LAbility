@@ -28,10 +28,6 @@ public class LAPlayer {
         return ability;
     }
 
-    public Map<String, String> getVariableMap(String Key) {
-        return variable;
-    }
-
     public String getVariable(String key) {
         return variable.getOrDefault(key, "");
     }

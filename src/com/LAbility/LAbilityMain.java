@@ -23,6 +23,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
     public UtilitiesWrapper utilitiesWrapper;
     public GameWrapper gameWrapper;
     public GameManager gameManager;
+    public RuleManager ruleManager;
     public int hasError = 0;
     public AbilityList<Ability> abilities = new AbilityList<>();
     public ArrayList<Class<? extends Event>> registerdEventList = new ArrayList<>();
@@ -32,6 +33,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         instance = this;
         plugin = this.getServer().getPluginManager().getPlugin("LAbility");
         hasError = 0;
+        ruleManager = new RuleManager();
         gameManager = new GameManager();
 
 
@@ -62,32 +64,19 @@ public class LAbilityMain extends JavaPlugin implements Listener {
     }
 
     public Listener registerEvent(Ability ability, String funcName, Class<? extends Event> event, int cooldown) {
-        ability.abilityFunc.add( new Ability.AbilityFunc(funcName, event, cooldown) );
-
-        if (!registerdEventList.contains(event)) {
-            Listener listener = new Listener() {};
-            this.getServer().getPluginManager().registerEvent(event, listener, EventPriority.NORMAL, new EventExecutor() {
-                @Override
-                public void execute(Listener listener, Event event) throws EventException {
-                    if (gameManager.isGameStarted) {
-                        if (event.getClass().isAssignableFrom(Cancellable.class)) {
-                            Cancellable temp = (Cancellable)event;
-                            if (temp.isCancelled()) return;
-                        }
-
-                        gameManager.RunEvent(event);
-                    }
-                }
-            }, this, false);
-
-            registerdEventList.add(event);
-        }
+        if (!ability.abilityFunc.contains(funcName)) ability.abilityFunc.add( new Ability.AbilityFunc(funcName, event, cooldown) );
+        if (!registerdEventList.contains(event)) addEvent(event);
         return null;
     }
 
-    public Listener registerRuleEvent(Class<? extends Event> event, LuaFunction function) {
-        Listener listener = new Listener() {};
+    public Listener registerRuleEvent(Class<? extends Event> event, String funcID) {
+        if (!ruleManager.ruleFunc.containsKey(funcID)) ruleManager.ruleFunc.put(funcID, event);
+        if (!registerdEventList.contains(event)) addEvent(event);
+        return null;
+    }
 
+    public void addEvent(Class<? extends Event> event){
+        Listener listener = new Listener() {};
         this.getServer().getPluginManager().registerEvent(event, listener, EventPriority.NORMAL, new EventExecutor() {
             @Override
             public void execute(Listener listener, Event event) throws EventException {
@@ -96,25 +85,12 @@ public class LAbilityMain extends JavaPlugin implements Listener {
                         Cancellable temp = (Cancellable)event;
                         if (temp.isCancelled()) return;
                     }
-                    function.call(CoerceJavaToLua.coerce(event));
+
+                    gameManager.RunEvent(event);
                 }
             }
         }, this, false);
-
-        return null;
-    }
-
-    public Listener registerRuleTimer(long delay, LuaFunction function) {
-        ScheduleManager.timerFunc.put(function, delay);
-
-        return null;
-    }
-
-    public Listener registerRuleLoopTimer(long delay, boolean runOnZeroTick, LuaFunction function) {
-        if (runOnZeroTick) ScheduleManager.timerFunc.put(function, 0L);
-        ScheduleManager.loopTimerFunc.put(function, delay);
-
-        return null;
+        registerdEventList.add(event);
     }
 
     public void assignAllPlayer(){

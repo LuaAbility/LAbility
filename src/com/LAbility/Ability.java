@@ -1,6 +1,7 @@
 package com.LAbility;
 
 import com.LAbility.LuaUtility.FunctionList;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -59,6 +60,9 @@ public class Ability {
     public String luaScript;
     public FunctionList<AbilityFunc> abilityFunc = new FunctionList<>();
 
+    Globals globals;
+    LuaValue script;
+
     public Ability(String id, String type, String name, String rank, String desc, String script) {
         abilityID = id;
         abilityType = type;
@@ -67,6 +71,7 @@ public class Ability {
         abilityDesc = desc;
         luaScript = script;
     }
+
     public Ability(Ability a) {
         abilityID = a.abilityID;
         abilityType = a.abilityType;
@@ -78,6 +83,14 @@ public class Ability {
         for (Ability.AbilityFunc af : a.abilityFunc) {
             abilityFunc.add(new AbilityFunc(af));
         }
+    }
+
+    public void InitScript(){
+        globals = JsePlatform.standardGlobals();
+        script = globals.loadfile(luaScript);
+        globals = setGlobals(globals);
+        script.call();
+        globals.get("Init").call(CoerceJavaToLua.coerce(this));
     }
 
     public void runAbilityFunc(LAPlayer lap, Event event) {
@@ -110,6 +123,9 @@ public class Ability {
     }
 
     public boolean CheckCooldown(LAPlayer lap, String ID, boolean showMessage) {
+        for (Ability.AbilityFunc af : abilityFunc) {
+            lap.player.sendMessage(af.funcID);
+        }
         if (lap.getVariable("abilityLock").equals("true")) return false;
         if (!abilityFunc.contains(ID)) return false;
 

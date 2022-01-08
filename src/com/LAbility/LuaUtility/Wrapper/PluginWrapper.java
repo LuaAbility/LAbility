@@ -57,7 +57,7 @@ public class PluginWrapper extends LuaTable {
             @Override
             public LuaValue invoke(Varargs vargs) {
                 String eventName = vargs.checkjstring(1);
-                LuaFunction callback = vargs.checkfunction(2);
+                String funcName = vargs.checkjstring(2);
 
                 // Attempt to find the event Bukkit again
                 String[] events = {"block", "enchantment", "entity", "hanging", "inventory", "player", "raid",
@@ -67,7 +67,7 @@ public class PluginWrapper extends LuaTable {
                     try {
                         Class<?> c = Class.forName("org.bukkit.event." + pkg + "." + eventName);
                         if (Event.class.isAssignableFrom(c) && c != null) {
-                            return CoerceJavaToLua.coerce(plugin.registerRuleEvent((Class<? extends Event>) c, callback));
+                            return CoerceJavaToLua.coerce(plugin.registerRuleEvent((Class<? extends Event>) c, funcName));
                         }
                     } catch (ClassNotFoundException ignored) {
                         // This would spam the console anytime an event is registered if we print the stack trace
@@ -75,27 +75,6 @@ public class PluginWrapper extends LuaTable {
                 }
 
                 throw new LuaException("Event " + eventName + " Not Found.", 1);
-            }
-        });
-
-        set("registerRuleTimer", new VarArgFunction() {
-            @Override
-            public LuaValue invoke(Varargs vargs) {
-                long delay = vargs.checklong(1);
-                LuaFunction callback = vargs.checkfunction(2);
-
-                return CoerceJavaToLua.coerce(plugin.registerRuleTimer(delay, callback));
-            }
-        });
-
-        set("registerRuleLoopTimer", new VarArgFunction() {
-            @Override
-            public LuaValue invoke(Varargs vargs) {
-                long delay = vargs.checklong(1);
-                boolean runOnZeroTick = vargs.checkboolean(2);
-                LuaFunction callback = vargs.checkfunction(3);
-
-                return CoerceJavaToLua.coerce(plugin.registerRuleLoopTimer(delay, runOnZeroTick, callback));
             }
         });
 

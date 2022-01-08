@@ -61,12 +61,7 @@ public class GameWrapper extends LuaTable {
                 String funcID = vargs.checkjstring(3);
                 boolean showMessage = vargs.isnil(4) || vargs.checkboolean(4);
 
-                for (Ability abilities : player.getAbility()) {
-                    if (abilities.equals(ability)) {
-                        return CoerceJavaToLua.coerce(abilities.CheckCooldown(player, funcID, showMessage));
-                    }
-                }
-                return CoerceJavaToLua.coerce(false);
+                return CoerceJavaToLua.coerce(ability.CheckCooldown(player, funcID, showMessage));
             }
         });
 
@@ -80,7 +75,7 @@ public class GameWrapper extends LuaTable {
 
                 Ability newAbility;
                 int aindex = LAbilityMain.instance.abilities.indexOf(abilityID);
-                if (aindex >= 0) newAbility = LAbilityMain.instance.abilities.get(aindex);
+                if (aindex >= 0) newAbility = new Ability(LAbilityMain.instance.abilities.get(aindex));
                 else return CoerceJavaToLua.coerce(false);
 
 
@@ -102,6 +97,7 @@ public class GameWrapper extends LuaTable {
                 }
 
                 player.getAbility().add(newAbility);
+                newAbility.InitScript();
                 return CoerceJavaToLua.coerce(false);
             }
         });
@@ -161,7 +157,7 @@ public class GameWrapper extends LuaTable {
 
                 Ability newAbility;
                 int aindex = LAbilityMain.instance.abilities.indexOf(abilityID);
-                if (aindex >= 0) newAbility = LAbilityMain.instance.abilities.get(aindex);
+                if (aindex >= 0) newAbility = new Ability(LAbilityMain.instance.abilities.get(aindex));
                 else return CoerceJavaToLua.coerce(false);
 
 
@@ -169,6 +165,7 @@ public class GameWrapper extends LuaTable {
                 player.getPlayer().sendMessage("\2476[\247eLAbility\2476] \247e/la check로 능력을 재 확인 해주세요.");
 
                 player.getAbility().add(newAbility);
+                newAbility.InitScript();
 
                 return CoerceJavaToLua.coerce(false);
             }
@@ -270,15 +267,6 @@ public class GameWrapper extends LuaTable {
             @Override
             public LuaValue call() {
                 LAbilityMain.instance.gameManager.OnGameEnd();
-                return NIL;
-            }
-        });
-
-        set("setOnGameEndFunction", new OneArgFunction() {
-            @Override
-            public LuaValue call(LuaValue arg) {
-                LuaFunction func = arg.checkfunction();
-                LAbilityMain.instance.gameManager.onGameEnd = func;
                 return NIL;
             }
         });

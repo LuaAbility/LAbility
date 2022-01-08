@@ -183,7 +183,9 @@ public class CommandManager implements CommandExecutor {
 								if (index2 >= 0) {
 									Ability a = main.abilities.get(index2);
 									if (!p.hasAbility(a)) {
-										p.ability.add(new Ability(a));
+										Ability newA = new Ability(a);
+										p.ability.add(newA);
+										newA.InitScript();
 										if (!senderPlayer.equals(p.player)) {
 											sender.sendMessage("\2478[\2477LAbility\2478] \2477" + args[1] + " 가 \2478" + a.abilityName + "\2477 능력을 얻었습니다.");
 											sender.sendMessage("\2478[\2477LAbility\2478] \2477" + "해당 유저는 해당 능력을 사용할 수 있습니다.");
@@ -406,6 +408,7 @@ public class CommandManager implements CommandExecutor {
 						sender.sendMessage("\2472[\247aLAbility\2472] \247a테스트 모드입니다. 게임 시작상태가 되며, 능력 사용이 가능합니다.");
 						main.gameManager.isGameStarted = true;
 						main.gameManager.isGameReady = true;
+						main.gameManager.isTestMode = true;
 						for (LAPlayer lap : LAbilityMain.instance.gameManager.players) {
 							lap.isSurvive = true;
 							lap.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(lap.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue());
