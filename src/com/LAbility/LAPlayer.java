@@ -66,19 +66,12 @@ public class LAPlayer {
 
     public void changeAbility(ArrayList<Ability> abilities) {
         LAPlayer lap = this;
-        for (Ability a : ability) {
-            LAbilityMain.instance.gameManager.StopPassive(lap, a);
-            LAbilityMain.instance.gameManager.StopActiveTimer(lap, a);
-        }
+        for (Ability a : ability)  a.stopActive(lap);
+
         ability.clear();
         new BukkitRunnable() {
             @Override
-            public void run() {
-                ability.addAll(abilities);
-                for (Ability a : ability) {
-                    LAbilityMain.instance.gameManager.RunPassive(lap, a);
-                }
-            }
+            public void run() { ability.addAll(abilities); }
         }.runTaskLater(LAbilityMain.plugin, 5);
     }
 

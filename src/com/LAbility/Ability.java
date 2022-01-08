@@ -1,71 +1,40 @@
 package com.LAbility;
 
 import com.LAbility.LuaUtility.FunctionList;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import org.luaj.vm2.LuaFunction;
+import org.luaj.vm2.Globals;
+import org.luaj.vm2.LuaTable;
+import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
+import org.luaj.vm2.lib.jse.JsePlatform;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Objects;
 
+import static com.LAbility.LuaUtility.LuaAbilityLoader.setGlobals;
+
 public class Ability {
-    public static class CooldownData {
-        public int maxCooldown;
-        public int currentCooldown;
-        public BukkitTask currentSchedule;
+    public static class AbilityFunc{
+        public String funcID;
+        public Class<? extends Event> funcEvent;
+        public int cooldown;
+        public int currentTime;
+        public BukkitTask currentTask = null;
 
-        public CooldownData(int cooldown){
-            maxCooldown = cooldown;
-            currentCooldown = cooldown;
-            currentSchedule = null;
+        public AbilityFunc(String ID, Class<? extends Event> event, int cool){
+            funcID = ID;
+            funcEvent = event;
+            cooldown = cool;
+            currentTime = (int) (cool * LAbilityMain.instance.gameManager.cooldownMultiply);
         }
 
-        public CooldownData(CooldownData cd){
-            maxCooldown = cd.maxCooldown;
-            currentCooldown = cd.maxCooldown;
-            currentSchedule = cd.currentSchedule;
-        }
-    }
-
-    public static class ActiveFunc {
-        public Class<? extends Event> event;
-        public CooldownData cooldown;
-        public LuaFunction function;
-
-        public ActiveFunc(Class<? extends Event> eve, int cooldowns, LuaFunction func) {
-            event = eve;
-            cooldown = new CooldownData(cooldowns);
-            function = func;
-        }
-
-        public ActiveFunc(ActiveFunc af) {
-            event = af.event;
-            cooldown = new CooldownData(af.cooldown);
-            function = af.function;
-        }
-    }
-
-    public static class PassiveFunc {
-        public int delay;
-        public LuaFunction function;
-        public BukkitTask scheduler;
-
-        public PassiveFunc(int del, LuaFunction func) {
-            delay = del;
-            function = func;
-            scheduler = null;
-        }
-
-        public PassiveFunc(PassiveFunc pf) {
-            delay = pf.delay;
-            function = pf.function;
-            scheduler = pf.scheduler;
+        public AbilityFunc(AbilityFunc af){
+            funcID = af.funcID;
+            funcEvent = af.funcEvent;
+            cooldown = af.cooldown;
+            currentTime = (int) (af.cooldown * LAbilityMain.instance.gameManager.cooldownMultiply);
         }
     }
 
@@ -87,103 +56,113 @@ public class Ability {
     public String abilityName;
     public String abilityRank;
     public String abilityDesc;
-    public FunctionList<ActiveFunc> eventFunc = new FunctionList<ActiveFunc>() {
-        @Override
-        public boolean contains(Object o) {
-            if (o instanceof Event) {
-                Event event = (Event) o;
-                for (ActiveFunc af : this) {
-                    if (af.event.equals(event.getClass())) return true;
-                }
-            }
-            else if (o instanceof CooldownData) {
-                CooldownData cooldown = (CooldownData) o;
-                for (ActiveFunc af : this) {
-                    if (af.cooldown.equals(cooldown)) return true;
-                }
-            }
-            else if (o instanceof LuaFunction) {
-                LuaFunction func = (LuaFunction) o;
-                for (ActiveFunc af : this) {
-                    if (af.function.equals(func)) return true;
-                }
-            }
-            return false;
-        }
-    };
-    public ArrayList<PassiveFunc> passiveFunc = new ArrayList<PassiveFunc>();
-    public ArrayList<LuaFunction> resetFunc = new ArrayList<LuaFunction>();
+    public String luaScript;
+    public FunctionList<AbilityFunc> abilityFunc = new FunctionList<>();
 
-    public Ability(String id, String type, String name, String rank, String desc) {
+    public Ability(String id, String type, String name, String rank, String desc, String script) {
         abilityID = id;
         abilityType = type;
         abilityName = name;
         abilityRank = rank;
         abilityDesc = desc;
+        luaScript = script;
     }
-
     public Ability(Ability a) {
         abilityID = a.abilityID;
         abilityType = a.abilityType;
         abilityName = a.abilityName;
         abilityRank = a.abilityRank;
         abilityDesc = a.abilityDesc;
-
-        eventFunc = new FunctionList<ActiveFunc>();
-        for (ActiveFunc af : a.eventFunc){
-            ActiveFunc afs = new ActiveFunc(af);
-            eventFunc.add(afs);
-        }
-
-        passiveFunc = new ArrayList<PassiveFunc>();
-        for (PassiveFunc pf : a.passiveFunc){
-            passiveFunc.add(new PassiveFunc(pf));
-        }
-
-        resetFunc = new ArrayList<LuaFunction>();
-        for (LuaFunction pf : a.resetFunc){
-            resetFunc.add(pf);
+        luaScript = a.luaScript;
+        abilityFunc = new FunctionList<>();
+        for (Ability.AbilityFunc af : a.abilityFunc) {
+            abilityFunc.add(new AbilityFunc(af));
         }
     }
 
-    public void UseEventFunc(Event event){
-        for( ActiveFunc af : eventFunc ){
-            if (af.event.isAssignableFrom(event.getClass()) || af.event.equals(event.getClass()) || af.event.isInstance(event)) {
-                af.function.call(CoerceJavaToLua.coerce(this), CoerceJavaToLua.coerce(event));
+    public void runAbilityFunc(LAPlayer lap, Event event) {
+        if (abilityFunc.contains(event)) {
+            for (Ability.AbilityFunc af : abilityFunc) {
+                if ((af.funcEvent.isAssignableFrom(event.getClass()) || af.funcEvent.isInstance(event)) || af.funcEvent.equals(event.getClass())) {
+                    Globals globals = JsePlatform.standardGlobals();
+                    LuaValue script = globals.loadfile(luaScript);
+                    globals = setGlobals(globals);
+                    script.call();
+
+                    LuaTable table = new LuaTable();
+                    table.insert(1, CoerceJavaToLua.coerce(af.funcID));
+                    table.insert(2, CoerceJavaToLua.coerce(event));
+                    table.insert(3, CoerceJavaToLua.coerce(lap));
+                    table.insert(4, CoerceJavaToLua.coerce(this));
+
+                    globals.get("onEvent").call(table);
+                }
             }
         }
     }
 
-    public void ResetCooldown(Player player, int index, boolean showMessage) {
-        eventFunc.get(index).cooldown.currentCooldown = (int)(eventFunc.get(index).cooldown.maxCooldown * LAbilityMain.instance.gameManager.cooldownMultiply);
-        if (eventFunc.get(index).cooldown.currentSchedule != null) eventFunc.get(index).cooldown.currentSchedule.cancel();
-        if (showMessage) player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b쿨타임이 초기화 되었습니다." );
+    public void runPassiveFunc(LAPlayer lap) {
+        Globals globals = JsePlatform.standardGlobals();
+        LuaValue script = globals.loadfile(luaScript);
+        globals = setGlobals(globals);
+        script.call();
+        if (!globals.get("onTimer").isnil()) globals.get("onTimer").call(CoerceJavaToLua.coerce(lap), CoerceJavaToLua.coerce(this));
     }
 
-    public boolean CheckCooldown(Player player, int index, boolean showMessage) {
-        LAPlayer lap = LAbilityMain.instance.gameManager.players.get(LAbilityMain.instance.gameManager.players.indexOf(player.getName()));
+    public boolean CheckCooldown(LAPlayer lap, String ID, boolean showMessage) {
         if (lap.getVariable("abilityLock").equals("true")) return false;
+        if (!abilityFunc.contains(ID)) return false;
 
-        if ((eventFunc.get(index).cooldown.maxCooldown * LAbilityMain.instance.gameManager.cooldownMultiply) <= 0) {
-            return true;
-        }
+        int index = abilityFunc.indexOf(ID);
 
-        if (eventFunc.get(index).cooldown.currentCooldown >= (eventFunc.get(index).cooldown.maxCooldown * LAbilityMain.instance.gameManager.cooldownMultiply)) {
-            if (eventFunc.get(index).cooldown.currentSchedule != null) eventFunc.get(index).cooldown.currentSchedule.cancel();
-            eventFunc.get(index).cooldown.currentCooldown = 0;
-            eventFunc.get(index).cooldown.currentSchedule = new BukkitRunnable() {
+        if ((abilityFunc.get(index).cooldown * LAbilityMain.instance.gameManager.cooldownMultiply) <= 0) return true;
+
+        if (abilityFunc.get(index).currentTime >= (abilityFunc.get(index).cooldown * LAbilityMain.instance.gameManager.cooldownMultiply)) {
+            if (abilityFunc.get(index).currentTask != null) abilityFunc.get(index).currentTask.cancel();
+            abilityFunc.get(index).currentTime = 0;
+            abilityFunc.get(index).currentTask = new BukkitRunnable() {
                 @Override
-                public void run() {
-                    eventFunc.get(index).cooldown.currentCooldown++;
-                }
+                public void run() { abilityFunc.get(index).currentTime++; }
             }.runTaskTimer(LAbilityMain.plugin, 0, 1);
-            if (showMessage) player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b능력을 사용했습니다." );
+
+            if (showMessage) lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b능력을 사용했습니다." );
             return true;
         }
-        double cooldown = (((eventFunc.get(index).cooldown.maxCooldown * LAbilityMain.instance.gameManager.cooldownMultiply) - eventFunc.get(index).cooldown.currentCooldown) / 20.0);
-        if (showMessage) player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b쿨타임 입니다. (" + cooldown + "s)" );
 
+        double cooldown = ((abilityFunc.get(index).cooldown * LAbilityMain.instance.gameManager.cooldownMultiply) - abilityFunc.get(index).currentTime) / 20.0;
+        if (showMessage) lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b쿨타임 입니다. (" + cooldown + "s)" );
         return false;
+    }
+
+    public void runResetFunc(LAPlayer lap) {
+        Globals globals = JsePlatform.standardGlobals();
+        LuaValue script = globals.loadfile(luaScript);
+        globals = setGlobals(globals);
+        script.call();
+        globals.get("Reset").call(CoerceJavaToLua.coerce(lap), CoerceJavaToLua.coerce(this));
+    }
+
+    public void resetCooldown() {
+        for (Ability.AbilityFunc af : abilityFunc) resetCooldown(af.funcID);
+    }
+
+    public void resetCooldown(String ID) {
+        if (!abilityFunc.contains(ID)) return;
+        int index = abilityFunc.indexOf(ID);
+        abilityFunc.get(index).currentTime = (int) (abilityFunc.get(index).cooldown * LAbilityMain.instance.gameManager.cooldownMultiply) + 100;
+    }
+
+    public void setTime(String ID, int reset) {
+        if (!abilityFunc.contains(ID)) return;
+        int index = abilityFunc.indexOf(ID);
+        abilityFunc.get(index).currentTime = reset;
+    }
+
+    public void stopActive(LAPlayer lap) {
+        for (Ability.AbilityFunc af : abilityFunc) {
+            if (af.currentTask != null) af.currentTask.cancel();
+        }
+        runResetFunc(lap);
     }
 
     public void ExplainAbility(Player player) {

@@ -191,9 +191,6 @@ public class CommandManager implements CommandExecutor {
 										p.player.sendMessage("\2476[\247eLAbility\2476] \2476" + a.abilityName + "\247e 능력을 얻었습니다.");
 										p.player.sendMessage("\2476[\247eLAbility\2476] \247a" + "/la check " + (p.ability.size() - 1) + "\247e로 확인가능합니다.");
 
-										if (main.gameManager.isGameStarted) {
-											LAbilityMain.instance.gameManager.RunPassive(p, p.ability.get(p.ability.indexOf(a.abilityID)));
-										}
 										return true;
 									}
 									else {
@@ -238,8 +235,7 @@ public class CommandManager implements CommandExecutor {
 
 										int abilityIndex = p.getAbility().indexOf(a.abilityID);
 										if (main.gameManager.isGameStarted) {
-											LAbilityMain.instance.gameManager.StopPassive(p, p.getAbility().get(abilityIndex));
-											LAbilityMain.instance.gameManager.StopActiveTimer(p, p.getAbility().get(abilityIndex));
+											p.getAbility().get(abilityIndex).stopActive(p);
 											p.getAbility().remove(abilityIndex);
 										}
 										return true;
@@ -263,8 +259,7 @@ public class CommandManager implements CommandExecutor {
 
 									if (main.gameManager.isGameReady) {
 										for (Ability a : p.getAbility()) {
-											LAbilityMain.instance.gameManager.StopPassive(p, a);
-											LAbilityMain.instance.gameManager.StopActiveTimer(p, a);
+											a.stopActive(p);
 										}
 									}
 
@@ -416,13 +411,18 @@ public class CommandManager implements CommandExecutor {
 							lap.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(lap.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue());
 							lap.player.setWalkSpeed(0.2f);
 						}
-						main.gameManager.RunAllPassive();
+
+						LAbilityMain.instance.gameManager.RunPassive();
 					}
 				}
 
 				if (args[0].equalsIgnoreCase("cooldown") && senderPlayer.isOp()) {
 					sender.sendMessage("\2472[\247aLAbility\2472] \247a쿨타임이 초기화되었습니다.");
-					main.gameManager.StopAllActiveTimer();
+					for (LAPlayer lap : LAbilityMain.instance.gameManager.players) {
+						for (Ability a : lap.getAbility()) {
+							a.resetCooldown();
+						}
+					}
 				}
 
 				if (args[0].equalsIgnoreCase("variable") && senderPlayer.isOp()) {

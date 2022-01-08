@@ -146,7 +146,7 @@ public class ScheduleManager {
                         lap.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(lap.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue());
                         lap.player.setWalkSpeed(0.2f);
                     }
-                    LAbilityMain.instance.gameManager.RunAllPassive();
+                    LAbilityMain.instance.gameManager.RunPassive();
                 }
 
                 else {

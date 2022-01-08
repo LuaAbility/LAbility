@@ -7,8 +7,6 @@ import com.LAbility.LuaUtility.Wrapper.LoggerWrapper;
 import com.LAbility.LuaUtility.Wrapper.PluginWrapper;
 import com.LAbility.LuaUtility.Wrapper.UtilitiesWrapper;
 import org.bukkit.Bukkit;
-import org.bukkit.Particle;
-import org.bukkit.World;
 import org.luaj.vm2.*;
 import org.luaj.vm2.lib.OneArgFunction;
 import org.luaj.vm2.lib.VarArgFunction;
@@ -17,8 +15,6 @@ import org.luaj.vm2.lib.jse.JsePlatform;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 
 public class LuaAbilityLoader {
@@ -40,11 +36,13 @@ public class LuaAbilityLoader {
                     String abilityName = "";
                     String abilityRank = "";
                     String abilityDesc = "";
+                    String luaScriptLoc = "";
                     LuaValue luaScript = null;
 
                     File[] files2 = file.listFiles();
                     for (File file2 : files2) {
                         if (file2.toString().toLowerCase().contains("main.lua")) {
+                            luaScriptLoc = file2.toString();
                             luaScript = globals.loadfile(file2.toString());
                             globals = setGlobals(globals);
                         } else if (file2.toString().toLowerCase().contains("data.yml")) {
@@ -62,9 +60,9 @@ public class LuaAbilityLoader {
                     }
 
                     if (!luaScript.equals(null) && !abilityName.equals("")) {
-                        Ability a = new Ability(abilityID, abilityType, abilityName, abilityRank, abilityDesc);
+                        Ability a = new Ability(abilityID, abilityType, abilityName, abilityRank, abilityDesc, luaScriptLoc);
                         luaScript.call();
-                        globals.get("main").call(CoerceJavaToLua.coerce(a));
+                        globals.get("Init").call(CoerceJavaToLua.coerce(a));
                         luaAbilities.add(a);
                     }
                 }

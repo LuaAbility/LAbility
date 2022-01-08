@@ -15,12 +15,7 @@ import org.luaj.vm2.LuaFunction;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 import java.io.*;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 
 public class LAbilityMain extends JavaPlugin implements Listener {
     public static LAbilityMain instance;
@@ -30,6 +25,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
     public GameManager gameManager;
     public int hasError = 0;
     public AbilityList<Ability> abilities = new AbilityList<>();
+    public ArrayList<Class<? extends Event>> registerdEventList = new ArrayList<>();
 
     @Override
     public void onEnable() {
@@ -65,23 +61,27 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         Bukkit.getConsoleSender().sendMessage("Made by MINUTE.");
     }
 
-    public Listener registerEvent(Ability ability, Class<? extends Event> event, int cooldown, LuaFunction function) {
-        ability.eventFunc.add( new Ability.ActiveFunc(event, cooldown, function) );
-        Listener listener = new Listener() {};
+    public Listener registerEvent(Ability ability, String funcName, Class<? extends Event> event, int cooldown) {
+        ability.abilityFunc.add( new Ability.AbilityFunc(funcName, event, cooldown) );
 
-        this.getServer().getPluginManager().registerEvent(event, listener, EventPriority.NORMAL, new EventExecutor() {
-            @Override
-            public void execute(Listener listener, Event event) throws EventException {
-                if (gameManager.isGameStarted) {
-                    if (event.getClass().isAssignableFrom(Cancellable.class)) {
-                        Cancellable temp = (Cancellable)event;
-                        if (temp.isCancelled()) return;
+        if (!registerdEventList.contains(event)) {
+            Listener listener = new Listener() {};
+            this.getServer().getPluginManager().registerEvent(event, listener, EventPriority.NORMAL, new EventExecutor() {
+                @Override
+                public void execute(Listener listener, Event event) throws EventException {
+                    if (gameManager.isGameStarted) {
+                        if (event.getClass().isAssignableFrom(Cancellable.class)) {
+                            Cancellable temp = (Cancellable)event;
+                            if (temp.isCancelled()) return;
+                        }
+
+                        gameManager.RunEvent(event);
                     }
-                    gameManager.RunEvent(ability, event);
                 }
-            }
-        }, this, false);
+            }, this, false);
 
+            registerdEventList.add(event);
+        }
         return null;
     }
 
@@ -115,16 +115,6 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         ScheduleManager.loopTimerFunc.put(function, delay);
 
         return null;
-    }
-
-    public int addPassiveScript(Ability ability, int tick, LuaFunction function) {
-        ability.passiveFunc.add(new Ability.PassiveFunc(tick, function));
-        return 0;
-    }
-
-    public int addResetScript(Ability ability, LuaFunction function) {
-        ability.resetFunc.add(function);
-        return 0;
     }
 
     public void assignAllPlayer(){

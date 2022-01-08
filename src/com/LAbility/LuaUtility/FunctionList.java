@@ -7,28 +7,30 @@ import org.luaj.vm2.LuaFunction;
 
 import java.util.ArrayList;
 
-public class FunctionList<E extends Ability.ActiveFunc> extends ArrayList<Ability.ActiveFunc> {
+public class FunctionList<E extends Ability.AbilityFunc> extends ArrayList<Ability.AbilityFunc> {
     @Override
     public boolean contains(Object o) {
-        if (o instanceof Ability.ActiveFunc) return super.contains(o);
+        if (o instanceof Ability.AbilityFunc) return super.contains(o);
         if (o instanceof Event event) {
-            for (Ability.ActiveFunc af : this) {
-
-                if (af.event.isAssignableFrom(event.getClass())) return true;
-                if (af.event.equals(event.getClass())) return true;
-                if (af.event.isInstance(event)) return true;
-            }
-        }
-        else if (o instanceof Ability.CooldownData cooldown) {
-            for (Ability.ActiveFunc af : this) {
-                if (af.cooldown.equals(cooldown)) return true;
-            }
-        }
-        else if (o instanceof LuaFunction func) {
-            for (Ability.ActiveFunc af : this) {
-                if (af.function.equals(func)) return true;
+            for (Ability.AbilityFunc af : this) {
+                if (af.funcEvent.isAssignableFrom(event.getClass())) return true;
+                if (af.funcEvent.equals(event.getClass())) return true;
+                if (af.funcEvent.isInstance(event)) return true;
             }
         }
         return false;
+    }
+
+    @Override
+    public int indexOf(Object o) {
+        if (o instanceof Ability.AbilityFunc) return super.indexOf(o);
+        if (o instanceof String ID) {
+            int i = 0;
+            for (Ability.AbilityFunc af : this) {
+                if (af.funcID.equals(ID)) return i;
+            }
+        }
+
+        return -1;
     }
 }
