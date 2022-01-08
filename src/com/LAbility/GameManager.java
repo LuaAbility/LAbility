@@ -13,6 +13,8 @@ import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 import javax.xml.crypto.dsig.keyinfo.KeyValue;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class GameManager {
@@ -33,6 +35,7 @@ public class GameManager {
     public boolean skipYesOrNo = false;
     public boolean skipInformation = false;
     public LuaFunction onGameEnd = null;
+    public Map<String, String> variable = new HashMap<>();
 
     public void ResetAll(){
         isGameStarted = false;

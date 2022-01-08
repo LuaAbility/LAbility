@@ -327,6 +327,56 @@ public class GameWrapper extends LuaTable {
                 return NIL;
             }
         });
+
+        set("addGameVariable", new VarArgFunction() {
+            @Override
+            public LuaValue invoke(Varargs vargs) {
+                String key = vargs.checkjstring(1);
+                String value = vargs.checkjstring(2);
+
+                if (!LAbilityMain.instance.gameManager.variable.containsKey(key)) LAbilityMain.instance.gameManager.variable.put(key, value);
+                else LAbilityMain.instance.gameManager.variable.replace(key, value);
+                return NIL;
+            }
+        });
+
+        set("getGameVariable", new VarArgFunction() {
+            @Override
+            public LuaValue invoke(Varargs vargs) {
+                String key = vargs.checkjstring(1);
+
+                return CoerceJavaToLua.coerce(LAbilityMain.instance.gameManager.variable.getOrDefault(key, ""));
+            }
+        });
+
+        set("setGameVariable", new VarArgFunction() {
+            @Override
+            public LuaValue invoke(Varargs vargs) {
+                String key = vargs.checkjstring(1);
+                String value = vargs.checkjstring(2);
+
+                if (LAbilityMain.instance.gameManager.variable.containsKey(key)) LAbilityMain.instance.gameManager.variable.replace(key, value);
+                else LAbilityMain.instance.gameManager.variable.put(key, value);
+                return NIL;
+            }
+        });
+
+        set("removeGameVariable", new VarArgFunction() {
+            @Override
+            public LuaValue invoke(Varargs vargs) {
+                String key = vargs.checkjstring(1);
+                if (LAbilityMain.instance.gameManager.variable.containsKey(key)) LAbilityMain.instance.gameManager.variable.remove(key);
+                return NIL;
+            }
+        });
+
+        set("resetGameVariable", new VarArgFunction() {
+            @Override
+            public LuaValue invoke(Varargs vargs) {
+                LAbilityMain.instance.gameManager.variable.clear();
+                return NIL;
+            }
+        });
     }
 }
 /*
