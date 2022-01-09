@@ -9,12 +9,12 @@ public class ScheduleManager {
     static BukkitTask Prepare_Scheduler;
     static int time_Main = 0, time_Prepare = 0;
 
-    public static void ClearTimer(){
+    public void ClearTimer(){
         if (Prepare_Scheduler != null) Prepare_Scheduler.cancel();
         time_Main = 0; time_Prepare = 0;
     }
 
-    public static void PrepareTimer() {
+    public void PrepareTimer() {
         int Delay = 40;
 
         if (LAbilityMain.instance.gameManager.skipInformation) {
@@ -126,7 +126,7 @@ public class ScheduleManager {
         }
     }
 
-    public static void MainTimer() {
+    public void MainTimer() {
         if (!LAbilityMain.instance.gameManager.skipInformation) Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e게임 시작!");
         LAbilityMain.instance.gameManager.isGameStarted = true;
         for (LAPlayer lap : LAbilityMain.instance.gameManager.players) {

@@ -24,6 +24,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
     public GameWrapper gameWrapper;
     public GameManager gameManager;
     public RuleManager ruleManager;
+    public ScheduleManager scheduleManager;
     public int hasError = 0;
     public AbilityList<Ability> abilities = new AbilityList<>();
     public ArrayList<Class<? extends Event>> registerdEventList = new ArrayList<>();
@@ -35,13 +36,14 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         hasError = 0;
         ruleManager = new RuleManager();
         gameManager = new GameManager();
-
+        scheduleManager = new ScheduleManager();
 
         if (!LAbilityMain.instance.getDataFolder().exists()){
             LAbilityMain.instance.getDataFolder().mkdir();
             (new File(LAbilityMain.instance.getDataFolder().toString() + "\\Ability")).mkdir();
         }
 
+        registerdEventList = new ArrayList<>();
         LuaAbilityLoader.LoadLuaRules();
         abilities = LuaAbilityLoader.LoadAllLuaAbilities();
 

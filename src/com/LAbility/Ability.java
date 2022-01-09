@@ -12,6 +12,8 @@ import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.Objects;
 
 import static com.LAbility.LuaUtility.LuaAbilityLoader.setGlobals;
@@ -90,15 +92,17 @@ public class Ability {
         script = globals.loadfile(luaScript);
         globals = setGlobals(globals);
         script.call();
+
         globals.get("Init").call(CoerceJavaToLua.coerce(this));
     }
 
     public void runAbilityFunc(LAPlayer lap, Event event) {
+        lap.getPlayer().sendMessage(event.getEventName());
         if (abilityFunc.contains(event)) {
             for (Ability.AbilityFunc af : abilityFunc) {
                 if ((af.funcEvent.isAssignableFrom(event.getClass()) || af.funcEvent.isInstance(event)) || af.funcEvent.equals(event.getClass())) {
-                    Globals globals = JsePlatform.standardGlobals();
-                    LuaValue script = globals.loadfile(luaScript);
+                    globals = JsePlatform.standardGlobals();
+                    script = globals.loadfile(luaScript);
                     globals = setGlobals(globals);
                     script.call();
 
@@ -108,28 +112,28 @@ public class Ability {
                     table.insert(3, CoerceJavaToLua.coerce(lap));
                     table.insert(4, CoerceJavaToLua.coerce(this));
 
-                    globals.get("onEvent").call(table);
+                    if (!globals.get("onEvent").isnil()) globals.get("onEvent").call(table);
                 }
             }
         }
     }
 
     public void runPassiveFunc(LAPlayer lap) {
-        Globals globals = JsePlatform.standardGlobals();
-        LuaValue script = globals.loadfile(luaScript);
+        globals = JsePlatform.standardGlobals();
+        script = globals.loadfile(luaScript);
         globals = setGlobals(globals);
         script.call();
+
         if (!globals.get("onTimer").isnil()) globals.get("onTimer").call(CoerceJavaToLua.coerce(lap), CoerceJavaToLua.coerce(this));
     }
 
     public boolean CheckCooldown(LAPlayer lap, String ID, boolean showMessage) {
-        for (Ability.AbilityFunc af : abilityFunc) {
-            lap.player.sendMessage(af.funcID);
-        }
-        if (lap.getVariable("abilityLock").equals("true")) return false;
+        if (lap.getVariable("abilityLock") != null && lap.getVariable("abilityLock").equals(true)) return false;
         if (!abilityFunc.contains(ID)) return false;
 
         int index = abilityFunc.indexOf(ID);
+
+        Bukkit.getConsoleSender().sendMessage(abilityFunc.get(index).funcID + " / " + abilityFunc.get(index).funcEvent.getName() + " / " + abilityFunc.get(index).cooldown);
 
         if ((abilityFunc.get(index).cooldown * LAbilityMain.instance.gameManager.cooldownMultiply) <= 0) return true;
 
@@ -151,11 +155,28 @@ public class Ability {
     }
 
     public void runResetFunc(LAPlayer lap) {
-        Globals globals = JsePlatform.standardGlobals();
-        LuaValue script = globals.loadfile(luaScript);
+        globals = JsePlatform.standardGlobals();
+        script = globals.loadfile(luaScript);
         globals = setGlobals(globals);
         script.call();
-        globals.get("Reset").call(CoerceJavaToLua.coerce(lap), CoerceJavaToLua.coerce(this));
+
+        if (!globals.get("Reset").isnil()) globals.get("Reset").call(CoerceJavaToLua.coerce(lap), CoerceJavaToLua.coerce(this));
+
+        String[] splitID = abilityID.split("-");
+        if (splitID.length >= 3) {
+            String targetID = splitID[1] + splitID[2];
+
+            ArrayList<String> removeIDList = new ArrayList<>();
+            for (Map.Entry<String, Object> variable : lap.variable.entrySet()) {
+                if (variable.getKey().contains(targetID)) {
+                    removeIDList.add(variable.getKey());
+                }
+            }
+
+            for (String i : removeIDList) {
+                lap.variable.remove(i);
+            }
+        }
     }
 
     public void resetCooldown() {
@@ -178,6 +199,8 @@ public class Ability {
         for (Ability.AbilityFunc af : abilityFunc) {
             if (af.currentTask != null) af.currentTask.cancel();
         }
+
+
         runResetFunc(lap);
     }
 

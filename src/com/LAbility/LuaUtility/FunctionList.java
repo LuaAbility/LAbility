@@ -19,7 +19,6 @@ public class FunctionList<E extends Ability.AbilityFunc> extends ArrayList<Abili
             }
         }
         if (o instanceof String ID) {
-            int i = 0;
             for (Ability.AbilityFunc af : this) {
                 if (af.funcID.equals(ID)) return true;
             }
@@ -34,6 +33,7 @@ public class FunctionList<E extends Ability.AbilityFunc> extends ArrayList<Abili
             int i = 0;
             for (Ability.AbilityFunc af : this) {
                 if (af.funcID.equals(ID)) return i;
+                i++;
             }
         }
 

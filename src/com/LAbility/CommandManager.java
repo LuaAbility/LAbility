@@ -11,6 +11,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 
+import java.io.File;
+
 public class CommandManager implements CommandExecutor {
 	public final LAbilityMain main;
 
@@ -68,6 +70,7 @@ public class CommandManager implements CommandExecutor {
 					sender.sendMessage("\2476/la \247etest \247f: \247a테스트 모드에 진입합니다. 게임 시작을 하지 않아도 능력 사용이 가능합니다.\n테스트 모드를 종료하려면 /la stop을 입력하세요.");  // OK
 					sender.sendMessage("\2476/la \247ecooldown \247f: \247a쿨타임을 모두 초기화합니다.");  // OK
 					sender.sendMessage("\2476/la \247evariable \247f: \247a플레이어들의 변수를 확인합니다.");  // OK
+					sender.sendMessage("\2476/la \247ereload \247f: \247a스크립트를 다시 로드합니다.");  // OK
 					return true;
 				}
 
@@ -375,7 +378,7 @@ public class CommandManager implements CommandExecutor {
 
 				if (args[0].equalsIgnoreCase("start") && senderPlayer.isOp()) {
 					if (!main.gameManager.isGameReady) {
-						if (!LAbilityMain.instance.gameManager.raffleAbility) ScheduleManager.PrepareTimer();
+						if (!LAbilityMain.instance.gameManager.raffleAbility) LAbilityMain.instance.scheduleManager.PrepareTimer();
 						else if ((!LAbilityMain.instance.gameManager.overlapAbility && (LAbilityMain.instance.gameManager.abilityAmount * LAbilityMain.instance.gameManager.players.size()) > LAbilityMain.instance.abilities.size()) ||
 								(LAbilityMain.instance.gameManager.overlapAbility && LAbilityMain.instance.gameManager.abilityAmount > LAbilityMain.instance.abilities.size())) {
 							if (!LAbilityMain.instance.gameManager.overlapAbility) {
@@ -386,7 +389,7 @@ public class CommandManager implements CommandExecutor {
 						} else if (LAbilityMain.instance.gameManager.players.size() < 2){
 							senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c한 명일때는 게임 시작이 불가능합니다.");
 						}
-						else ScheduleManager.PrepareTimer();
+						else LAbilityMain.instance.scheduleManager.PrepareTimer();
 					}
 					else {
 						senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c게임이 진행 중입니다.");
@@ -426,6 +429,23 @@ public class CommandManager implements CommandExecutor {
 							a.resetCooldown();
 						}
 					}
+				}
+
+				if (args[0].equalsIgnoreCase("reload") && senderPlayer.isOp()) {
+					LAbilityMain.instance.gameManager.OnGameEnd();
+					LAbilityMain.instance.hasError = 0;
+					LAbilityMain.instance.ruleManager = new RuleManager();
+					LAbilityMain.instance.gameManager = new GameManager();
+					LAbilityMain.instance.scheduleManager = new ScheduleManager();
+
+					LuaAbilityLoader.LoadLuaRules();
+					LAbilityMain.instance.abilities = LuaAbilityLoader.LoadAllLuaAbilities();
+					LAbilityMain.instance.gameManager.ResetAll();
+
+					if (LAbilityMain.instance.hasError > 0) Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c" + LAbilityMain.instance.hasError + "개의 능력을 로드하는데 문제가 생겼습니다. 해당 능력들은 로드하지 않습니다.");
+					Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \2477v0.2 " + LAbilityMain.instance.abilities.size() + "개 능력 로드 완료!");
+					Bukkit.getConsoleSender().sendMessage("Made by MINUTE.");
+					sender.sendMessage("\2472[\247aLAbility\2472] \247aReload Complete.");
 				}
 
 				if (args[0].equalsIgnoreCase("variable") && senderPlayer.isOp()) {

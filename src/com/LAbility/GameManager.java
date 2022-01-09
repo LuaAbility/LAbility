@@ -1,5 +1,6 @@
 package com.LAbility;
 
+import com.LAbility.ScheduleManager;
 import com.LAbility.LuaUtility.PlayerList;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -32,9 +33,37 @@ public class GameManager {
     public boolean overrideItem = false;
     public boolean skipYesOrNo = false;
     public boolean skipInformation = false;
-    public Map<String, String> variable = new HashMap<>();
+    public Map<String, Object> variable = new HashMap<>();
+
+    public Object getVariable(String key) {
+        Object obj = variable.getOrDefault(key, null);
+        if (!(obj == null)) {
+            var data = obj.getClass().cast(obj);
+            return data;
+        }
+        else return null;
+    }
+
+    public void setVariable(String key, Object value){
+        if (variable.containsKey(key)) variable.replace(key, value);
+        else addVariable(key, value);
+    }
+
+    public void addVariable(String key, Object value) {
+        if (!variable.containsKey(key)) variable.put(key, value);
+        else variable.replace(key, value);
+    }
+
+    public void removeVariable(String key) {
+        if (variable.containsKey(key)) variable.remove(key);
+    }
 
     public void ResetAll(){
+        for (LAPlayer player : players){
+            for (Ability ab : player.ability) {
+                ab.runResetFunc(player);
+            }
+        }
         isGameStarted = false;
         isGameReady = false;
         isTestMode = false;
@@ -54,6 +83,7 @@ public class GameManager {
                     }
                 }
             }
+
             LAbilityMain.instance.ruleManager.RunEvent(event);
         }
     }
@@ -173,7 +203,8 @@ public class GameManager {
     }
 
     public void OnGameEnd(){
-        ScheduleManager.ClearTimer();
+
+        LAbilityMain.instance.scheduleManager.ClearTimer();
         LAbilityMain.instance.ruleManager.runResetFunc();
         LAbilityMain.instance.gameManager.ResetAll();
         LAbilityMain.instance.getServer().getScheduler().cancelTasks(LAbilityMain.plugin);

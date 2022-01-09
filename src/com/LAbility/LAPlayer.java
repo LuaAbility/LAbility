@@ -12,7 +12,7 @@ import java.util.Objects;
 public class LAPlayer {
     Player player;
     AbilityList<Ability> ability = new AbilityList<>();
-    Map<String, String> variable = new HashMap<>();
+    Map<String, Object> variable = new HashMap<>();
     boolean isAssign = false;
     public boolean isSurvive = true;
 
@@ -28,16 +28,21 @@ public class LAPlayer {
         return ability;
     }
 
-    public String getVariable(String key) {
-        return variable.getOrDefault(key, "");
+    public Object getVariable(String key) {
+        Object obj = variable.getOrDefault(key, null);
+        if (!(obj == null)) {
+            var data = obj.getClass().cast(obj);
+            return data;
+        }
+        else return null;
     }
 
-    public void setVariable(String key, String value){
+    public void setVariable(String key, Object value){
         if (variable.containsKey(key)) variable.replace(key, value);
         else addVariable(key, value);
     }
 
-    public void addVariable(String key, String value) {
+    public void addVariable(String key, Object value) {
         if (!variable.containsKey(key)) variable.put(key, value);
         else variable.replace(key, value);
     }

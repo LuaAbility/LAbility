@@ -16,7 +16,6 @@ import org.luaj.vm2.lib.*;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 public class GameWrapper extends LuaTable {
-
     public GameWrapper(LAbilityMain plugin) {
         set("getAbilityList", new ZeroArgFunction() {
             @Override
@@ -61,7 +60,11 @@ public class GameWrapper extends LuaTable {
                 String funcID = vargs.checkjstring(3);
                 boolean showMessage = vargs.isnil(4) || vargs.checkboolean(4);
 
-                return CoerceJavaToLua.coerce(ability.CheckCooldown(player, funcID, showMessage));
+                if (player.getAbility().contains(ability.abilityID)) {
+                    Bukkit.getConsoleSender().sendMessage(player.getPlayer().getName());
+                    return CoerceJavaToLua.coerce(ability.CheckCooldown(player, funcID, showMessage));
+                }
+                else return CoerceJavaToLua.coerce(false);
             }
         });
 
@@ -267,56 +270,6 @@ public class GameWrapper extends LuaTable {
             @Override
             public LuaValue call() {
                 LAbilityMain.instance.gameManager.OnGameEnd();
-                return NIL;
-            }
-        });
-
-        set("addGameVariable", new VarArgFunction() {
-            @Override
-            public LuaValue invoke(Varargs vargs) {
-                String key = vargs.checkjstring(1);
-                String value = vargs.checkjstring(2);
-
-                if (!LAbilityMain.instance.gameManager.variable.containsKey(key)) LAbilityMain.instance.gameManager.variable.put(key, value);
-                else LAbilityMain.instance.gameManager.variable.replace(key, value);
-                return NIL;
-            }
-        });
-
-        set("getGameVariable", new VarArgFunction() {
-            @Override
-            public LuaValue invoke(Varargs vargs) {
-                String key = vargs.checkjstring(1);
-
-                return CoerceJavaToLua.coerce(LAbilityMain.instance.gameManager.variable.getOrDefault(key, ""));
-            }
-        });
-
-        set("setGameVariable", new VarArgFunction() {
-            @Override
-            public LuaValue invoke(Varargs vargs) {
-                String key = vargs.checkjstring(1);
-                String value = vargs.checkjstring(2);
-
-                if (LAbilityMain.instance.gameManager.variable.containsKey(key)) LAbilityMain.instance.gameManager.variable.replace(key, value);
-                else LAbilityMain.instance.gameManager.variable.put(key, value);
-                return NIL;
-            }
-        });
-
-        set("removeGameVariable", new VarArgFunction() {
-            @Override
-            public LuaValue invoke(Varargs vargs) {
-                String key = vargs.checkjstring(1);
-                if (LAbilityMain.instance.gameManager.variable.containsKey(key)) LAbilityMain.instance.gameManager.variable.remove(key);
-                return NIL;
-            }
-        });
-
-        set("resetGameVariable", new VarArgFunction() {
-            @Override
-            public LuaValue invoke(Varargs vargs) {
-                LAbilityMain.instance.gameManager.variable.clear();
                 return NIL;
             }
         });

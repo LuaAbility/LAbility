@@ -32,7 +32,7 @@ public class RuleManager {
             for( Map.Entry<String, Class<? extends Event>> func : ruleFunc.entrySet() ){
                 if (func.getValue().equals(event.getClass())) {
                     script.call();
-                    globals.get("onEvent").call(CoerceJavaToLua.coerce(func.getKey()), CoerceJavaToLua.coerce(event));
+                    if (!globals.get("onEvent").isnil()) globals.get("onEvent").call(CoerceJavaToLua.coerce(func.getKey()), CoerceJavaToLua.coerce(event));
                 }
             }
         }
@@ -45,6 +45,6 @@ public class RuleManager {
 
     public void runResetFunc() {
         script.call();
-        globals.get("Reset").call();
+        if (!globals.get("Reset").isnil()) globals.get("Reset").call();
     }
 }
