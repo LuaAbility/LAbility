@@ -1,7 +1,7 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="LAbility_reversionA">
+  <artifact type="jar" name="LAbility">
     <output-path>$PROJECT_DIR$/../api/plugins</output-path>
-    <root id="archive" name="LAbility_reversionA.jar">
+    <root id="archive" name="LAbility.jar">
       <element id="dir-copy" path="$PROJECT_DIR$/resources" />
       <element id="module-output" name="LAbility" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../../luaj.jar" path-in-jar="/" />
