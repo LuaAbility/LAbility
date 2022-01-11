@@ -30,9 +30,9 @@ public class PluginWrapper extends LuaTable {
             @Override
             public LuaValue invoke(Varargs vargs) {
                 Ability ability = (Ability) vargs.checkuserdata(1, Ability.class);
-                String eventName = vargs.checkjstring(2);
-                int cooldown = vargs.checkint(3);
-                LuaFunction callback = vargs.checkfunction(4);
+                String funcName = vargs.checkjstring(2);
+                String eventName = vargs.checkjstring(3);
+                int cooldown = vargs.checkint(4);
 
                 // Attempt to find the event Bukkit again
                 String[] events = {"block", "enchantment", "entity", "hanging", "inventory", "player", "raid",
@@ -42,7 +42,7 @@ public class PluginWrapper extends LuaTable {
                     try {
                         Class<?> c = Class.forName("org.bukkit.event." + pkg + "." + eventName);
                         if (Event.class.isAssignableFrom(c) && c != null) {
-                            return CoerceJavaToLua.coerce(plugin.registerEvent(ability, (Class<? extends Event>) c, cooldown, callback));
+                            return CoerceJavaToLua.coerce(plugin.registerEvent(ability, funcName, (Class<? extends Event>) c, cooldown));
                         }
                     } catch (ClassNotFoundException ignored) {
                         // This would spam the console anytime an event is registered if we print the stack trace
@@ -57,7 +57,7 @@ public class PluginWrapper extends LuaTable {
             @Override
             public LuaValue invoke(Varargs vargs) {
                 String eventName = vargs.checkjstring(1);
-                LuaFunction callback = vargs.checkfunction(2);
+                String funcName = vargs.checkjstring(2);
 
                 // Attempt to find the event Bukkit again
                 String[] events = {"block", "enchantment", "entity", "hanging", "inventory", "player", "raid",
@@ -67,7 +67,7 @@ public class PluginWrapper extends LuaTable {
                     try {
                         Class<?> c = Class.forName("org.bukkit.event." + pkg + "." + eventName);
                         if (Event.class.isAssignableFrom(c) && c != null) {
-                            return CoerceJavaToLua.coerce(plugin.registerRuleEvent((Class<? extends Event>) c, callback));
+                            return CoerceJavaToLua.coerce(plugin.registerRuleEvent((Class<? extends Event>) c, funcName));
                         }
                     } catch (ClassNotFoundException ignored) {
                         // This would spam the console anytime an event is registered if we print the stack trace
@@ -75,38 +75,6 @@ public class PluginWrapper extends LuaTable {
                 }
 
                 throw new LuaException("Event " + eventName + " Not Found.", 1);
-            }
-        });
-
-        set("registerRuleTimer", new VarArgFunction() {
-            @Override
-            public LuaValue invoke(Varargs vargs) {
-                long delay = vargs.checklong(1);
-                LuaFunction callback = vargs.checkfunction(2);
-
-                return CoerceJavaToLua.coerce(plugin.registerRuleTimer(delay, callback));
-            }
-        });
-
-        set("registerRuleLoopTimer", new VarArgFunction() {
-            @Override
-            public LuaValue invoke(Varargs vargs) {
-                long delay = vargs.checklong(1);
-                boolean runOnZeroTick = vargs.checkboolean(2);
-                LuaFunction callback = vargs.checkfunction(3);
-
-                return CoerceJavaToLua.coerce(plugin.registerRuleLoopTimer(delay, runOnZeroTick, callback));
-            }
-        });
-
-        set("addPassiveScript", new ThreeArgFunction() {
-            @Override
-            public LuaValue call(LuaValue arg1, LuaValue arg2, LuaValue arg3) {
-                Ability ability = (Ability)arg1.checkuserdata(Ability.class);
-                int tick = arg2.checkint();
-                LuaFunction callback = arg3.checkfunction();
-
-                return CoerceJavaToLua.coerce(plugin.addPassiveScript(ability, tick, callback));
             }
         });
 
@@ -181,15 +149,6 @@ public class PluginWrapper extends LuaTable {
 
                 plugin.gameManager.skipYesOrNo = skipYesOrNo;
                 return NIL;
-            }
-        });
-
-        set("onPlayerEnd", new TwoArgFunction() {
-            @Override
-            public LuaValue call(LuaValue arg1,LuaValue arg2) {
-                Ability ability = (Ability)arg1.checkuserdata(Ability.class);
-                LuaFunction func = arg2.checkfunction();
-                return CoerceJavaToLua.coerce(plugin.addResetScript(ability, func));
             }
         });
 

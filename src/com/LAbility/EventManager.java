@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class EventManager implements Listener {
     private static Map<String, BukkitTask> playerList = new HashMap<>();
-    @EventHandler
+    @EventHandler ()
     public static void onPlayerJoin(PlayerJoinEvent event) {
         Player p = event.getPlayer();
         if (playerList.containsKey(p.getName())){
@@ -43,7 +43,6 @@ public class EventManager implements Listener {
     {
         Player p = event.getPlayer();
         playerList.remove(event.getPlayer());
-
         if (!LAbilityMain.instance.gameManager.players.contains(p)) return;
         if (!LAbilityMain.instance.gameManager.isGameReady) LAbilityMain.instance.gameManager.players.remove(p);
         else if (!LAbilityMain.instance.gameManager.players.get(LAbilityMain.instance.gameManager.players.indexOf(p)).isSurvive) LAbilityMain.instance.gameManager.players.remove(p);
@@ -58,20 +57,15 @@ public class EventManager implements Listener {
                         if (LAbilityMain.instance.gameManager.players.size() == 1) {
                             LAbilityMain.instance.getServer().broadcastMessage("§6[§eLAbility§6] §e게임이 종료되었습니다.");
                             LAbilityMain.instance.getServer().broadcastMessage("§6[§eLAbility§6] §e" + LAbilityMain.instance.gameManager.players.get(0).getPlayer().getName() + "님이 우승하셨습니다!");
-                            ScheduleManager.ClearTimer();
-                            LAbilityMain.instance.gameManager.ResetAll();
-                            LAbilityMain.instance.getServer().getScheduler().cancelTasks(LAbilityMain.plugin);
+                            LAbilityMain.instance.gameManager.OnGameEnd();
                         } else if (LAbilityMain.instance.gameManager.players.size() < 1) {
                             LAbilityMain.instance.getServer().broadcastMessage("§6[§eLAbility§6] §e게임이 종료되었습니다.");
                             LAbilityMain.instance.getServer().broadcastMessage("§6[§eLAbility§6] §e우승자가 없습니다.");
-                            ScheduleManager.ClearTimer();
-                            LAbilityMain.instance.gameManager.ResetAll();
-                            LAbilityMain.instance.getServer().getScheduler().cancelTasks(LAbilityMain.plugin);
+                            LAbilityMain.instance.gameManager.OnGameEnd();
                         }
                     }
                 }
             }.runTaskLater(LAbilityMain.plugin,600);
-
             playerList.put(p.getName(), task);
         }
     }

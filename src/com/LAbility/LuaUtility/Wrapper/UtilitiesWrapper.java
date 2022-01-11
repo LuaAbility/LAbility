@@ -2,9 +2,11 @@ package com.LAbility.LuaUtility.Wrapper;
 
 import com.LAbility.LAbilityMain;
 import com.LAbility.LuaUtility.LuaException;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.luaj.vm2.LuaFunction;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
@@ -17,14 +19,7 @@ import java.util.concurrent.*;
 import java.util.stream.Stream;
 
 public class UtilitiesWrapper extends LuaTable {
-
-    private LAbilityMain plugin = LAbilityMain.instance;
-    private ScheduledExecutorService runDelayedThreadPool;
-
     public UtilitiesWrapper(LAbilityMain plugin) {
-        this.plugin = plugin;
-        this.runDelayedThreadPool = Executors.newScheduledThreadPool(1);
-
         set("getTableFromList", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue arg) {
@@ -87,79 +82,28 @@ public class UtilitiesWrapper extends LuaTable {
             }
         });
 
-        set("getTableLength", new OneArgFunction() {
-            // Useful when you have a table with set keys (like strings) and you want to get the size of it. Using # will return 0.
-            @Override
-            public LuaValue call(LuaValue arg) {
-                return LuaValue.valueOf(arg.checktable().keyCount());
-            }
-        });
-
-        set("runAsync", new TwoArgFunction() {
-            @Override
-            public LuaValue call(LuaValue function, LuaValue delay) {
-                Thread thread = new Thread(() -> {
-                    try {
-                        if (delay != LuaValue.NIL) Thread.sleep(delay.checklong());
-                        function.checkfunction().call();
-                    } catch (InterruptedException ignored) {
-                    }
-                });
-
-                thread.start();
-                return LuaValue.NIL;
-            }
-        });
-
-        set("runDelayed", new TwoArgFunction() {
-            // Delay is in milliseconds.
-            @Override
-            public LuaValue call(LuaValue function, LuaValue time) {
-                ScheduledFuture<LuaValue> future = runDelayedThreadPool.schedule((Callable<LuaValue>) function::call, time.checklong(), TimeUnit.MILLISECONDS);
-
-                try {
-                    // Blocking call, we don't care about the value
-                    future.get();
-                } catch (Exception e) {
-                    plugin.getLogger().warning("The thread spawned by runDelayed was terminated or threw an exception");
-                    plugin.getLogger().warning(e.getMessage());
-                }
-
-                return LuaValue.NIL;
-            }
-        });
-
         set("runLater", new TwoArgFunction() {
             // Delay is in milliseconds.
             @Override
             public LuaValue call(LuaValue function, LuaValue time) {
-
                 var task = new BukkitRunnable() {
                     @Override
                     public void run() {
                         function.checkfunction().call();
                     }
                 }.runTaskLater(LAbilityMain.plugin, time.checklong());
-                return CoerceJavaToLua.coerce(task);
+                int taskID = task.getTaskId();
+                return CoerceJavaToLua.coerce(taskID);
             }
         });
 
-        set("getBukkitRunnable", new OneArgFunction() {
+        set("cancelRunLater", new OneArgFunction() {
+            // Delay is in milliseconds.
             @Override
-            public LuaValue call(LuaValue function) {
-                LuaFunction func = function.checkfunction();
-                BukkitRunnable task = new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        func.call();
-                    }
-
-                    ;
-                };
-                return CoerceJavaToLua.coerce(task);
+            public LuaValue call(LuaValue id) {
+                Bukkit.getScheduler().cancelTask(id.checkint());
+                return NIL;
             }
-
-            ;
         });
 
         set("getClass", new OneArgFunction() {
@@ -171,17 +115,6 @@ public class UtilitiesWrapper extends LuaTable {
                     e.printStackTrace();
                 }
                 return NIL;
-            }
-        });
-
-        set("parseItemStack", new OneArgFunction() {
-            @Override
-            public LuaValue call(LuaValue item) {
-                if (!item.isnil() && !(item.checkuserdata() instanceof ItemStack)) {
-                    throw new LuaException("parseItemStack was given something other than an ItemStack", 1);
-                }
-
-                return CoerceJavaToLua.coerce(new ItemStackWrapper((ItemStack) item.touserdata()));
             }
         });
 
@@ -233,9 +166,5 @@ public class UtilitiesWrapper extends LuaTable {
                 return CoerceJavaToLua.coerce(false);
             }
         });
-    }
-
-    public void close() {
-        runDelayedThreadPool.shutdown();
     }
 }

@@ -7,8 +7,6 @@ import com.LAbility.LuaUtility.Wrapper.LoggerWrapper;
 import com.LAbility.LuaUtility.Wrapper.PluginWrapper;
 import com.LAbility.LuaUtility.Wrapper.UtilitiesWrapper;
 import org.bukkit.Bukkit;
-import org.bukkit.Particle;
-import org.bukkit.World;
 import org.luaj.vm2.*;
 import org.luaj.vm2.lib.OneArgFunction;
 import org.luaj.vm2.lib.VarArgFunction;
@@ -17,8 +15,6 @@ import org.luaj.vm2.lib.jse.JsePlatform;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 
 public class LuaAbilityLoader {
@@ -40,13 +36,13 @@ public class LuaAbilityLoader {
                     String abilityName = "";
                     String abilityRank = "";
                     String abilityDesc = "";
+                    String luaScriptLoc = "";
                     LuaValue luaScript = null;
 
                     File[] files2 = file.listFiles();
                     for (File file2 : files2) {
                         if (file2.toString().toLowerCase().contains("main.lua")) {
-                            luaScript = globals.loadfile(file2.toString());
-                            globals = setGlobals(globals);
+                            luaScriptLoc = file2.toString();
                         } else if (file2.toString().toLowerCase().contains("data.yml")) {
                             try {
                                 Map<String, Object> abilityData = new Yaml().load(new FileReader(file2));
@@ -61,10 +57,9 @@ public class LuaAbilityLoader {
                         }
                     }
 
-                    if (!luaScript.equals(null) && !abilityName.equals("")) {
-                        Ability a = new Ability(abilityID, abilityType, abilityName, abilityRank, abilityDesc);
-                        luaScript.call();
-                        globals.get("main").call(CoerceJavaToLua.coerce(a));
+                    if (!luaScriptLoc.equals("") && !abilityName.equals("")) {
+                        Ability a = new Ability(abilityID, abilityType, abilityName, abilityRank, abilityDesc, luaScriptLoc);
+                        a.InitScript();
                         luaAbilities.add(a);
                     }
                 }
@@ -90,10 +85,8 @@ public class LuaAbilityLoader {
         }
 
         try {
-            LuaValue luaScript = globals.loadfile(ruleFile.toString());
-            luaScript.call();
-            globals = setGlobals(globals);
-            globals.get("rule").call();
+            LAbilityMain.instance.ruleManager.ruleLocation = LAbilityMain.instance.getDataFolder() + "/rule.lua";
+            LAbilityMain.instance.ruleManager.InitScript();
             Bukkit.getConsoleSender().sendMessage("\2472[\247aLAbility\2472] \247a룰 로드에 성공했습니다.");
         } catch (Exception e) {
             Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c룰을 로드하는데 문제가 생겼습니다. 아무런 룰도 적용되지 않습니다.");

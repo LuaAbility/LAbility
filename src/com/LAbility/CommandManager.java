@@ -11,6 +11,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 
+import java.io.File;
+
 public class CommandManager implements CommandExecutor {
 	public final LAbilityMain main;
 
@@ -68,6 +70,7 @@ public class CommandManager implements CommandExecutor {
 					sender.sendMessage("\2476/la \247etest \247f: \247a테스트 모드에 진입합니다. 게임 시작을 하지 않아도 능력 사용이 가능합니다.\n테스트 모드를 종료하려면 /la stop을 입력하세요.");  // OK
 					sender.sendMessage("\2476/la \247ecooldown \247f: \247a쿨타임을 모두 초기화합니다.");  // OK
 					sender.sendMessage("\2476/la \247evariable \247f: \247a플레이어들의 변수를 확인합니다.");  // OK
+					sender.sendMessage("\2476/la \247ereload \247f: \247a스크립트를 다시 로드합니다.");  // OK
 					return true;
 				}
 
@@ -183,7 +186,9 @@ public class CommandManager implements CommandExecutor {
 								if (index2 >= 0) {
 									Ability a = main.abilities.get(index2);
 									if (!p.hasAbility(a)) {
-										p.ability.add(new Ability(a));
+										Ability newA = new Ability(a);
+										p.ability.add(newA);
+										newA.InitScript();
 										if (!senderPlayer.equals(p.player)) {
 											sender.sendMessage("\2478[\2477LAbility\2478] \2477" + args[1] + " 가 \2478" + a.abilityName + "\2477 능력을 얻었습니다.");
 											sender.sendMessage("\2478[\2477LAbility\2478] \2477" + "해당 유저는 해당 능력을 사용할 수 있습니다.");
@@ -191,9 +196,6 @@ public class CommandManager implements CommandExecutor {
 										p.player.sendMessage("\2476[\247eLAbility\2476] \2476" + a.abilityName + "\247e 능력을 얻었습니다.");
 										p.player.sendMessage("\2476[\247eLAbility\2476] \247a" + "/la check " + (p.ability.size() - 1) + "\247e로 확인가능합니다.");
 
-										if (main.gameManager.isGameStarted) {
-											LAbilityMain.instance.gameManager.RunPassive(p, p.ability.get(p.ability.indexOf(a.abilityID)));
-										}
 										return true;
 									}
 									else {
@@ -238,8 +240,7 @@ public class CommandManager implements CommandExecutor {
 
 										int abilityIndex = p.getAbility().indexOf(a.abilityID);
 										if (main.gameManager.isGameStarted) {
-											LAbilityMain.instance.gameManager.StopPassive(p, p.getAbility().get(abilityIndex));
-											LAbilityMain.instance.gameManager.StopActiveTimer(p, p.getAbility().get(abilityIndex));
+											p.getAbility().get(abilityIndex).stopActive(p);
 											p.getAbility().remove(abilityIndex);
 										}
 										return true;
@@ -263,8 +264,7 @@ public class CommandManager implements CommandExecutor {
 
 									if (main.gameManager.isGameReady) {
 										for (Ability a : p.getAbility()) {
-											LAbilityMain.instance.gameManager.StopPassive(p, a);
-											LAbilityMain.instance.gameManager.StopActiveTimer(p, a);
+											a.stopActive(p);
 										}
 									}
 
@@ -378,7 +378,7 @@ public class CommandManager implements CommandExecutor {
 
 				if (args[0].equalsIgnoreCase("start") && senderPlayer.isOp()) {
 					if (!main.gameManager.isGameReady) {
-						if (!LAbilityMain.instance.gameManager.raffleAbility) ScheduleManager.PrepareTimer();
+						if (!LAbilityMain.instance.gameManager.raffleAbility) LAbilityMain.instance.scheduleManager.PrepareTimer();
 						else if ((!LAbilityMain.instance.gameManager.overlapAbility && (LAbilityMain.instance.gameManager.abilityAmount * LAbilityMain.instance.gameManager.players.size()) > LAbilityMain.instance.abilities.size()) ||
 								(LAbilityMain.instance.gameManager.overlapAbility && LAbilityMain.instance.gameManager.abilityAmount > LAbilityMain.instance.abilities.size())) {
 							if (!LAbilityMain.instance.gameManager.overlapAbility) {
@@ -389,7 +389,7 @@ public class CommandManager implements CommandExecutor {
 						} else if (LAbilityMain.instance.gameManager.players.size() < 2){
 							senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c한 명일때는 게임 시작이 불가능합니다.");
 						}
-						else ScheduleManager.PrepareTimer();
+						else LAbilityMain.instance.scheduleManager.PrepareTimer();
 					}
 					else {
 						senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c게임이 진행 중입니다.");
@@ -411,22 +411,52 @@ public class CommandManager implements CommandExecutor {
 						sender.sendMessage("\2472[\247aLAbility\2472] \247a테스트 모드입니다. 게임 시작상태가 되며, 능력 사용이 가능합니다.");
 						main.gameManager.isGameStarted = true;
 						main.gameManager.isGameReady = true;
+						main.gameManager.isTestMode = true;
 						for (LAPlayer lap : LAbilityMain.instance.gameManager.players) {
 							lap.isSurvive = true;
 							lap.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(lap.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue());
 							lap.player.setWalkSpeed(0.2f);
 						}
-						main.gameManager.RunAllPassive();
+
+						LAbilityMain.instance.gameManager.RunPassive();
 					}
 				}
 
 				if (args[0].equalsIgnoreCase("cooldown") && senderPlayer.isOp()) {
 					sender.sendMessage("\2472[\247aLAbility\2472] \247a쿨타임이 초기화되었습니다.");
-					main.gameManager.StopAllActiveTimer();
+					for (LAPlayer lap : LAbilityMain.instance.gameManager.players) {
+						for (Ability a : lap.getAbility()) {
+							a.resetCooldown();
+						}
+					}
+				}
+
+				if (args[0].equalsIgnoreCase("reload") && senderPlayer.isOp()) {
+					LAbilityMain.instance.gameManager.OnGameEnd();
+					LAbilityMain.instance.hasError = 0;
+					LAbilityMain.instance.ruleManager = new RuleManager();
+					LAbilityMain.instance.gameManager = new GameManager();
+					LAbilityMain.instance.scheduleManager = new ScheduleManager();
+
+					LuaAbilityLoader.LoadLuaRules();
+					LAbilityMain.instance.abilities = LuaAbilityLoader.LoadAllLuaAbilities();
+					LAbilityMain.instance.gameManager.ResetAll();
+
+					if (LAbilityMain.instance.hasError > 0) Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c" + LAbilityMain.instance.hasError + "개의 능력을 로드하는데 문제가 생겼습니다. 해당 능력들은 로드하지 않습니다.");
+					Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \2477v0.2 " + LAbilityMain.instance.abilities.size() + "개 능력 로드 완료!");
+					Bukkit.getConsoleSender().sendMessage("Made by MINUTE.");
+					sender.sendMessage("\2472[\247aLAbility\2472] \247aReload Complete.");
 				}
 
 				if (args[0].equalsIgnoreCase("variable") && senderPlayer.isOp()) {
 					sender.sendMessage("\2476-------[\247eVariable\2476]-------");
+
+					String serverVariables = "\247a서버 \2476: \247b";
+					for (String key : main.gameManager.variable.keySet()) {
+						serverVariables += key + "(" + main.gameManager.variable.get(key) + ")  ";
+					}
+					sender.sendMessage(serverVariables);
+
 					for (LAPlayer lap : main.gameManager.players) {
 						String variables = "\247a" + lap.player.getName() + " \2476: \247b";
 						for (String key : lap.variable.keySet()) {

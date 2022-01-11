@@ -1,17 +1,13 @@
 package com.LAbility;
 
-import com.LAbility.LuaUtility.AbilityList;
+import com.LAbility.ScheduleManager;
 import com.LAbility.LuaUtility.PlayerList;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.luaj.vm2.LuaFunction;
-import org.luaj.vm2.lib.jse.CoerceJavaToLua;
+import org.bukkit.scheduler.BukkitTask;
 
-import javax.xml.crypto.dsig.keyinfo.KeyValue;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +16,10 @@ import java.util.Random;
 public class GameManager {
     public boolean isGameReady = false;
     public boolean isGameStarted = false;
+    public boolean isTestMode = false;
     public PlayerList<LAPlayer> players = new PlayerList<LAPlayer>();
+
+    public BukkitTask passiveTask = null;
 
     public ArrayList<Integer> shuffledAbilityIndex = new ArrayList<Integer>();
     public int currentAbilityIndex = 0;
@@ -34,109 +33,88 @@ public class GameManager {
     public boolean overrideItem = false;
     public boolean skipYesOrNo = false;
     public boolean skipInformation = false;
-    public LuaFunction onGameEnd = null;
-    public Map<String, String> variable = new HashMap<>();
+    public Map<String, Object> variable = new HashMap<>();
 
-    public void ResetAll(){
-        isGameStarted = false;
-        isGameReady = false;
-        currentAbilityIndex = 0;
-        shuffledAbilityIndex = new ArrayList<Integer>();
-        StopAllPassive();
-        StopAllActiveTimer();
-        players = new PlayerList<LAPlayer>();
-        LAbilityMain.instance.assignAllPlayer();
+    public Object getVariable(String key) {
+        Object obj = variable.getOrDefault(key, null);
+        if (!(obj == null)) {
+            var data = obj.getClass().cast(obj);
+            return data;
+        }
+        else return null;
     }
 
-    public void RunEvent(Ability ability, Event event) {
+    public void setVariable(String key, Object value){
+        if (variable.containsKey(key)) variable.replace(key, value);
+        else addVariable(key, value);
+    }
+
+    public void addVariable(String key, Object value) {
+        if (!variable.containsKey(key)) variable.put(key, value);
+        else variable.replace(key, value);
+    }
+
+    public void removeVariable(String key) {
+        if (variable.containsKey(key)) variable.remove(key);
+    }
+
+    public void ResetAll(){
+        for (LAPlayer player : players){
+            for (Ability ab : player.ability) {
+                ab.runResetFunc(player);
+            }
+        }
+        isGameStarted = false;
+        isGameReady = false;
+        isTestMode = false;
+        currentAbilityIndex = 0;
+        shuffledAbilityIndex = new ArrayList<Integer>();
+        StopPassive();
+        players = new PlayerList<LAPlayer>();
+        LAbilityMain.instance.assignAllPlayer();
+        variable = new HashMap<>();
+    }
+
+    public void RunEvent(Event event) {
         if (isGameStarted){
             for (LAPlayer player : players){
                 if (player.isSurvive) {
                     for (Ability ab : player.ability) {
-                        if (ab.abilityID.equals(ability.abilityID) && ab.eventFunc.contains(event)) {
-                            ab.UseEventFunc(event);
-                            return;
+                        ab.runAbilityFunc(player, event);
+                    }
+                }
+            }
+
+            LAbilityMain.instance.ruleManager.RunEvent(event);
+        }
+    }
+
+    public void RunPassive() {
+        if (isGameStarted){
+            passiveTask = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (!isTestMode) LAbilityMain.instance.ruleManager.runPassiveFunc();
+                    for (LAPlayer player : players){
+                        if (player.isSurvive && (player.getVariable("abilityLock") == null || player.getVariable("abilityLock").equals(false))) {
+                            for (Ability ab : player.ability) {
+                                ab.runPassiveFunc(player);
+                            }
                         }
                     }
                 }
-            }
+            }.runTaskTimer(LAbilityMain.plugin, 0, 2);
         }
     }
 
-    public void RunAllPassive() {
-        if (isGameStarted) {
-            for (LAPlayer player : players) {
-                for (Ability ability : player.ability) {
-                    RunPassive(player, ability);
-                }
-            }
-        }
+    public void StopPassive() {
+        if (passiveTask != null) passiveTask.cancel();
     }
 
-    public void StopAllPassive(){
-        for (LAPlayer player : players) {
-            for (Ability ability : player.getAbility()){
-                StopPassive(player, ability);
-            }
-        }
-    }
-
-    public void StopAllActiveTimer(){
-        for (LAPlayer player : players) {
-            for (Ability ability : player.getAbility()) {
-                StopActiveTimer(player, ability);
-            }
-        }
-    }
-
-    public void RunPassive(LAPlayer player, Ability targetAbility) {
-        int abilityIndex = player.ability.indexOf(targetAbility.abilityID);
-        if (abilityIndex < 0) return;
-        for (Ability.PassiveFunc pf : player.ability.get(abilityIndex).passiveFunc) {
-            if (pf.delay > 0) {
-                pf.scheduler = new BukkitRunnable() {
-                    public void run() {
-                        if (!player.isSurvive) return;
-                        if (player.getVariable("abilityLock").equals("true")) return;
-                        pf.function.call(CoerceJavaToLua.coerce(player.player));
-                    }
-                }.runTaskTimer(LAbilityMain.plugin, pf.delay, pf.delay);
-            }
-            else pf.function.call(CoerceJavaToLua.coerce(player.player));
-        }
-    }
-
-    public void StopPassive(LAPlayer player, Ability targetAbility){
-        int abilityIndex = player.ability.indexOf(targetAbility.abilityID);
-        if (abilityIndex < 0) return;
-
-        for (LuaFunction func : player.ability.get(abilityIndex).resetFunc) {
-            func.call(CoerceJavaToLua.coerce(player));
-        }
-        for (Ability.PassiveFunc pf : player.ability.get(abilityIndex).passiveFunc) {
-            if (pf.delay > 0) {
-                if (pf.scheduler != null) pf.scheduler.cancel();
-            }
-        }
-
-        try {
-            ArrayList<String> targetVariableKey = new ArrayList<>();
-            for (String key : player.variable.keySet()) {
-                String[] aIDArray = targetAbility.abilityID.split("-");
-                String aID = aIDArray[1] + aIDArray[2];
-                if (key.contains(aID)) targetVariableKey.add(key);
-            }
-            for (String key : targetVariableKey) player.removeVariable(key);
-        } catch (Exception e) { Bukkit.getConsoleSender().sendMessage(targetAbility.abilityID + "는 정규 ID 가 아니므로 변수 삭제되 진행되지 않습니다.");}
-    }
-
-    public void StopActiveTimer(LAPlayer player, Ability targetAbility){
-        int abilityIndex = player.ability.indexOf(targetAbility.abilityID);
-        if (abilityIndex < 0) return;
-        for (Ability.ActiveFunc af : player.ability.get(abilityIndex).eventFunc) {
-            af.cooldown.currentCooldown = (int)(af.cooldown.maxCooldown * LAbilityMain.instance.gameManager.cooldownMultiply);
-            if (af.cooldown.currentSchedule != null) af.cooldown.currentSchedule.cancel();
-        }
+    public void StopActive(LAPlayer player) {
+         for (Ability ab : player.ability) {
+             ab.stopActive(player);
+         }
     }
 
     public void AbilityShuffle(boolean resetShuffleIndex) {
@@ -178,9 +156,13 @@ public class GameManager {
                     Bukkit.getConsoleSender().sendMessage(player.player.getName() + " / " + temp.abilityID);
                     temp = LAbilityMain.instance.abilities.get(random.nextInt(LAbilityMain.instance.abilities.size()));
                 }
-                player.ability.add(new Ability(temp));
+                Ability a = new Ability(temp);
+                player.ability.add(a);
+                a.InitScript();
             } else {
-                player.ability.add(new Ability(LAbilityMain.instance.abilities.get(shuffledAbilityIndex.get(0))));
+                Ability a = new Ability(LAbilityMain.instance.abilities.get(shuffledAbilityIndex.get(0)));
+                player.ability.add(a);
+                a.InitScript();
                 shuffledAbilityIndex.remove(0);
             }
         }
@@ -191,8 +173,6 @@ public class GameManager {
 
     public void ResignAbility(LAPlayer player, Ability ability) {
         if (player.ability.contains(ability.abilityID)) {
-            LAbilityMain.instance.gameManager.StopPassive(player, ability);
-            LAbilityMain.instance.gameManager.StopActiveTimer(player, ability);
             player.ability.remove(ability);
             if (!ability.abilityID.contains("HIDDEN")) shuffledAbilityIndex.add(LAbilityMain.instance.abilities.indexOf(ability));
             AbilityShuffle(false);
@@ -206,10 +186,6 @@ public class GameManager {
             }
             AbilityShuffle(false);
 
-            for (Ability a : player.ability){
-                LAbilityMain.instance.gameManager.StopPassive(player, a);
-                LAbilityMain.instance.gameManager.StopActiveTimer(player, a);
-            }
             player.ability.clear();
         }
     }
@@ -228,9 +204,10 @@ public class GameManager {
     }
 
     public void OnGameEnd(){
-        ScheduleManager.ClearTimer();
+
+        LAbilityMain.instance.scheduleManager.ClearTimer();
+        LAbilityMain.instance.ruleManager.runResetFunc();
         LAbilityMain.instance.gameManager.ResetAll();
         LAbilityMain.instance.getServer().getScheduler().cancelTasks(LAbilityMain.plugin);
-        if (onGameEnd != null) onGameEnd.invoke();
     }
 }
