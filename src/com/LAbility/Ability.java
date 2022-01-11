@@ -97,7 +97,6 @@ public class Ability {
     }
 
     public void runAbilityFunc(LAPlayer lap, Event event) {
-        lap.getPlayer().sendMessage(event.getEventName());
         if (abilityFunc.contains(event)) {
             for (Ability.AbilityFunc af : abilityFunc) {
                 if ((af.funcEvent.isAssignableFrom(event.getClass()) || af.funcEvent.isInstance(event)) || af.funcEvent.equals(event.getClass())) {
@@ -132,8 +131,6 @@ public class Ability {
         if (!abilityFunc.contains(ID)) return false;
 
         int index = abilityFunc.indexOf(ID);
-
-        Bukkit.getConsoleSender().sendMessage(abilityFunc.get(index).funcID + " / " + abilityFunc.get(index).funcEvent.getName() + " / " + abilityFunc.get(index).cooldown);
 
         if ((abilityFunc.get(index).cooldown * LAbilityMain.instance.gameManager.cooldownMultiply) <= 0) return true;
 

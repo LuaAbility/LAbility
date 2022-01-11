@@ -450,6 +450,13 @@ public class CommandManager implements CommandExecutor {
 
 				if (args[0].equalsIgnoreCase("variable") && senderPlayer.isOp()) {
 					sender.sendMessage("\2476-------[\247eVariable\2476]-------");
+
+					String serverVariables = "\247a서버 \2476: \247b";
+					for (String key : main.gameManager.variable.keySet()) {
+						serverVariables += key + "(" + main.gameManager.variable.get(key) + ")  ";
+					}
+					sender.sendMessage(serverVariables);
+
 					for (LAPlayer lap : main.gameManager.players) {
 						String variables = "\247a" + lap.player.getName() + " \2476: \247b";
 						for (String key : lap.variable.keySet()) {

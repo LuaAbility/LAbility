@@ -72,6 +72,7 @@ public class GameManager {
         StopPassive();
         players = new PlayerList<LAPlayer>();
         LAbilityMain.instance.assignAllPlayer();
+        variable = new HashMap<>();
     }
 
     public void RunEvent(Event event) {
@@ -95,14 +96,14 @@ public class GameManager {
                 public void run() {
                     if (!isTestMode) LAbilityMain.instance.ruleManager.runPassiveFunc();
                     for (LAPlayer player : players){
-                        if (player.isSurvive) {
+                        if (player.isSurvive && (player.getVariable("abilityLock") == null || player.getVariable("abilityLock").equals(false))) {
                             for (Ability ab : player.ability) {
                                 ab.runPassiveFunc(player);
                             }
                         }
                     }
                 }
-            }.runTaskTimer(LAbilityMain.plugin, 0, 1);
+            }.runTaskTimer(LAbilityMain.plugin, 0, 2);
         }
     }
 

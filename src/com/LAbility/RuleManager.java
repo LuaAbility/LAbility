@@ -30,7 +30,11 @@ public class RuleManager {
     public void RunEvent(Event event) {
         if (LAbilityMain.instance.gameManager.isGameStarted){
             for( Map.Entry<String, Class<? extends Event>> func : ruleFunc.entrySet() ){
-                if (func.getValue().equals(event.getClass())) {
+                if ((func.getValue().equals(event.getClass()) || func.getValue().isInstance(event)) || func.getValue().isAssignableFrom(event.getClass())) {
+                    globals = JsePlatform.standardGlobals();
+                    script = globals.loadfile(ruleLocation);
+                    globals = setGlobals(globals);
+
                     script.call();
                     if (!globals.get("onEvent").isnil()) globals.get("onEvent").call(CoerceJavaToLua.coerce(func.getKey()), CoerceJavaToLua.coerce(event));
                 }
@@ -39,11 +43,18 @@ public class RuleManager {
     }
 
     public void runPassiveFunc() {
+        globals = JsePlatform.standardGlobals();
+        script = globals.loadfile(ruleLocation);
+        globals = setGlobals(globals);
+
         script.call();
         if (!globals.get("onTimer").isnil()) globals.get("onTimer").call();
     }
 
     public void runResetFunc() {
+        globals = JsePlatform.standardGlobals();
+        script = globals.loadfile(ruleLocation);
+        globals = setGlobals(globals);
         script.call();
         if (!globals.get("Reset").isnil()) globals.get("Reset").call();
     }

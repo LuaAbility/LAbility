@@ -48,20 +48,20 @@ public class GameWrapper extends LuaTable {
                 Player player = (Player) arg1.checkuserdata(Player.class);
                 if (plugin.gameManager.players.indexOf(player.getName()) >= 0)
                     return CoerceJavaToLua.coerce(plugin.gameManager.players.get(plugin.gameManager.players.indexOf(player.getName())));
-                else return CoerceJavaToLua.coerce(false);
+                else return NIL;
             }
         });
 
         set("checkCooldown", new VarArgFunction() {
             @Override
             public LuaValue invoke(Varargs vargs) {
+                if (vargs.isnil(1)) return CoerceJavaToLua.coerce(false);
                 LAPlayer player = (LAPlayer) vargs.checkuserdata(1, LAPlayer.class);
                 Ability ability = (Ability) vargs.checkuserdata(2, Ability.class);
                 String funcID = vargs.checkjstring(3);
                 boolean showMessage = vargs.isnil(4) || vargs.checkboolean(4);
 
                 if (player.getAbility().contains(ability.abilityID)) {
-                    Bukkit.getConsoleSender().sendMessage(player.getPlayer().getName());
                     return CoerceJavaToLua.coerce(ability.CheckCooldown(player, funcID, showMessage));
                 }
                 else return CoerceJavaToLua.coerce(false);
@@ -71,10 +71,11 @@ public class GameWrapper extends LuaTable {
         set("changeAbility", new VarArgFunction() {
             @Override
             public LuaValue invoke(Varargs vargs) {
+                if (vargs.isnil(1)) return CoerceJavaToLua.coerce(false);
                 LAPlayer player = (LAPlayer) vargs.checkuserdata(1, LAPlayer.class);
                 Ability ability = (Ability) vargs.checkuserdata(2, Ability.class);
                 String abilityID = vargs.checkjstring(3);
-                boolean deleteAll = vargs.checkboolean(4);
+                boolean deleteAll = vargs.isnil(4) || vargs.checkboolean(4);
 
                 Ability newAbility;
                 int aindex = LAbilityMain.instance.abilities.indexOf(abilityID);
@@ -108,9 +109,10 @@ public class GameWrapper extends LuaTable {
         set("removeAbility", new VarArgFunction() {
             @Override
             public LuaValue invoke(Varargs vargs) {
+                if (vargs.isnil(1)) return CoerceJavaToLua.coerce(false);
                 LAPlayer player = (LAPlayer) vargs.checkuserdata(1, LAPlayer.class);
                 Ability ability = (Ability) vargs.checkuserdata(2, Ability.class);
-                boolean deleteAll = vargs.checkboolean(3);
+                boolean deleteAll = vargs.isnil(3) || vargs.checkboolean(3);
 
                 player.getPlayer().sendMessage("\2474[\247cLAbility\2474] \247c자신의 능력이 제거됩니다.");
                 player.getPlayer().sendMessage("\2474[\247cLAbility\2474] \247c/la check로 능력을 재 확인 해주세요.");
@@ -135,6 +137,7 @@ public class GameWrapper extends LuaTable {
         set("removeAbilityAsID", new VarArgFunction() {
             @Override
             public LuaValue invoke(Varargs vargs) {
+                if (vargs.isnil(1)) return CoerceJavaToLua.coerce(false);
                 LAPlayer player = (LAPlayer) vargs.checkuserdata(1, LAPlayer.class);
                 String ability = vargs.checkjstring(2);
 
@@ -155,6 +158,7 @@ public class GameWrapper extends LuaTable {
         set("addAbility", new VarArgFunction() {
             @Override
             public LuaValue invoke(Varargs vargs) {
+                if (vargs.isnil(1)) return CoerceJavaToLua.coerce(false);
                 LAPlayer player = (LAPlayer) vargs.checkuserdata(1, LAPlayer.class);
                 String abilityID = vargs.checkjstring(2);
 
@@ -177,6 +181,7 @@ public class GameWrapper extends LuaTable {
         set("hasAbility", new VarArgFunction() {
             @Override
             public LuaValue invoke(Varargs vargs) {
+                if (vargs.isnil(1)) return CoerceJavaToLua.coerce(false);
                 LAPlayer player = (LAPlayer) vargs.checkuserdata(1, LAPlayer.class);
                 String abilityID = vargs.checkjstring(2);
 
@@ -187,6 +192,7 @@ public class GameWrapper extends LuaTable {
         set("getPlayerAbility", new VarArgFunction() {
             @Override
             public LuaValue invoke(Varargs vargs) {
+                if (vargs.isnil(1)) return new LuaTable();
                 LAPlayer player = (LAPlayer) vargs.checkuserdata(1, LAPlayer.class);
                 return CoerceJavaToLua.coerce(player.getAbility());
             }
@@ -239,6 +245,7 @@ public class GameWrapper extends LuaTable {
         set("isAbilityItem", new VarArgFunction() {
             @Override
             public LuaValue invoke(Varargs vargs) {
+                if (vargs.isnil(1)) return CoerceJavaToLua.coerce(false);
                 ItemStack item = (ItemStack) vargs.checkuserdata(1, ItemStack.class);
                 String targetItems = vargs.checkjstring(2);
 
@@ -250,18 +257,13 @@ public class GameWrapper extends LuaTable {
         set("eliminatePlayer", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue arg) {
-                Player player = (Player) arg.checkuserdata(Player.class);
-                int playerIndex = plugin.gameManager.players.indexOf(player.getName());
-                if (playerIndex >= 0){
-                    LAPlayer lap = plugin.gameManager.players.get(playerIndex);
-                    for (Ability a : lap.getAbility()) a.stopActive(lap);
-                    lap.isSurvive = false;
-                    lap.getAbility().clear();
-                    player.setGameMode(GameMode.SPECTATOR);
-                }
-                else {
-                    Bukkit.getConsoleSender().sendMessage("Error!");
-                }
+                if (arg.isnil()) return CoerceJavaToLua.coerce(false);
+                LAPlayer player = (LAPlayer) arg.checkuserdata(LAPlayer.class);
+
+                for (Ability a : player.getAbility()) a.stopActive(player);
+                player.isSurvive = false;
+                player.getAbility().clear();
+                player.getPlayer().setGameMode(GameMode.SPECTATOR);
                 return NIL;
             }
         });
