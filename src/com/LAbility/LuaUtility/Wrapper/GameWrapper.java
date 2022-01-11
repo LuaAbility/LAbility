@@ -55,16 +55,20 @@ public class GameWrapper extends LuaTable {
         set("checkCooldown", new VarArgFunction() {
             @Override
             public LuaValue invoke(Varargs vargs) {
-                if (vargs.isnil(1)) return CoerceJavaToLua.coerce(false);
-                LAPlayer player = (LAPlayer) vargs.checkuserdata(1, LAPlayer.class);
-                Ability ability = (Ability) vargs.checkuserdata(2, Ability.class);
-                String funcID = vargs.checkjstring(3);
-                boolean showMessage = vargs.isnil(4) || vargs.checkboolean(4);
+                if (vargs.isnil(1) || vargs.isnil(2)) return CoerceJavaToLua.coerce(false);
+                LAPlayer abilityPlayer = (LAPlayer) vargs.checkuserdata(1, LAPlayer.class);
+                LAPlayer player = (LAPlayer) vargs.checkuserdata(2, LAPlayer.class);
+                Ability ability = (Ability) vargs.checkuserdata(3, Ability.class);
+                String funcID = vargs.checkjstring(4);
+                boolean showMessage = vargs.isnil(5) || vargs.checkboolean(5);
 
-                if (player.getAbility().contains(ability.abilityID)) {
-                    return CoerceJavaToLua.coerce(ability.CheckCooldown(player, funcID, showMessage));
+                if (abilityPlayer.getPlayer().getName().equals(player.getPlayer().getName())) {
+                    if (player.getAbility().contains(ability.abilityID)) {
+                        return CoerceJavaToLua.coerce(ability.CheckCooldown(player, funcID, showMessage));
+                    }
+                    return CoerceJavaToLua.coerce(false);
                 }
-                else return CoerceJavaToLua.coerce(false);
+                return CoerceJavaToLua.coerce(false);
             }
         });
 
