@@ -124,7 +124,10 @@ public class GameManager {
         if (resetShuffleIndex) {
             size = LAbilityMain.instance.abilities.size();
             for (int i = 0; i < size; i++) {
-                if (!LAbilityMain.instance.abilities.get(i).abilityID.contains("HIDDEN")) shuffledAbilityIndex.add(i);
+                if (!LAbilityMain.instance.abilities.get(i).abilityID.contains("HIDDEN")) {
+                    shuffledAbilityIndex.add(i);
+                    size--;
+                }
             }
         }
         else {
