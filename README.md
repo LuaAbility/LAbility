@@ -12,3 +12,5 @@ Lukkit - https://github.com/Lukkit/Lukkit (Lua 연동 코드 참조)
 ### Add-on
 [![MobWar](https://user-images.githubusercontent.com/30228621/145704497-ee1ab8c1-725e-478f-bc11-7caa54d0a779.png)](https://github.com/LuaAbility/MobWar)
 [![LExtension](https://user-images.githubusercontent.com/30228621/147867380-f73b287d-686c-4a92-8c8c-ce585cd729bb.png)](https://github.com/LuaAbility/L-Extension-1)
+[![SCP](https://user-images.githubusercontent.com/30228621/148967138-bdcccf3b-3ec3-4ad4-8f95-456374fc1661.png)](https://github.com/LuaAbility/SCP)
+[![LExtension2](https://user-images.githubusercontent.com/30228621/149660053-4de55627-18bb-4f79-a34a-a7df6c14dce1.png)](https://github.com/LuaAbility/L-Extension-2)
