@@ -137,6 +137,7 @@ public class UtilitiesWrapper extends LuaTable {
                     e.printStackTrace();
                 }
 
+
                 return NIL;
             }
         });
@@ -164,6 +165,17 @@ public class UtilitiesWrapper extends LuaTable {
                 }
 
                 return CoerceJavaToLua.coerce(false);
+            }
+        });
+
+        set("random", new TwoArgFunction() {
+            @Override
+            public LuaValue call(LuaValue num1, LuaValue num2) {
+                Random random = new Random();
+
+                if (num1.isnil() && num2.isnil()) return CoerceJavaToLua.coerce(random.nextDouble());
+                else if (num2.isnil()) return CoerceJavaToLua.coerce(random.nextInt(1, num1.checkint()));
+                else return CoerceJavaToLua.coerce(random.nextInt(num1.checkint(), num2.checkint()));
             }
         });
     }
