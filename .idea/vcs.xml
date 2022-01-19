@@ -2,7 +2,11 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Addon/ChangeManHunt" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Addon/HearthStone" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Addon/L-Extension-1" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Addon/L-Extension-2" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Addon/MobWar" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/Addon/SCP" vcs="Git" />
   </component>
 </project>

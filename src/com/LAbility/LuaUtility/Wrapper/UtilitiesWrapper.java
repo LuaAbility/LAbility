@@ -174,8 +174,8 @@ public class UtilitiesWrapper extends LuaTable {
                 Random random = new Random();
 
                 if (num1.isnil() && num2.isnil()) return CoerceJavaToLua.coerce(random.nextDouble());
-                else if (num2.isnil()) return CoerceJavaToLua.coerce(random.nextInt(1, num1.checkint()));
-                else return CoerceJavaToLua.coerce(random.nextInt(num1.checkint(), num2.checkint()));
+                else if (num2.isnil()) return CoerceJavaToLua.coerce(random.nextInt(1, num1.checkint() + 1));
+                else return CoerceJavaToLua.coerce(random.nextInt(num1.checkint(), num2.checkint() + 1));
             }
         });
     }
