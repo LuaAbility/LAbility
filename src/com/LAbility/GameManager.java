@@ -126,7 +126,6 @@ public class GameManager {
             for (int i = 0; i < size; i++) {
                 if (!LAbilityMain.instance.abilities.get(i).abilityID.contains("HIDDEN")) {
                     shuffledAbilityIndex.add(i);
-                    size--;
                 }
             }
         }
@@ -136,7 +135,7 @@ public class GameManager {
 
         if (size < 2) return;
         for (int i = 0 ; i < 1000; i++) {
-            int randomIndex = random.nextInt(size);
+            int randomIndex = random.nextInt(0, size - 1);
             final int temp = shuffledAbilityIndex.get(0);
             shuffledAbilityIndex.set(0, shuffledAbilityIndex.get(randomIndex));
             shuffledAbilityIndex.set(randomIndex, temp);
