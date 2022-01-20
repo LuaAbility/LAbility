@@ -1,8 +1,11 @@
 package com.LAbility;
 
+import com.LAbility.Event.GameEndEvent;
+import com.LAbility.Event.PlayerEliminateEvent;
 import com.LAbility.ScheduleManager;
 import com.LAbility.LuaUtility.PlayerList;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -205,7 +208,16 @@ public class GameManager {
         return true;
     }
 
-    public void OnGameEnd(){
+    public void EliminatePlayer(LAPlayer player){
+        Bukkit.getPluginManager().callEvent(new PlayerEliminateEvent(player));
+
+        for (Ability a : player.getAbility()) a.stopActive(player);
+        player.isSurvive = false;
+        player.getAbility().clear();
+        player.getPlayer().setGameMode(GameMode.SPECTATOR);
+    }
+    public void OnGameEnd(boolean isGoodEnd){
+        Bukkit.getPluginManager().callEvent(new GameEndEvent(players, isGoodEnd));
 
         LAbilityMain.instance.scheduleManager.ClearTimer();
         LAbilityMain.instance.ruleManager.runResetFunc();

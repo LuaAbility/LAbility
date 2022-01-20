@@ -52,16 +52,16 @@ public class EventManager implements Listener {
                 public void run() {
                     if (LAbilityMain.instance.gameManager.isGameReady) {
                         LAbilityMain.instance.getServer().broadcastMessage("\2476[\247eLAbility\2476] \247e" + p.getName() + "님은 게임 중 장기 미접속으로 인해 탈락처리되었습니다.");
-                        LAbilityMain.instance.gameManager.players.remove(p);
+                        LAbilityMain.instance.gameManager.EliminatePlayer(LAbilityMain.instance.gameManager.players.get(LAbilityMain.instance.gameManager.players.indexOf(p)));
                         playerList.remove(p.getName());
                         if (LAbilityMain.instance.gameManager.players.size() == 1) {
                             LAbilityMain.instance.getServer().broadcastMessage("§6[§eLAbility§6] §e게임이 종료되었습니다.");
                             LAbilityMain.instance.getServer().broadcastMessage("§6[§eLAbility§6] §e" + LAbilityMain.instance.gameManager.players.get(0).getPlayer().getName() + "님이 우승하셨습니다!");
-                            LAbilityMain.instance.gameManager.OnGameEnd();
+                            LAbilityMain.instance.gameManager.OnGameEnd(true);
                         } else if (LAbilityMain.instance.gameManager.players.size() < 1) {
                             LAbilityMain.instance.getServer().broadcastMessage("§6[§eLAbility§6] §e게임이 종료되었습니다.");
                             LAbilityMain.instance.getServer().broadcastMessage("§6[§eLAbility§6] §e우승자가 없습니다.");
-                            LAbilityMain.instance.gameManager.OnGameEnd();
+                            LAbilityMain.instance.gameManager.OnGameEnd(true);
                         }
                     }
                 }

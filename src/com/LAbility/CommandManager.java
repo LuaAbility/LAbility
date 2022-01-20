@@ -398,7 +398,8 @@ public class CommandManager implements CommandExecutor {
 
 				if (args[0].equalsIgnoreCase("stop") && senderPlayer.isOp()) {
 					if (main.gameManager.isGameReady) {
-						LAbilityMain.instance.gameManager.OnGameEnd();
+
+						LAbilityMain.instance.gameManager.OnGameEnd(false);
 						main.getServer().broadcastMessage("\2474[\247cLAbility\2474] \247c게임이 중단되었습니다.");
 					}
 					else {
@@ -432,7 +433,7 @@ public class CommandManager implements CommandExecutor {
 				}
 
 				if (args[0].equalsIgnoreCase("reload") && senderPlayer.isOp()) {
-					LAbilityMain.instance.gameManager.OnGameEnd();
+					LAbilityMain.instance.gameManager.OnGameEnd(false);
 					LAbilityMain.instance.hasError = 0;
 					LAbilityMain.instance.ruleManager = new RuleManager();
 					LAbilityMain.instance.gameManager = new GameManager();

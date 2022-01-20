@@ -59,7 +59,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
-        gameManager.OnGameEnd();
+        gameManager.OnGameEnd(false);
 
         Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \2477v" + instance.getDescription().getVersion() + " 비활성화 되었습니다.");
         Bukkit.getConsoleSender().sendMessage("Made by MINUTE.");
