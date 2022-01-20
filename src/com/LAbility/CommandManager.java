@@ -52,6 +52,7 @@ public class CommandManager implements CommandExecutor {
 					sender.sendMessage("\2476/la \247ereroll <Player>\247f: \247a플레이어의 능력을 재추첨합니다. 공란 시 모두 변경."); // OK
 					sender.sendMessage("\2476/la \247eob <Player>\247f: \247a해당 플레이어를 게임에서 제외합니다.");  // OK
 					sender.sendMessage("\2476/la \247esee <Player> \247f: \247a플레이어에게 할당된 능력들을 확인합니다.");  // OK
+					sender.sendMessage("\2476/la \247eout <Player> \247f: \247a해당 플레이어를 탈락시킵니다.");  // OK
 					sender.sendMessage("\2476/la \247eadd <Player> <AbilityID> \247f: \247a플레이어에게 해당 능력을 추가합니다."); // OK
 					sender.sendMessage("\2476/la \247eremove <Player> <AbilityID> \247f: \247a플레이어에게서 해당 능력을 제거합니다. ID 공란 시 모두 제거."); // OK
 					sender.sendMessage("\2476/la \247elist \247f: \247a모든 플레이어의 능력을 확인합니다."); // OK
@@ -173,6 +174,27 @@ public class CommandManager implements CommandExecutor {
 					else {
 						sender.sendMessage("\2474[\247cLAbility\2474] \247c플레이어 이름을 입력해주세요.");
 						return true;
+					}
+				}
+
+				if (args[0].equalsIgnoreCase("out") && senderPlayer.isOp()) {
+					if (main.gameManager.isGameStarted) {
+						if ((args.length > 1)) {
+							int index = main.gameManager.players.indexOf(args[1]);
+							if (index >= 0) {
+								Bukkit.broadcastMessage("\2474[\247cLAbility\2474] " + main.gameManager.players.get(index).getPlayer().getName() + "\247c님이 관리자에 의해 탈락하셨습니다.");
+								main.gameManager.EliminatePlayer(main.gameManager.players.get(index));
+								return true;
+							} else {
+								sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 플레이어 입니다.");
+							}
+						} else {
+							sender.sendMessage("\2474[\247cLAbility\2474] \247c플레이어 이름을 입력해주세요.");
+							return true;
+						}
+					}
+					else {
+						senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c게임 진행 중이 아닙니다.");
 					}
 				}
 
@@ -317,6 +339,7 @@ public class CommandManager implements CommandExecutor {
 						} else {
 							main.gameManager.ResignAbility();
 							main.gameManager.AssignAbility();
+							Bukkit.broadcastMessage("\2474[\247cLAbility\2474] \247c관리자가 강제로 능력을 재추첨했습니다.");
 						}
 					} else {
 						senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c게임 진행 중이 아닙니다.");
