@@ -49,6 +49,15 @@ public class PluginWrapper extends LuaTable {
                     }
                 }
 
+                try {
+                    Class<?> c = Class.forName("com.LAbility.Event." + eventName);
+                    if (Event.class.isAssignableFrom(c) && c != null) {
+                        return CoerceJavaToLua.coerce(plugin.registerEvent(ability, funcName, (Class<? extends Event>) c, cooldown));
+                    }
+                } catch (ClassNotFoundException ignored) {
+                    // This would spam the console anytime an event is registered if we print the stack trace
+                }
+
                 throw new LuaException("Event " + eventName + " Not Found.", 1);
             }
         });
@@ -72,6 +81,15 @@ public class PluginWrapper extends LuaTable {
                     } catch (ClassNotFoundException ignored) {
                         // This would spam the console anytime an event is registered if we print the stack trace
                     }
+                }
+
+                try {
+                    Class<?> c = Class.forName("com.LAbility.Event." + eventName);
+                    if (Event.class.isAssignableFrom(c) && c != null) {
+                        return CoerceJavaToLua.coerce(plugin.registerRuleEvent((Class<? extends Event>) c, funcName));
+                    }
+                } catch (ClassNotFoundException ignored) {
+                    // This would spam the console anytime an event is registered if we print the stack trace
                 }
 
                 throw new LuaException("Event " + eventName + " Not Found.", 1);
