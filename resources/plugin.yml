@@ -1,7 +1,8 @@
 name: LAbility
 main: com.LAbility.LAbilityMain
-version: 0.6
+version: 0.7
 api-version: 1.17
 commands:
   la:
     description: LAbility Command (Made by MINUTE.)
+    aliases: [va]

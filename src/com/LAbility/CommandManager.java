@@ -12,6 +12,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 import java.io.File;
+import java.util.HashMap;
 
 public class CommandManager implements CommandExecutor {
 	public final LAbilityMain main;
@@ -461,6 +462,7 @@ public class CommandManager implements CommandExecutor {
 					LAbilityMain.instance.ruleManager = new RuleManager();
 					LAbilityMain.instance.gameManager = new GameManager();
 					LAbilityMain.instance.scheduleManager = new ScheduleManager();
+					LAbilityMain.instance.dataPacks = new HashMap<>();
 
 					LuaAbilityLoader.LoadLuaRules();
 					LAbilityMain.instance.abilities = LuaAbilityLoader.LoadAllLuaAbilities();

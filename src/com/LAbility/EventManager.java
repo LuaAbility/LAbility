@@ -24,6 +24,9 @@ public class EventManager implements Listener {
             p.sendMessage("\2476[\247eLAbility\2476] \247e게임을 계속 진행해주세요.");
             if (playerList.get(p.getName()) != null) playerList.get(p.getName()).cancel();
             playerList.remove(p.getName());
+            for (Map.Entry<String, String> variable : LAbilityMain.instance.dataPacks.entrySet()){
+                p.setResourcePack(variable.getValue(), null, true);
+            }
         }
 
         int index = LAbilityMain.instance.gameManager.players.indexOf(p.getName());

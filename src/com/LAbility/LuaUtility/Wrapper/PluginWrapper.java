@@ -96,6 +96,17 @@ public class PluginWrapper extends LuaTable {
             }
         });
 
+        set("requireDataPack", new VarArgFunction() {
+            @Override
+            public LuaValue invoke(Varargs vargs) {
+                String dataPackName = vargs.checkjstring(1);
+                String url = vargs.checkjstring(2);
+
+                if (!plugin.dataPacks.containsKey(dataPackName)) plugin.dataPacks.put(dataPackName, url);
+                return NIL;
+            }
+        });
+
         set("abilityAmountOption", new VarArgFunction() {
             @Override
             public LuaValue invoke(Varargs vargs) {
