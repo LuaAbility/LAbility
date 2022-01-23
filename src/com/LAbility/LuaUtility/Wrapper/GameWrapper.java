@@ -1,6 +1,8 @@
 package com.LAbility.LuaUtility.Wrapper;
 
 import com.LAbility.*;
+import com.LAbility.Event.AbilityConfirmEvent;
+import com.LAbility.Event.PlayerEliminateEvent;
 import com.LAbility.LuaUtility.PlayerList;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -64,6 +66,7 @@ public class GameWrapper extends LuaTable {
 
                 if (abilityPlayer.getPlayer().getName().equals(player.getPlayer().getName())) {
                     if (player.getAbility().contains(ability.abilityID)) {
+                        Bukkit.getPluginManager().callEvent(new AbilityConfirmEvent(player, ability, funcID));
                         return CoerceJavaToLua.coerce(ability.CheckCooldown(player, funcID, showMessage));
                     }
                     return CoerceJavaToLua.coerce(false);
@@ -264,18 +267,17 @@ public class GameWrapper extends LuaTable {
                 if (arg.isnil()) return CoerceJavaToLua.coerce(false);
                 LAPlayer player = (LAPlayer) arg.checkuserdata(LAPlayer.class);
 
-                for (Ability a : player.getAbility()) a.stopActive(player);
-                player.isSurvive = false;
-                player.getAbility().clear();
-                player.getPlayer().setGameMode(GameMode.SPECTATOR);
+                LAbilityMain.instance.gameManager.EliminatePlayer(player);
                 return NIL;
             }
         });
 
-        set("endGame", new ZeroArgFunction() {
+        set("endGame", new OneArgFunction() {
             @Override
-            public LuaValue call() {
-                LAbilityMain.instance.gameManager.OnGameEnd();
+            public LuaValue call(LuaValue arg) {
+                boolean isGoodEnd = arg.isnil() || arg.checkboolean();
+
+                LAbilityMain.instance.gameManager.OnGameEnd(isGoodEnd);
                 return NIL;
             }
         });

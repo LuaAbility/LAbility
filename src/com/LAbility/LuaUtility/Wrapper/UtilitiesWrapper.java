@@ -7,10 +7,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
 import org.luaj.vm2.LuaFunction;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.OneArgFunction;
+import org.luaj.vm2.lib.ThreeArgFunction;
 import org.luaj.vm2.lib.TwoArgFunction;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
@@ -176,6 +178,28 @@ public class UtilitiesWrapper extends LuaTable {
                 if (num1.isnil() && num2.isnil()) return CoerceJavaToLua.coerce(random.nextDouble());
                 else if (num2.isnil()) return CoerceJavaToLua.coerce(random.nextInt(1, num1.checkint() + 1));
                 else return CoerceJavaToLua.coerce(random.nextInt(num1.checkint(), num2.checkint() + 1));
+            }
+        });
+
+        set("executeCommand", new ThreeArgFunction() {
+            @Override
+            public LuaValue call(LuaValue targetCommand, LuaValue targetType, LuaValue targetPlayer) {
+                String command = targetCommand.checkjstring();
+                int type = targetType.isnil() ? 0 : targetType.checkint();
+                Player player = targetPlayer.isnil() ? null : (Player) targetPlayer.checkuserdata(Player.class);
+
+                switch (type) {
+                    case 1:
+                        boolean isOP = player.isOp();
+                        player.setOp(true);
+                        boolean didWork = player.performCommand(command);
+                        player.setOp(isOP);
+                        return CoerceJavaToLua.coerce(didWork);
+                    case 2:
+                        return CoerceJavaToLua.coerce(player.performCommand(command));
+                    default:
+                        return CoerceJavaToLua.coerce(Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command));
+                }
             }
         });
     }

@@ -1,5 +1,6 @@
 package com.LAbility;
 
+import com.LAbility.Event.GameStartEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -127,6 +128,7 @@ public class ScheduleManager {
     }
 
     public void MainTimer() {
+        Bukkit.getPluginManager().callEvent(new GameStartEvent());
         if (!LAbilityMain.instance.gameManager.skipInformation) Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e게임 시작!");
         LAbilityMain.instance.gameManager.isGameStarted = true;
         for (LAPlayer lap : LAbilityMain.instance.gameManager.players) {

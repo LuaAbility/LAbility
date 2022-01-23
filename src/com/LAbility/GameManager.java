@@ -1,9 +1,13 @@
 package com.LAbility;
 
+import com.LAbility.Event.GameEndEvent;
+import com.LAbility.Event.PlayerEliminateEvent;
 import com.LAbility.ScheduleManager;
 import com.LAbility.LuaUtility.PlayerList;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -91,6 +95,11 @@ public class GameManager {
 
     public void RunPassive() {
         if (isGameStarted){
+            for (Player player : Bukkit.getOnlinePlayers()){
+                for (Map.Entry<String, String> variable : LAbilityMain.instance.dataPacks.entrySet()){
+                    player.setResourcePack(variable.getValue(), null, true);
+                }
+            }
             passiveTask = new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -123,11 +132,14 @@ public class GameManager {
 
         if (resetShuffleIndex) {
             size = LAbilityMain.instance.abilities.size();
+            int hiddenCount = 0;
             for (int i = 0; i < size; i++) {
                 if (!LAbilityMain.instance.abilities.get(i).abilityID.contains("HIDDEN")) {
                     shuffledAbilityIndex.add(i);
                 }
+                else hiddenCount++;
             }
+            size -= hiddenCount;
         }
         else {
             size = shuffledAbilityIndex.size();
@@ -135,7 +147,7 @@ public class GameManager {
 
         if (size < 2) return;
         for (int i = 0 ; i < 1000; i++) {
-            int randomIndex = random.nextInt(0, size - 1);
+            int randomIndex = random.nextInt(0, size);
             final int temp = shuffledAbilityIndex.get(0);
             shuffledAbilityIndex.set(0, shuffledAbilityIndex.get(randomIndex));
             shuffledAbilityIndex.set(randomIndex, temp);
@@ -205,11 +217,26 @@ public class GameManager {
         return true;
     }
 
-    public void OnGameEnd(){
+    public void EliminatePlayer(LAPlayer player){
+        Bukkit.getPluginManager().callEvent(new PlayerEliminateEvent(player));
 
-        LAbilityMain.instance.scheduleManager.ClearTimer();
-        LAbilityMain.instance.ruleManager.runResetFunc();
-        LAbilityMain.instance.gameManager.ResetAll();
-        LAbilityMain.instance.getServer().getScheduler().cancelTasks(LAbilityMain.plugin);
+        for (Ability a : player.getAbility()) a.stopActive(player);
+        player.isSurvive = false;
+        player.getAbility().clear();
+        player.getPlayer().setGameMode(GameMode.SPECTATOR);
+    }
+    public void OnGameEnd(boolean isGoodEnd){
+        if (isGameStarted) {
+            Bukkit.getPluginManager().callEvent(new GameEndEvent(players, isGoodEnd));
+
+            Bukkit.broadcastMessage("\2476LAbility\247e를 사용해 주셔서 감사합니다!");
+            Bukkit.broadcastMessage("\247e플러그인 개선을 위해 현재 설문을 진행 중입니다. 작성해주시면, 더 좋은 플러그인을 만드는데 도움됩니다 :)");
+            Bukkit.broadcastMessage("\247eMade by MINUTE. \2476( \247nhttps://forms.gle/G9hxtEv2U1ody2yKA\247r\2476 )");
+
+            LAbilityMain.instance.scheduleManager.ClearTimer();
+            LAbilityMain.instance.ruleManager.runResetFunc();
+            LAbilityMain.instance.gameManager.ResetAll();
+            LAbilityMain.instance.getServer().getScheduler().cancelTasks(LAbilityMain.plugin);
+        }
     }
 }

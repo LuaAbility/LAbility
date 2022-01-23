@@ -16,6 +16,8 @@ import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LAbilityMain extends JavaPlugin implements Listener {
     public static LAbilityMain instance;
@@ -28,6 +30,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
     public int hasError = 0;
     public AbilityList<Ability> abilities = new AbilityList<>();
     public ArrayList<Class<? extends Event>> registerdEventList = new ArrayList<>();
+    public Map<String, String> dataPacks = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -37,6 +40,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         ruleManager = new RuleManager();
         gameManager = new GameManager();
         scheduleManager = new ScheduleManager();
+        dataPacks = new HashMap<>();
 
         if (!LAbilityMain.instance.getDataFolder().exists()){
             LAbilityMain.instance.getDataFolder().mkdir();
@@ -59,7 +63,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
-        gameManager.OnGameEnd();
+        gameManager.OnGameEnd(false);
 
         Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \2477v" + instance.getDescription().getVersion() + " 비활성화 되었습니다.");
         Bukkit.getConsoleSender().sendMessage("Made by MINUTE.");

@@ -49,6 +49,15 @@ public class PluginWrapper extends LuaTable {
                     }
                 }
 
+                try {
+                    Class<?> c = Class.forName("com.LAbility.Event." + eventName);
+                    if (Event.class.isAssignableFrom(c) && c != null) {
+                        return CoerceJavaToLua.coerce(plugin.registerEvent(ability, funcName, (Class<? extends Event>) c, cooldown));
+                    }
+                } catch (ClassNotFoundException ignored) {
+                    // This would spam the console anytime an event is registered if we print the stack trace
+                }
+
                 throw new LuaException("Event " + eventName + " Not Found.", 1);
             }
         });
@@ -74,7 +83,27 @@ public class PluginWrapper extends LuaTable {
                     }
                 }
 
+                try {
+                    Class<?> c = Class.forName("com.LAbility.Event." + eventName);
+                    if (Event.class.isAssignableFrom(c) && c != null) {
+                        return CoerceJavaToLua.coerce(plugin.registerRuleEvent((Class<? extends Event>) c, funcName));
+                    }
+                } catch (ClassNotFoundException ignored) {
+                    // This would spam the console anytime an event is registered if we print the stack trace
+                }
+
                 throw new LuaException("Event " + eventName + " Not Found.", 1);
+            }
+        });
+
+        set("requireDataPack", new VarArgFunction() {
+            @Override
+            public LuaValue invoke(Varargs vargs) {
+                String dataPackName = vargs.checkjstring(1);
+                String url = vargs.checkjstring(2);
+
+                if (!plugin.dataPacks.containsKey(dataPackName)) plugin.dataPacks.put(dataPackName, url);
+                return NIL;
             }
         });
 
