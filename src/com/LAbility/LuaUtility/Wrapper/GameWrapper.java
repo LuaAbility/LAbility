@@ -63,10 +63,11 @@ public class GameWrapper extends LuaTable {
                 Ability ability = (Ability) vargs.checkuserdata(3, Ability.class);
                 String funcID = vargs.checkjstring(4);
                 boolean showMessage = vargs.isnil(5) || vargs.checkboolean(5);
+                boolean callEvent = vargs.isnil(6) || vargs.checkboolean(6);
 
                 if (abilityPlayer.getPlayer().getName().equals(player.getPlayer().getName())) {
                     if (player.getAbility().contains(ability.abilityID)) {
-                        Bukkit.getPluginManager().callEvent(new AbilityConfirmEvent(player, ability, funcID));
+                        if (callEvent) Bukkit.getPluginManager().callEvent(new AbilityConfirmEvent(player, ability, funcID));
                         return CoerceJavaToLua.coerce(ability.CheckCooldown(player, funcID, showMessage));
                     }
                     return CoerceJavaToLua.coerce(false);
