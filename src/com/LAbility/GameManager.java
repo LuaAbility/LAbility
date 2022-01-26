@@ -97,7 +97,7 @@ public class GameManager {
         if (isGameStarted){
             for (Player player : Bukkit.getOnlinePlayers()){
                 for (Map.Entry<String, String> variable : LAbilityMain.instance.dataPacks.entrySet()){
-                    player.setResourcePack(variable.getValue(), null, true);
+                    player.setResourcePack(variable.getValue(), null, false);
                 }
             }
             passiveTask = new BukkitRunnable() {
