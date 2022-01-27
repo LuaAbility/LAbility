@@ -2,7 +2,6 @@ package com.LAbility;
 
 import com.LAbility.Event.GameEndEvent;
 import com.LAbility.Event.PlayerEliminateEvent;
-import com.LAbility.ScheduleManager;
 import com.LAbility.LuaUtility.PlayerList;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -12,6 +11,7 @@ import org.bukkit.event.Event;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -95,9 +95,15 @@ public class GameManager {
 
     public void RunPassive() {
         if (isGameStarted){
-            for (Player player : Bukkit.getOnlinePlayers()){
-                for (Map.Entry<String, String> variable : LAbilityMain.instance.dataPacks.entrySet()){
-                    player.setResourcePack(variable.getValue(), null, false);
+            if (LAbilityMain.instance.dataPacks.size() > 0) {
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    try {
+                        String url = LAbilityMain.instance.webServer.getWebIp() + player.getUniqueId();
+                        Bukkit.getConsoleSender().sendMessage(url);
+                        player.setResourcePack(url, null, false);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             passiveTask = new BukkitRunnable() {
@@ -238,5 +244,13 @@ public class GameManager {
             LAbilityMain.instance.gameManager.ResetAll();
             LAbilityMain.instance.getServer().getScheduler().cancelTasks(LAbilityMain.plugin);
         }
+    }
+
+    public PlayerList<LAPlayer> getSurvivePlayer() {
+        PlayerList<LAPlayer> survivePlayer = new PlayerList<LAPlayer>();
+        for (LAPlayer lap : players){
+            if (lap.isSurvive) survivePlayer.add(lap);
+        }
+        return survivePlayer;
     }
 }

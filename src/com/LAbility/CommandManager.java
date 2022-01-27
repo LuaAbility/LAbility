@@ -467,6 +467,14 @@ public class CommandManager implements CommandExecutor {
 					LuaAbilityLoader.LoadLuaRules();
 					LAbilityMain.instance.abilities = LuaAbilityLoader.LoadAllLuaAbilities();
 					LAbilityMain.instance.gameManager.ResetAll();
+					if (LAbilityMain.instance.dataPacks.size() > 0) {
+						try {
+							LAbilityMain.instance.appendResourcePacks();
+							LAbilityMain.instance.webServer.start();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
 
 					if (LAbilityMain.instance.hasError > 0) Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c" + LAbilityMain.instance.hasError + "개의 능력을 로드하는데 문제가 생겼습니다. 해당 능력들은 로드하지 않습니다.");
 					Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \2477v0.2 " + LAbilityMain.instance.abilities.size() + "개 능력 로드 완료!");

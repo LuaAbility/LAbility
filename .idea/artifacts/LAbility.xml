@@ -5,6 +5,7 @@
       <element id="dir-copy" path="$PROJECT_DIR$/resources" />
       <element id="module-output" name="LAbility" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../../luaj.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../vertx-core-4.2.4.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

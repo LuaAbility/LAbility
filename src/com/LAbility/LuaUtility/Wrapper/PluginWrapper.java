@@ -107,6 +107,15 @@ public class PluginWrapper extends LuaTable {
             }
         });
 
+        set("setResourcePackPort", new VarArgFunction() {
+            @Override
+            public LuaValue invoke(Varargs vargs) {
+                int port = vargs.checkint(1);
+                LAbilityMain.instance.webServer.port = port;
+                return NIL;
+            }
+        });
+
         set("abilityAmountOption", new VarArgFunction() {
             @Override
             public LuaValue invoke(Varargs vargs) {

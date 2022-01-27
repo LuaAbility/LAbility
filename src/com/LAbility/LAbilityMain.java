@@ -1,8 +1,6 @@
 package com.LAbility;
 
-import com.LAbility.LuaUtility.AbilityList;
-import com.LAbility.LuaUtility.LuaAbilityLoader;
-import com.LAbility.LuaUtility.TabManager;
+import com.LAbility.LuaUtility.*;
 import com.LAbility.LuaUtility.Wrapper.GameWrapper;
 import com.LAbility.LuaUtility.Wrapper.UtilitiesWrapper;
 import org.bukkit.Bukkit;
@@ -15,9 +13,12 @@ import org.luaj.vm2.LuaFunction;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 import java.io.*;
+import java.net.UnknownHostException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class LAbilityMain extends JavaPlugin implements Listener {
     public static LAbilityMain instance;
@@ -27,6 +28,8 @@ public class LAbilityMain extends JavaPlugin implements Listener {
     public GameManager gameManager;
     public RuleManager ruleManager;
     public ScheduleManager scheduleManager;
+    public ResourcePackManager packManager;
+    public UtilWebServer webServer;
     public int hasError = 0;
     public AbilityList<Ability> abilities = new AbilityList<>();
     public ArrayList<Class<? extends Event>> registerdEventList = new ArrayList<>();
@@ -41,6 +44,8 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         gameManager = new GameManager();
         scheduleManager = new ScheduleManager();
         dataPacks = new HashMap<>();
+        packManager = new ResourcePackManager();
+        webServer = new UtilWebServer();
 
         if (!LAbilityMain.instance.getDataFolder().exists()){
             LAbilityMain.instance.getDataFolder().mkdir();
@@ -56,6 +61,15 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new EventManager(), this);
 
         assignAllPlayer();
+        if (dataPacks.size() > 0) {
+            try {
+                appendResourcePacks();
+                webServer.start();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         if (hasError > 0) Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c" + hasError + "개의 능력을 로드하는데 문제가 생겼습니다. 해당 능력들은 로드하지 않습니다.");
         Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \2477v" + instance.getDescription().getVersion() + " " + abilities.size() + "개 능력 로드 완료!");
         Bukkit.getConsoleSender().sendMessage("Made by MINUTE.");
@@ -63,6 +77,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
+        webServer.stopTask();
         gameManager.OnGameEnd(false);
 
         Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \2477v" + instance.getDescription().getVersion() + " 비활성화 되었습니다.");
@@ -103,5 +118,16 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         for (Player p : getServer().getOnlinePlayers()){
             if (!gameManager.players.contains(p)) gameManager.players.add(new LAPlayer(p));
         }
+    }
+
+    public void appendResourcePacks() throws Exception {
+        Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \247e능력에 필요한 리소스팩을 다운로드 합니다.");
+        String[] urlList = new String[dataPacks.values().size()];
+        dataPacks.values().toArray(urlList);
+        String[] fileList = packManager.downloadResourcePack(urlList);
+        Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \247e리소스팩 " + fileList.length + "개 다운로드 완료!" );
+        Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \247e리소스팩 결합 작업을 진행합니다." );
+        packManager.patch(fileList);
+        Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \247e리소스팩 결합 완료!");
     }
 }
