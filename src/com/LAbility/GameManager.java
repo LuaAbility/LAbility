@@ -232,7 +232,7 @@ public class GameManager {
         player.getPlayer().setGameMode(GameMode.SPECTATOR);
     }
     public void OnGameEnd(boolean isGoodEnd){
-        if (isGameStarted) {
+        if (isGameReady) {
             Bukkit.getPluginManager().callEvent(new GameEndEvent(players, isGoodEnd));
 
             Bukkit.broadcastMessage("\2476LAbility\247e를 사용해 주셔서 감사합니다!");
