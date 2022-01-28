@@ -1,6 +1,7 @@
 package com.LAbility;
 
 import com.LAbility.LuaUtility.AbilityList;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -76,7 +77,7 @@ public class LAPlayer {
         }.runTaskLater(LAbilityMain.plugin, 5);
     }
 
-    public void CheckAbility(Player pl, int index) {
+    public void CheckAbility(CommandSender pl, int index) {
         if (ability.size() < 1) {
             pl.sendMessage("\2474[\247cLAbility\2474] \247c현재 능력이 없습니다.");
             return;

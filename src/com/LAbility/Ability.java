@@ -2,6 +2,7 @@ package com.LAbility;
 
 import com.LAbility.LuaUtility.FunctionList;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -201,7 +202,7 @@ public class Ability {
         runResetFunc(lap);
     }
 
-    public void ExplainAbility(Player player) {
+    public void ExplainAbility(CommandSender player) {
         player.sendMessage("\2476[\247e" + abilityName + "\2476]");
         player.sendMessage("\247eRank : \247a" + abilityRank);
         player.sendMessage("\247eType : \247a" + abilityType);
