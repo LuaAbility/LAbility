@@ -1,4 +1,4 @@
-package com.LAbility.LuaUtility;
+package com.LAbility.Manager;
 
 import com.LAbility.LAbilityMain;
 import org.bukkit.Bukkit;

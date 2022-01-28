@@ -1,8 +1,7 @@
 package com.LAbility.Event;
 
 import com.LAbility.LAPlayer;
-import com.LAbility.LAbilityMain;
-import com.LAbility.LuaUtility.PlayerList;
+import com.LAbility.LuaUtility.List.PlayerList;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;

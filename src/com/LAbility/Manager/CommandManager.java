@@ -1,17 +1,14 @@
-package com.LAbility;
+package com.LAbility.Manager;
 
+import com.LAbility.*;
 import com.LAbility.LuaUtility.LuaAbilityLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 
-import java.io.File;
 import java.util.HashMap;
 
 public class CommandManager implements CommandExecutor {
@@ -42,6 +39,7 @@ public class CommandManager implements CommandExecutor {
 
 				if (args[0].equalsIgnoreCase("admin")) {
 					sender.sendMessage("\2476-------[\247eAdmin Command\2476]-------");
+					sender.sendMessage("\2476/la \247eruleset <RuleID> \247f: \247a게임의 룰을 해당 룰로 적용합니다."); // OK
 					sender.sendMessage("\2476/la \247estart \247f: \247a게임을 시작합니다.");
 					sender.sendMessage("\2476/la \247estop \247f: \247a게임을 중지합니다.");
 					sender.sendMessage("\2476/la \247eskip \247f: \247a모든 플레이어의 능력을 모두 확정합니다."); // OK
@@ -59,6 +57,8 @@ public class CommandManager implements CommandExecutor {
 					sender.sendMessage("\2476-------[\247eAdmin Command\2476]-------");
 					sender.sendMessage("\2476/la \247eablist <Page> \247f: \247a현재 로드된 능력 리스트를 확인합니다.");  // OK
 					sender.sendMessage("\2476/la \247eability <AbilityID> \247f: \247a해당 능력의 정보를 확인합니다.");  // OK
+					sender.sendMessage("\2476/la \247erlist <Page> \247f: \247a현재 로드된 룰 리스트를 확인합니다.");  // OK
+					sender.sendMessage("\2476/la \247erule <RuleID> \247f: \247a해당 룰의 정보를 확인합니다.");  // OK
 					return true;
 				}
 
@@ -160,6 +160,55 @@ public class CommandManager implements CommandExecutor {
 					}
 				}
 
+				if (args[0].equalsIgnoreCase("rlist")) {
+					int index = 1;
+					int allData = main.rules.size();
+					sender.sendMessage("\2476-------[\247eRules\2476]-------");
+					for (int i = 0; i < main.rules.size(); i++) {
+						sender.sendMessage("\2476[" + main.rules.get(i).ruleID + "] \247e" + main.rules.get(i).ruleName);
+					}
+					return true;
+				}
+
+				if (args[0].equalsIgnoreCase("rule")) {
+					if ((args.length > 1)) {
+						int index = main.rules.indexOf(args[1]);
+						if (index >= 0) {
+							main.rules.get(index).ExplainRule(sender);
+							return true;
+						}
+						else {
+							sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 룰 ID입니다.");
+						}
+					}
+					else {
+						sender.sendMessage("\2474[\247cLAbility\2474] \247c룰 ID을 입력해주세요.");
+						return true;
+					}
+				}
+
+				if (args[0].equalsIgnoreCase("ruleset")) {
+					if (!main.gameManager.isGameReady) {
+						if ((args.length > 1)) {
+							int index = main.rules.indexOf(args[1]);
+							if (index >= 0) {
+								main.gameManager.currentRuleIndex = index;
+								main.rules.get(index).InitScript();
+								Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e룰 \2476[" + main.rules.get(index).ruleName + "]\247e이(가) 적용되었습니다.");
+								return true;
+							} else {
+								sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 룰 ID 입니다.");
+							}
+						} else {
+							sender.sendMessage("\2474[\247cLAbility\2474] \247c룰 ID을 입력해주세요.");
+							return true;
+						}
+					}
+					else {
+						sender.sendMessage("\2474[\247cLAbility\2474] \247c게임이 진행 중입니다.");
+					}
+				}
+
 				if (args[0].equalsIgnoreCase("see") && sender.isOp()) {
 					if ((args.length > 1)) {
 						int index = main.gameManager.players.indexOf(args[1]);
@@ -209,14 +258,14 @@ public class CommandManager implements CommandExecutor {
 								if (index2 >= 0) {
 									Ability a = main.abilities.get(index2);
 									Ability newA = new Ability(a);
-									p.ability.add(newA);
+									p.getAbility().add(newA);
 									newA.InitScript();
-									if (sender instanceof Player && !sender.equals(p.player)) {
+									if (sender instanceof Player && !sender.equals(p.getPlayer())) {
 										sender.sendMessage("\2478[\2477LAbility\2478] \2477" + args[1] + " 가 \2478" + a.abilityName + "\2477 능력을 얻었습니다.");
 										sender.sendMessage("\2478[\2477LAbility\2478] \2477" + "해당 유저는 해당 능력을 사용할 수 있습니다.");
 									}
-									p.player.sendMessage("\2476[\247eLAbility\2476] \2476" + a.abilityName + "\247e 능력을 얻었습니다.");
-									p.player.sendMessage("\2476[\247eLAbility\2476] \247a" + "/la check " + (p.ability.size() - 1) + "\247e로 확인가능합니다.");
+									p.getPlayer().sendMessage("\2476[\247eLAbility\2476] \2476" + a.abilityName + "\247e 능력을 얻었습니다.");
+									p.getPlayer().sendMessage("\2476[\247eLAbility\2476] \247a" + "/la check " + (p.getAbility().size() - 1) + "\247e로 확인가능합니다.");
 
 									return true;
 								}
@@ -249,12 +298,12 @@ public class CommandManager implements CommandExecutor {
 								if (index2 >= 0) {
 									Ability a = main.abilities.get(index2);
 									if (p.hasAbility(a)) {
-										if (sender instanceof Player && !sender.equals(p.player)) {
+										if (sender instanceof Player && !sender.equals(p.getPlayer())) {
 											sender.sendMessage("\2478[\2477LAbility\2478] \2477" + args[1] + " 가 \2478" + a.abilityName + "\2477 능력을 잃었습니다.");
 											sender.sendMessage("\2478[\2477LAbility\2478] \2477" + "해당 유저는 더이상 해당 능력 사용이 불가능합니다.");
 										}
-										p.player.sendMessage("\2474[\247cLAbility\2474] \2474" + a.abilityName + "\247c 능력을 잃었습니다.");
-										p.player.sendMessage("\2474[\247cLAbility\2474] \247c" + "해당 능력은, 더 이상 사용하실 수 없습니다.");
+										p.getPlayer().sendMessage("\2474[\247cLAbility\2474] \2474" + a.abilityName + "\247c 능력을 잃었습니다.");
+										p.getPlayer().sendMessage("\2474[\247cLAbility\2474] \247c" + "해당 능력은, 더 이상 사용하실 수 없습니다.");
 
 										int abilityIndex = p.getAbility().indexOf(a.abilityID);
 										if (main.gameManager.isGameStarted) {
@@ -272,13 +321,13 @@ public class CommandManager implements CommandExecutor {
 								}
 							}
 							else {
-								if (p.ability.size() > 0) {
-									if (sender instanceof Player && !sender.equals(p.player)) {
+								if (p.getAbility().size() > 0) {
+									if (sender instanceof Player && !sender.equals(p.getPlayer())) {
 										sender.sendMessage("\2478[\2477LAbility\2478] \2477" + args[1] + " 가 \2478모든\2477 능력을 잃었습니다.");
 										sender.sendMessage("\2478[\2477LAbility\2478] \2477" + "해당 유저는 더이상 능력 사용이 불가능합니다.");
 									}
-									p.player.sendMessage("\2474[\247cLAbility\2474] \2474모든\247c 능력을 잃었습니다.");
-									p.player.sendMessage("\2474[\247cLAbility\2474] \247c능력을 더 이상 사용하실 수 없습니다.");
+									p.getPlayer().sendMessage("\2474[\247cLAbility\2474] \2474모든\247c 능력을 잃었습니다.");
+									p.getPlayer().sendMessage("\2474[\247cLAbility\2474] \247c능력을 더 이상 사용하실 수 없습니다.");
 
 									if (main.gameManager.isGameReady) {
 										for (Ability a : p.getAbility()) {
@@ -286,7 +335,7 @@ public class CommandManager implements CommandExecutor {
 										}
 									}
 
-									p.ability.clear();
+									p.getAbility().clear();
 								}
 								else {
 									sender.sendMessage("\2474[\247cLAbility\2474] \247c해당 유저는 능력을 소지 중이 아닙니다.");
@@ -308,11 +357,11 @@ public class CommandManager implements CommandExecutor {
 					sender.sendMessage("\2476-------[\247eAbility List\2476]-------");
 					for (LAPlayer lap : main.gameManager.players) {
 						String abilityString = "";
-						abilityString += ("\247e" + lap.player.getName() + "\2477 : \247a");
+						abilityString += ("\247e" + lap.getPlayer().getName() + "\2477 : \247a");
 						int index = 0;
-						for (Ability a : lap.ability) {
+						for (Ability a : lap.getAbility()) {
 							abilityString += a.abilityName;
-							if (index++ < (lap.ability.size() - 1)) {
+							if (index++ < (lap.getAbility().size() - 1)) {
 								abilityString += ", ";
 							}
 						}
@@ -443,8 +492,8 @@ public class CommandManager implements CommandExecutor {
 						main.gameManager.isTestMode = true;
 						for (LAPlayer lap : LAbilityMain.instance.gameManager.players) {
 							lap.isSurvive = true;
-							lap.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(lap.player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue());
-							lap.player.setWalkSpeed(0.2f);
+							lap.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(lap.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue());
+							lap.getPlayer().setWalkSpeed(0.2f);
 						}
 
 						LAbilityMain.instance.gameManager.RunPassive();
@@ -463,12 +512,11 @@ public class CommandManager implements CommandExecutor {
 				if (args[0].equalsIgnoreCase("reload") && sender.isOp()) {
 					LAbilityMain.instance.gameManager.OnGameEnd(false);
 					LAbilityMain.instance.hasError = 0;
-					LAbilityMain.instance.ruleManager = new RuleManager();
 					LAbilityMain.instance.gameManager = new GameManager();
 					LAbilityMain.instance.scheduleManager = new ScheduleManager();
 					LAbilityMain.instance.dataPacks = new HashMap<>();
 
-					LuaAbilityLoader.LoadLuaRules();
+					LAbilityMain.instance.rules = LuaAbilityLoader.LoadLuaRules();
 					LAbilityMain.instance.abilities = LuaAbilityLoader.LoadAllLuaAbilities();
 					LAbilityMain.instance.gameManager.ResetAll();
 					if (LAbilityMain.instance.dataPacks.size() > 0) {
@@ -479,6 +527,12 @@ public class CommandManager implements CommandExecutor {
 							e.printStackTrace();
 						}
 					}
+
+					if (LAbilityMain.instance.rules.size() > 0) {
+						LAbilityMain.instance.rules.get(0).InitScript();
+						Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \247e룰 [" + LAbilityMain.instance.rules.get(0).ruleName + "]이(가) 적용되었습니다.");
+					}
+					else Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c룰이 존재하지 않습니다. 게임이 정상적으로 진행되지 않을 수 있습니다.");
 
 					if (LAbilityMain.instance.hasError > 0) Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c" + LAbilityMain.instance.hasError + "개의 능력을 로드하는데 문제가 생겼습니다. 해당 능력들은 로드하지 않습니다.");
 					Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \2477v0.2 " + LAbilityMain.instance.abilities.size() + "개 능력 로드 완료!");
@@ -496,9 +550,9 @@ public class CommandManager implements CommandExecutor {
 					sender.sendMessage(serverVariables);
 
 					for (LAPlayer lap : main.gameManager.players) {
-						String variables = "\247a" + lap.player.getName() + " \2476: \247b";
-						for (String key : lap.variable.keySet()) {
-							variables += key + "(" + lap.variable.get(key) + ")  ";
+						String variables = "\247a" + lap.getPlayer().getName() + " \2476: \247b";
+						for (String key : lap.getVariableMap().keySet()) {
+							variables += key + "(" + lap.getVariableMap().get(key) + ")  ";
 						}
 						sender.sendMessage(variables);
 					}

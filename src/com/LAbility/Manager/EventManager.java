@@ -1,5 +1,7 @@
-package com.LAbility;
+package com.LAbility.Manager;
 
+import com.LAbility.LAPlayer;
+import com.LAbility.LAbilityMain;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -25,7 +27,7 @@ public class EventManager implements Listener {
         }
 
         int index = LAbilityMain.instance.gameManager.players.indexOf(p.getName());
-        if (index >= 0) LAbilityMain.instance.gameManager.players.get(index).player = p;
+        if (index >= 0) LAbilityMain.instance.gameManager.players.get(index).setPlayer(p);
 
         if (!LAbilityMain.instance.gameManager.isGameReady) {
             if (index < 0) LAbilityMain.instance.gameManager.players.add(new LAPlayer(p));

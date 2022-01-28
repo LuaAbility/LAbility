@@ -2,15 +2,12 @@ package com.LAbility.LuaUtility.Wrapper;
 
 import com.LAbility.*;
 import com.LAbility.Event.AbilityConfirmEvent;
-import com.LAbility.Event.PlayerEliminateEvent;
-import com.LAbility.LuaUtility.PlayerList;
+import com.LAbility.LuaUtility.List.PlayerList;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.luaj.vm2.LuaFunction;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;

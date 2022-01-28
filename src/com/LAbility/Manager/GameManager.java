@@ -1,8 +1,11 @@
-package com.LAbility;
+package com.LAbility.Manager;
 
+import com.LAbility.Ability;
 import com.LAbility.Event.GameEndEvent;
 import com.LAbility.Event.PlayerEliminateEvent;
-import com.LAbility.LuaUtility.PlayerList;
+import com.LAbility.LAPlayer;
+import com.LAbility.LAbilityMain;
+import com.LAbility.LuaUtility.List.PlayerList;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -11,7 +14,6 @@ import org.bukkit.event.Event;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +29,7 @@ public class GameManager {
 
     public ArrayList<Integer> shuffledAbilityIndex = new ArrayList<Integer>();
     public int currentAbilityIndex = 0;
+    public int currentRuleIndex = 0;
 
     public int abilityAmount = 1;
     public boolean overlapAbility = false;
@@ -64,7 +67,7 @@ public class GameManager {
 
     public void ResetAll(){
         for (LAPlayer player : players){
-            for (Ability ab : player.ability) {
+            for (Ability ab : player.getAbility()) {
                 ab.runResetFunc(player);
             }
         }
@@ -83,13 +86,13 @@ public class GameManager {
         if (isGameStarted){
             for (LAPlayer player : players){
                 if (player.isSurvive) {
-                    for (Ability ab : player.ability) {
+                    for (Ability ab : player.getAbility()) {
                         ab.runAbilityFunc(player, event);
                     }
                 }
             }
 
-            LAbilityMain.instance.ruleManager.RunEvent(event);
+            if (LAbilityMain.instance.rules.size() > 0) LAbilityMain.instance.rules.get(currentRuleIndex).RunEvent(event);
         }
     }
 
@@ -99,7 +102,6 @@ public class GameManager {
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     try {
                         String url = LAbilityMain.instance.webServer.getWebIp() + player.getUniqueId();
-                        Bukkit.getConsoleSender().sendMessage(url);
                         player.setResourcePack(url, null, false);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -109,10 +111,10 @@ public class GameManager {
             passiveTask = new BukkitRunnable() {
                 @Override
                 public void run() {
-                    if (!isTestMode) LAbilityMain.instance.ruleManager.runPassiveFunc();
+                    if (LAbilityMain.instance.rules.size() > 0 && !isTestMode) LAbilityMain.instance.rules.get(currentRuleIndex).runPassiveFunc();
                     for (LAPlayer player : players){
                         if (player.isSurvive && (player.getVariable("abilityLock") == null || player.getVariable("abilityLock").equals(false))) {
-                            for (Ability ab : player.ability) {
+                            for (Ability ab : player.getAbility()) {
                                 ab.runPassiveFunc(player);
                             }
                         }
@@ -127,7 +129,7 @@ public class GameManager {
     }
 
     public void StopActive(LAPlayer player) {
-         for (Ability ab : player.ability) {
+         for (Ability ab : player.getAbility()) {
              ab.stopActive(player);
          }
     }
@@ -172,41 +174,41 @@ public class GameManager {
             if (overlapAbility) {
                 Random random = new Random();
                 Ability temp = LAbilityMain.instance.abilities.get(random.nextInt(LAbilityMain.instance.abilities.size()));
-                while (player.ability.contains(temp.abilityID) || temp.abilityID.contains("HIDDEN")){
-                    Bukkit.getConsoleSender().sendMessage(player.player.getName() + " / " + temp.abilityID);
+                while (player.getAbility().contains(temp.abilityID) || temp.abilityID.contains("HIDDEN")){
+                    Bukkit.getConsoleSender().sendMessage(player.getPlayer().getName() + " / " + temp.abilityID);
                     temp = LAbilityMain.instance.abilities.get(random.nextInt(LAbilityMain.instance.abilities.size()));
                 }
                 Ability a = new Ability(temp);
-                player.ability.add(a);
+                player.getAbility().add(a);
                 a.InitScript();
             } else {
                 Ability a = new Ability(LAbilityMain.instance.abilities.get(shuffledAbilityIndex.get(0)));
-                player.ability.add(a);
+                player.getAbility().add(a);
                 a.InitScript();
                 shuffledAbilityIndex.remove(0);
             }
         }
 
-        player.player.sendMessage("\2472[\247aLAbility\2472] \247a" + "능력이 무작위 배정되었습니다.");
-        player.player.sendMessage("\2472[\247aLAbility\2472] \247a" + "/la check " + (player.ability.size() - 1) + "로 능력을 확인해주세요.");
+        player.getPlayer().sendMessage("\2472[\247aLAbility\2472] \247a" + "능력이 무작위 배정되었습니다.");
+        player.getPlayer().sendMessage("\2472[\247aLAbility\2472] \247a" + "/la check " + (player.getAbility().size() - 1) + "로 능력을 확인해주세요.");
     }
 
     public void ResignAbility(LAPlayer player, Ability ability) {
-        if (player.ability.contains(ability.abilityID)) {
-            player.ability.remove(ability);
+        if (player.getAbility().contains(ability.abilityID)) {
+            player.getAbility().remove(ability);
             if (!ability.abilityID.contains("HIDDEN")) shuffledAbilityIndex.add(LAbilityMain.instance.abilities.indexOf(ability));
             AbilityShuffle(false);
         }
     }
 
     public void ResignAbility(LAPlayer player) {
-        if (player.ability.size() > 0) {
-            for (Ability a : player.ability) {
+        if (player.getAbility().size() > 0) {
+            for (Ability a : player.getAbility()) {
                 if (!a.abilityID.contains("HIDDEN")) shuffledAbilityIndex.add(LAbilityMain.instance.abilities.indexOf(a.abilityID));
             }
             AbilityShuffle(false);
 
-            player.ability.clear();
+            player.getAbility().clear();
         }
     }
 
@@ -240,7 +242,7 @@ public class GameManager {
             Bukkit.broadcastMessage("\247eMade by MINUTE. \2476( \247nhttps://forms.gle/G9hxtEv2U1ody2yKA\247r\2476 )");
 
             LAbilityMain.instance.scheduleManager.ClearTimer();
-            LAbilityMain.instance.ruleManager.runResetFunc();
+            if (LAbilityMain.instance.rules.size() > 0) LAbilityMain.instance.rules.get(currentRuleIndex).runResetFunc();
             LAbilityMain.instance.gameManager.ResetAll();
             LAbilityMain.instance.getServer().getScheduler().cancelTasks(LAbilityMain.plugin);
         }

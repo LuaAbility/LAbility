@@ -1,4 +1,4 @@
-package com.LAbility.LuaUtility;
+package com.LAbility.LuaUtility.List;
 
 import com.LAbility.Ability;
 import com.LAbility.LAPlayer;

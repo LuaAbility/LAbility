@@ -1,7 +1,10 @@
 package com.LAbility.LuaUtility;
 
 import com.LAbility.Ability;
+import com.LAbility.LARule;
 import com.LAbility.LAbilityMain;
+import com.LAbility.LuaUtility.List.AbilityList;
+import com.LAbility.LuaUtility.List.RuleList;
 import com.LAbility.LuaUtility.Wrapper.GameWrapper;
 import com.LAbility.LuaUtility.Wrapper.LoggerWrapper;
 import com.LAbility.LuaUtility.Wrapper.PluginWrapper;
@@ -70,28 +73,58 @@ public class LuaAbilityLoader {
             }
         }
 
-        luaAbilities.sort(new AbilityComparator());
+        luaAbilities.sort(new AbilityList.AbilityComparator());
 
         return luaAbilities;
     }
 
-    public static void LoadLuaRules() {
+    public static RuleList<LARule> LoadLuaRules() {
+        RuleList<LARule> luaRules = new RuleList<LARule>();
         Globals globals = JsePlatform.standardGlobals();
 
-        File ruleFile = new File(LAbilityMain.instance.getDataFolder() + "/rule.lua");
-        if (!ruleFile.exists()) {
-            Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c룰이 존재하지 않습니다. 아무런 룰도 적용되지 않습니다.");
-            return;
+        File dataFolder = new File(LAbilityMain.instance.getDataFolder() + "/Rule");
+        File[] files = dataFolder.listFiles();
+        if (!dataFolder.exists()){
+            return luaRules;
+        }
+        for (File file : files) {
+            try {
+                if (file.isDirectory()) {
+                    String ruleID = "";
+                    String ruleName = "";
+                    String ruleDescription = "";
+                    String luaScriptLoc = "";
+                    LuaValue luaScript = null;
+
+                    File[] files2 = file.listFiles();
+                    for (File file2 : files2) {
+                        if (file2.toString().toLowerCase().contains("rule.lua")) {
+                            luaScriptLoc = file2.toString();
+                        } else if (file2.toString().toLowerCase().contains("data.yml")) {
+                            try {
+                                Map<String, Object> ruleData = new Yaml().load(new FileReader(file2));
+                                ruleID = ruleData.get("id").toString();
+                                ruleName = ruleData.get("name").toString();
+                                ruleDescription = ruleData.get("description").toString();
+                            } catch (FileNotFoundException e) {
+                                Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247cdata.yml 파일을 불러올 수 없습니다. 해당 룰은 불러오지 않습니다.");
+                            }
+                        }
+                    }
+
+                    if (!luaScriptLoc.equals("") && !ruleName.equals("")) {
+                        LARule rule = new LARule(ruleID, ruleName, ruleDescription, luaScriptLoc);
+                        luaRules.add(rule);
+                    }
+                }
+            } catch (Exception e) {
+                Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c능력을 로드하는데 문제가 생겼습니다. 해당 룰은 로드하지 않습니다.");
+                Bukkit.getConsoleSender().sendMessage(e.getMessage());
+            }
         }
 
-        try {
-            LAbilityMain.instance.ruleManager.ruleLocation = LAbilityMain.instance.getDataFolder() + "/rule.lua";
-            LAbilityMain.instance.ruleManager.InitScript();
-            Bukkit.getConsoleSender().sendMessage("\2472[\247aLAbility\2472] \247a룰 로드에 성공했습니다.");
-        } catch (Exception e) {
-            Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c룰을 로드하는데 문제가 생겼습니다. 아무런 룰도 적용되지 않습니다.");
-            Bukkit.getConsoleSender().sendMessage(e.getMessage());
-        }
+        luaRules.sort(new RuleList.RuleComparator());
+        return luaRules;
     }
 
     public static boolean isClassPathValid(String classPath) {

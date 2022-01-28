@@ -1,9 +1,7 @@
 package com.LAbility;
 
-import com.LAbility.LuaUtility.FunctionList;
-import org.bukkit.Bukkit;
+import com.LAbility.LuaUtility.List.FunctionList;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;

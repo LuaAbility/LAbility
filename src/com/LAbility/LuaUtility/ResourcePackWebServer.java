@@ -18,7 +18,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Objects;
 
-public class UtilWebServer {
+public class ResourcePackWebServer {
     public int port;
     private HttpServer httpServer;
     private BukkitTask task;

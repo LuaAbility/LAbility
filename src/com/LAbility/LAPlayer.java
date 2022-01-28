@@ -1,6 +1,6 @@
 package com.LAbility;
 
-import com.LAbility.LuaUtility.AbilityList;
+import com.LAbility.LuaUtility.List.AbilityList;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -8,18 +8,19 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class LAPlayer {
     Player player;
     AbilityList<Ability> ability = new AbilityList<>();
     Map<String, Object> variable = new HashMap<>();
-    boolean isAssign = false;
+    public boolean isAssign = false;
     public boolean isSurvive = true;
 
     public LAPlayer(Player p){
         player = p;
     }
+
+    public void setPlayer(Player p) { player = p; }
 
     public Player getPlayer() {
         return player;
@@ -28,6 +29,8 @@ public class LAPlayer {
     public AbilityList<Ability> getAbility() {
         return ability;
     }
+
+    public Map<String, Object> getVariableMap(){ return variable; }
 
     public Object getVariable(String key) {
         Object obj = variable.getOrDefault(key, null);
