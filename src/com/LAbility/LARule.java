@@ -22,6 +22,11 @@ public class LARule {
 
     Globals globals;
     LuaValue script;
+    boolean syncScript = true;
+
+    public void sync(boolean sync){
+        syncScript = sync;
+    }
 
     public LARule(String id, String name, String desc, String script) {
         ruleID = id;
@@ -31,7 +36,7 @@ public class LARule {
     }
 
     public LARule(LARule r) {
-        ruleName = r.ruleID;
+        ruleID = r.ruleID;
         ruleName = r.ruleName;
         ruleDesc = r.ruleDesc;
         luaScript = r.luaScript;
@@ -50,11 +55,13 @@ public class LARule {
         if (LAbilityMain.instance.gameManager.isGameStarted){
             for( Map.Entry<String, Class<? extends Event>> func : ruleFunc.entrySet() ){
                 if ((func.getValue().equals(event.getClass()) || func.getValue().isInstance(event)) || func.getValue().isAssignableFrom(event.getClass())) {
-                    globals = JsePlatform.standardGlobals();
-                    script = globals.loadfile(luaScript);
-                    globals = setGlobals(globals);
+                    if (syncScript) {
+                        globals = JsePlatform.standardGlobals();
+                        script = globals.loadfile(luaScript);
+                        globals = setGlobals(globals);
+                        script.call();
+                    }
 
-                    script.call();
                     if (!globals.get("onEvent").isnil()) globals.get("onEvent").call(CoerceJavaToLua.coerce(func.getKey()), CoerceJavaToLua.coerce(event));
                 }
             }
@@ -62,19 +69,24 @@ public class LARule {
     }
 
     public void runPassiveFunc() {
-        globals = JsePlatform.standardGlobals();
-        script = globals.loadfile(luaScript);
-        globals = setGlobals(globals);
+        if (syncScript) {
+            globals = JsePlatform.standardGlobals();
+            script = globals.loadfile(luaScript);
+            globals = setGlobals(globals);
+            script.call();
+        }
 
-        script.call();
         if (!globals.get("onTimer").isnil()) globals.get("onTimer").call();
     }
 
     public void runResetFunc() {
-        globals = JsePlatform.standardGlobals();
-        script = globals.loadfile(luaScript);
-        globals = setGlobals(globals);
-        script.call();
+        if (syncScript) {
+            globals = JsePlatform.standardGlobals();
+            script = globals.loadfile(luaScript);
+            globals = setGlobals(globals);
+            script.call();
+        }
+
         if (!globals.get("Reset").isnil()) globals.get("Reset").call();
     }
 

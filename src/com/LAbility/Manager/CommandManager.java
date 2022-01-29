@@ -54,7 +54,7 @@ public class CommandManager implements CommandExecutor {
 				}
 
 				if (args[0].equalsIgnoreCase("util")) {
-					sender.sendMessage("\2476-------[\247eAdmin Command\2476]-------");
+					sender.sendMessage("\2476-------[\247eUtil Command\2476]-------");
 					sender.sendMessage("\2476/la \247eablist <Page> \247f: \247a현재 로드된 능력 리스트를 확인합니다.");  // OK
 					sender.sendMessage("\2476/la \247eability <AbilityID> \247f: \247a해당 능력의 정보를 확인합니다.");  // OK
 					sender.sendMessage("\2476/la \247erlist <Page> \247f: \247a현재 로드된 룰 리스트를 확인합니다.");  // OK

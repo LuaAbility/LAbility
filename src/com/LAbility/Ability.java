@@ -63,6 +63,7 @@ public class Ability {
 
     Globals globals;
     LuaValue script;
+    boolean syncScript = true;
 
     public Ability(String id, String type, String name, String rank, String desc, String script) {
         abilityID = id;
@@ -86,6 +87,10 @@ public class Ability {
         }
     }
 
+    public void sync(boolean sync){
+        syncScript = sync;
+    }
+
     public void InitScript(){
         globals = JsePlatform.standardGlobals();
         script = globals.loadfile(luaScript);
@@ -99,10 +104,12 @@ public class Ability {
         if (abilityFunc.contains(event)) {
             for (Ability.AbilityFunc af : abilityFunc) {
                 if ((af.funcEvent.isAssignableFrom(event.getClass()) || af.funcEvent.isInstance(event)) || af.funcEvent.equals(event.getClass())) {
-                    globals = JsePlatform.standardGlobals();
-                    script = globals.loadfile(luaScript);
-                    globals = setGlobals(globals);
-                    script.call();
+                    if (syncScript) {
+                        globals = JsePlatform.standardGlobals();
+                        script = globals.loadfile(luaScript);
+                        globals = setGlobals(globals);
+                        script.call();
+                    }
 
                     LuaTable table = new LuaTable();
                     table.insert(1, CoerceJavaToLua.coerce(af.funcID));
@@ -117,10 +124,12 @@ public class Ability {
     }
 
     public void runPassiveFunc(LAPlayer lap) {
-        globals = JsePlatform.standardGlobals();
-        script = globals.loadfile(luaScript);
-        globals = setGlobals(globals);
-        script.call();
+        if (syncScript) {
+            globals = JsePlatform.standardGlobals();
+            script = globals.loadfile(luaScript);
+            globals = setGlobals(globals);
+            script.call();
+        }
 
         if (!globals.get("onTimer").isnil()) globals.get("onTimer").call(CoerceJavaToLua.coerce(lap), CoerceJavaToLua.coerce(this));
     }
@@ -151,9 +160,11 @@ public class Ability {
     }
 
     public void runResetFunc(LAPlayer lap) {
-        globals = JsePlatform.standardGlobals();
-        script = globals.loadfile(luaScript);
-        globals = setGlobals(globals);
+        if (syncScript) {
+            globals = JsePlatform.standardGlobals();
+            script = globals.loadfile(luaScript);
+            globals = setGlobals(globals);
+        }
         script.call();
 
         if (!globals.get("Reset").isnil()) globals.get("Reset").call(CoerceJavaToLua.coerce(lap), CoerceJavaToLua.coerce(this));

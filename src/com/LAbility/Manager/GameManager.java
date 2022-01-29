@@ -239,7 +239,8 @@ public class GameManager {
 
             Bukkit.broadcastMessage("\2476LAbility\247e를 사용해 주셔서 감사합니다!");
             Bukkit.broadcastMessage("\247e플러그인 개선을 위해 현재 설문을 진행 중입니다. 작성해주시면, 더 좋은 플러그인을 만드는데 도움됩니다 :)");
-            Bukkit.broadcastMessage("\247eMade by MINUTE. \2476( \247nhttps://forms.gle/G9hxtEv2U1ody2yKA\247r\2476 )");
+            Bukkit.broadcastMessage("\247e설문조사 링크 \2476( \247nhttps://forms.gle/VjWJXKMCYAmbNBrg9\247r\2476 )");
+            Bukkit.broadcastMessage("\247e개발자 디스코드 : MINUTE#4438");
 
             LAbilityMain.instance.scheduleManager.ClearTimer();
             if (LAbilityMain.instance.rules.size() > 0) LAbilityMain.instance.rules.get(currentRuleIndex).runResetFunc();

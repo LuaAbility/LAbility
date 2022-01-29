@@ -116,7 +116,7 @@ public class GameWrapper extends LuaTable {
             public LuaValue invoke(Varargs vargs) {
                 if (vargs.isnil(1)) return CoerceJavaToLua.coerce(false);
                 LAPlayer player = (LAPlayer) vargs.checkuserdata(1, LAPlayer.class);
-                Ability ability = (Ability) vargs.checkuserdata(2, Ability.class);
+                Ability ability =  vargs.isnil(2) ? null : (Ability) vargs.checkuserdata(2, Ability.class);
                 boolean deleteAll = vargs.isnil(3) || vargs.checkboolean(3);
 
                 player.getPlayer().sendMessage("\2474[\247cLAbility\2474] \247c자신의 능력이 제거됩니다.");
