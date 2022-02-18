@@ -60,8 +60,9 @@ public class GameWrapper extends LuaTable {
 
                 if (abilityPlayer.getPlayer().getName().equals(player.getPlayer().getName())) {
                     if (player.getAbility().contains(ability.abilityID)) {
-                        if (callEvent) Bukkit.getPluginManager().callEvent(new AbilityConfirmEvent(player, ability, funcID));
-                        return CoerceJavaToLua.coerce(ability.CheckCooldown(player, funcID, showMessage));
+                        boolean check = ability.CheckCooldown(player, funcID, showMessage);
+                        if (callEvent && check) Bukkit.getPluginManager().callEvent(new AbilityConfirmEvent(player, ability, funcID));
+                        return CoerceJavaToLua.coerce(check);
                     }
                     return CoerceJavaToLua.coerce(false);
                 }
