@@ -158,10 +158,10 @@ public class Ability {
                 @Override
                 public void run() {
                     abilityFunc.get(index).currentTime++;
-                    if (showMessage && maxCooldown > 59) {
+                    if (showMessage && maxCooldown >= 100) {
                         if (abilityFunc.get(index).currentTime == maxCooldown) {
                             lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b재사용 대기시간이 종료되었습니다. (" + abilityFunc.get(index).funcID + ")");
-                            lap.player.playSound(lap.player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 2F);
+                            lap.player.playSound(lap.player, Sound.ENTITY_PLAYER_LEVELUP, 0.5F, 2F);
                         } else if (abilityFunc.get(index).currentTime == maxCooldown - 20) {
                             lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b남은 시간 : 1초 (" + abilityFunc.get(index).funcID + ")");
                             lap.player.playSound(lap.player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 2F);
@@ -170,6 +170,12 @@ public class Ability {
                             lap.player.playSound(lap.player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 2F);
                         } else if (abilityFunc.get(index).currentTime == maxCooldown - 60) {
                             lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b남은 시간 : 3초 (" + abilityFunc.get(index).funcID + ")");
+                            lap.player.playSound(lap.player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 2F);
+                        } else if (abilityFunc.get(index).currentTime == maxCooldown - 80) {
+                            lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b남은 시간 : 4초 (" + abilityFunc.get(index).funcID + ")");
+                            lap.player.playSound(lap.player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 2F);
+                        } else if (abilityFunc.get(index).currentTime == maxCooldown - 100) {
+                            lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b남은 시간 : 5초 (" + abilityFunc.get(index).funcID + ")");
                             lap.player.playSound(lap.player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 2F);
                         }
                     }
