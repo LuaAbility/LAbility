@@ -145,14 +145,17 @@ public class GameManager {
             int hiddenCount = 0;
             for (int i = 0; i < size; i++) {
                 boolean isHIDDEN = false;
-                for (String s : banAbilityIDList) {
-                    if (LAbilityMain.instance.abilities.get(i).abilityID.contains("HIDDEN") || LAbilityMain.instance.abilities.get(i).abilityID.contains(s)) {
-                        isHIDDEN = true;
-                        break;
+                if (LAbilityMain.instance.abilities.get(i).abilityID.contains("HIDDEN")) isHIDDEN = true;
+                else {
+                    for (String s : banAbilityIDList) {
+                        if (LAbilityMain.instance.abilities.get(i).abilityID.contains(s)) {
+                            isHIDDEN = true;
+                            break;
+                        }
                     }
                 }
 
-                if (isHIDDEN) shuffledAbilityIndex.add(i);
+                if (!isHIDDEN) shuffledAbilityIndex.add(i);
                 else hiddenCount++;
             }
             size -= hiddenCount;
@@ -264,15 +267,21 @@ public class GameManager {
     public void EliminatePlayer(LAPlayer player){
         Bukkit.getPluginManager().callEvent(new PlayerEliminateEvent(player));
 
+
+
+        playerAbilityList(player);
         for (Ability a : player.getAbility()) a.stopActive(player);
         player.isSurvive = false;
         player.getAbility().clear();
         player.getPlayer().setGameMode(GameMode.SPECTATOR);
+
     }
 
     public void OnGameEnd(boolean isGoodEnd){
         if (isGameReady) {
             Bukkit.getPluginManager().callEvent(new GameEndEvent(players, isGoodEnd));
+            PlayerList<LAPlayer> survivePlayer = getSurvivePlayer();
+            for (LAPlayer lap : survivePlayer) playerAbilityList(lap);
 
             Bukkit.broadcastMessage("\2476LAbility\247e를 사용해 주셔서 감사합니다!");
             Bukkit.broadcastMessage("\247e플러그인 개선을 위해 현재 설문을 진행 중입니다. 작성해주시면, 더 좋은 플러그인을 만드는데 도움됩니다 :)");
@@ -292,5 +301,21 @@ public class GameManager {
             if (lap.isSurvive) survivePlayer.add(lap);
         }
         return survivePlayer;
+    }
+
+    public void playerAbilityList(LAPlayer player){
+        String abilityString = "";
+        abilityString += ("\2476[\247eLAbility\2476] " + player.getPlayer().getName() + "\247e님은 \247b");
+        int index = 0;
+        for (Ability a : player.getAbility()) {
+            abilityString += a.abilityName;
+            if (index++ < (player.getAbility().size() - 1)) {
+                abilityString += "\247a, \247b";
+            }
+        }
+        if (index == 0) abilityString += "\247c능력이 없었습니다.";
+        else abilityString += "\247a 능력이었습니다.";
+
+        Bukkit.broadcastMessage(abilityString);
     }
 }

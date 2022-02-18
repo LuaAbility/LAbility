@@ -383,6 +383,7 @@ public class CommandManager implements CommandExecutor {
 
 				if (args[0].equalsIgnoreCase("reroll") && sender.isOp()) {
 					if (main.gameManager.isGameReady) {
+						main.gameManager.AbilityShuffle(true);
 						if ((args.length > 1)) {
 							int index = main.gameManager.players.indexOf(args[1]);
 							if (index >= 0) {
