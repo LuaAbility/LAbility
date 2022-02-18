@@ -62,7 +62,6 @@ public class EventManager implements Listener {
                         LAbilityMain.instance.gameManager.EliminatePlayer(LAbilityMain.instance.gameManager.players.get(LAbilityMain.instance.gameManager.players.indexOf(p)));
                         playerList.remove(p.getName());
 
-
                         if (LAbilityMain.instance.gameManager.getSurvivePlayer().size() == 1) {
                             LAbilityMain.instance.getServer().broadcastMessage("§6[§eLAbility§6] §e게임이 종료되었습니다.");
                             LAbilityMain.instance.getServer().broadcastMessage("§6[§eLAbility§6] §e" + LAbilityMain.instance.gameManager.getSurvivePlayer().get(0).getPlayer().getName() + "님이 우승하셨습니다!");
@@ -74,7 +73,7 @@ public class EventManager implements Listener {
                         }
                     }
                 }
-            }.runTaskLater(LAbilityMain.plugin,600);
+            }.runTaskLater(LAbilityMain.plugin,1200);
             playerList.put(p.getName(), task);
         }
     }

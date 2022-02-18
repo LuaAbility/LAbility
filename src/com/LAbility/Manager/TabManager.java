@@ -73,6 +73,10 @@ public class TabManager implements TabCompleter {
                 if (args.length == 2) return playerList();
             }
 
+            if (args[0].equalsIgnoreCase("out")) {
+                if (args.length == 2) return survivePlayerList();
+            }
+
             if (args[0].equalsIgnoreCase("see")) {
                 if (args.length == 2) return playerList();
             }
@@ -113,6 +117,14 @@ public class TabManager implements TabCompleter {
     private List<String> playerList(){
         List<String> command = new ArrayList<String>();
         for (LAPlayer lap : main.gameManager.players) {
+            command.add(lap.getPlayer().getName());
+        }
+        return command;
+    }
+
+    private List<String> survivePlayerList(){
+        List<String> command = new ArrayList<String>();
+        for (LAPlayer lap : main.gameManager.getSurvivePlayer()) {
             command.add(lap.getPlayer().getName());
         }
         return command;

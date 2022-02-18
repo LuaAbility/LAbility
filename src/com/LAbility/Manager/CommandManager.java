@@ -1,6 +1,7 @@
 package com.LAbility.Manager;
 
 import com.LAbility.*;
+import com.LAbility.LuaUtility.List.AbilityList;
 import com.LAbility.LuaUtility.LuaAbilityLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
@@ -234,6 +235,16 @@ public class CommandManager implements CommandExecutor {
 							if (index >= 0) {
 								Bukkit.broadcastMessage("\2474[\247cLAbility\2474] " + main.gameManager.players.get(index).getPlayer().getName() + "\247c님이 관리자에 의해 탈락하셨습니다.");
 								main.gameManager.EliminatePlayer(main.gameManager.players.get(index));
+
+								if (main.gameManager.getSurvivePlayer().size() == 1) {
+									main.getServer().broadcastMessage("§6[§eLAbility§6] §e게임이 종료되었습니다.");
+									main.getServer().broadcastMessage("§6[§eLAbility§6] §e" + main.gameManager.getSurvivePlayer().get(0).getPlayer().getName() + "님이 우승하셨습니다!");
+									main.gameManager.OnGameEnd(true);
+								} else if (LAbilityMain.instance.gameManager.getSurvivePlayer().size() < 1) {
+									main.getServer().broadcastMessage("§6[§eLAbility§6] §e게임이 종료되었습니다.");
+									main.getServer().broadcastMessage("§6[§eLAbility§6] §e우승자가 없습니다.");
+									main.gameManager.OnGameEnd(true);
+								}
 								return true;
 							} else {
 								sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 플레이어 입니다.");
@@ -376,14 +387,25 @@ public class CommandManager implements CommandExecutor {
 							int index = main.gameManager.players.indexOf(args[1]);
 							if (index >= 0) {
 								LAPlayer p = main.gameManager.players.get(index);
-								main.gameManager.ResignAbility(p);
+
+								AbilityList<Ability> alist = (AbilityList<Ability>) p.getAbility().clone();
+
 								main.gameManager.AssignAbility(p);
+								for (Ability a : alist){
+									main.gameManager.ResignAbility(p, a);
+								}
 							} else {
 								sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 플레이어 입니다.");
 							}
 						} else {
-							main.gameManager.ResignAbility();
-							main.gameManager.AssignAbility();
+							for (LAPlayer p : main.gameManager.getSurvivePlayer()) {
+								AbilityList<Ability> alist = (AbilityList<Ability>) p.getAbility().clone();
+
+								main.gameManager.AssignAbility(p);
+								for (Ability a : alist){
+									main.gameManager.ResignAbility(p, a);
+								}
+							}
 							Bukkit.broadcastMessage("\2474[\247cLAbility\2474] \247c관리자가 강제로 능력을 재추첨했습니다.");
 						}
 					} else {
@@ -431,8 +453,13 @@ public class CommandManager implements CommandExecutor {
 								senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c이미 능력이 확정되었습니다.");
 								return true;
 							}
-							main.gameManager.ResignAbility(lap);
+
+							AbilityList<Ability> alist = (AbilityList<Ability>) lap.getAbility().clone();
+
 							main.gameManager.AssignAbility(lap);
+							for (Ability a : alist){
+								main.gameManager.ResignAbility(lap, a);
+							}
 							lap.isAssign = true;
 							sender.sendMessage("\2472[\247aLAbility\2472] \247a" + "현재 능력을 버리고 새로운 능력을 갖습니다.");
 							return true;

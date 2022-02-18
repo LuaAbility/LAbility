@@ -26,11 +26,7 @@ public class GameWrapper extends LuaTable {
         set("getPlayers", new ZeroArgFunction() {
             @Override
             public LuaValue call() {
-                PlayerList<LAPlayer> survivePlayer = new PlayerList<LAPlayer>();
-                for (LAPlayer lap : plugin.gameManager.players){
-                    if (lap.isSurvive) survivePlayer.add(lap);
-                }
-                return CoerceJavaToLua.coerce(survivePlayer);
+                return CoerceJavaToLua.coerce(plugin.gameManager.getSurvivePlayer());
             }
         });
 
