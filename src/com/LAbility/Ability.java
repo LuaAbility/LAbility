@@ -158,9 +158,20 @@ public class Ability {
                 @Override
                 public void run() {
                     abilityFunc.get(index).currentTime++;
-                    if ((showMessage && (abilityFunc.get(index).currentTime == maxCooldown)) && maxCooldown > 59) {
-                        lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b재사용 대기시간이 종료되었습니다. (" + abilityFunc.get(index).funcID + ")");
-                        lap.player.playSound(lap.player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 2F);
+                    if (showMessage && maxCooldown > 59) {
+                        if (abilityFunc.get(index).currentTime == maxCooldown) {
+                            lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b재사용 대기시간이 종료되었습니다. (" + abilityFunc.get(index).funcID + ")");
+                            lap.player.playSound(lap.player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 2F);
+                        } else if (abilityFunc.get(index).currentTime == maxCooldown - 20) {
+                            lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b남은 시간 : 1초 (" + abilityFunc.get(index).funcID + ")");
+                            lap.player.playSound(lap.player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 2F);
+                        } else if (abilityFunc.get(index).currentTime == maxCooldown - 40) {
+                            lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b남은 시간 : 2초 (" + abilityFunc.get(index).funcID + ")");
+                            lap.player.playSound(lap.player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 2F);
+                        } else if (abilityFunc.get(index).currentTime == maxCooldown - 60) {
+                            lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b남은 시간 : 3초 (" + abilityFunc.get(index).funcID + ")");
+                            lap.player.playSound(lap.player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 2F);
+                        }
                     }
                 }
             }.runTaskTimer(LAbilityMain.plugin, 0, 1);
@@ -170,7 +181,7 @@ public class Ability {
         }
 
         double cooldown = ((abilityFunc.get(index).cooldown * LAbilityMain.instance.gameManager.cooldownMultiply) - abilityFunc.get(index).currentTime) / 20.0;
-        if (showMessage) lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b쿨타임 입니다. (" + cooldown + "초 / " + abilityFunc.get(index).funcID + ")" );
+        if (showMessage) lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b재사용 대기시간 입니다. (" + cooldown + "초 / " + abilityFunc.get(index).funcID + ")" );
         return false;
     }
 
