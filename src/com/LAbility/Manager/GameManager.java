@@ -27,6 +27,7 @@ public class GameManager {
 
     public BukkitTask passiveTask = null;
 
+    public ArrayList<String> banAbilityIDList = new ArrayList<>();
     public ArrayList<Integer> shuffledAbilityIndex = new ArrayList<Integer>();
     public int currentAbilityIndex = 0;
     public int currentRuleIndex = 0;
@@ -37,6 +38,7 @@ public class GameManager {
     public boolean canCheckAbility = true;
     public double cooldownMultiply = 1;
     public Material targetItem = Material.IRON_INGOT;
+    public String targetItemString = "철괴";
     public boolean overrideItem = false;
     public boolean skipYesOrNo = false;
     public boolean skipInformation = false;
@@ -142,9 +144,15 @@ public class GameManager {
             size = LAbilityMain.instance.abilities.size();
             int hiddenCount = 0;
             for (int i = 0; i < size; i++) {
-                if (!LAbilityMain.instance.abilities.get(i).abilityID.contains("HIDDEN")) {
-                    shuffledAbilityIndex.add(i);
+                boolean isHIDDEN = false;
+                for (String s : banAbilityIDList) {
+                    if (LAbilityMain.instance.abilities.get(i).abilityID.contains("HIDDEN") || LAbilityMain.instance.abilities.get(i).abilityID.contains(s)) {
+                        isHIDDEN = true;
+                        break;
+                    }
                 }
+
+                if (isHIDDEN) shuffledAbilityIndex.add(i);
                 else hiddenCount++;
             }
             size -= hiddenCount;
@@ -173,11 +181,20 @@ public class GameManager {
         for (int i = 0; i < abilityAmount; i++) {
             if (overlapAbility) {
                 Random random = new Random();
-                Ability temp = LAbilityMain.instance.abilities.get(random.nextInt(LAbilityMain.instance.abilities.size()));
-                while (player.getAbility().contains(temp.abilityID) || temp.abilityID.contains("HIDDEN")){
-                    Bukkit.getConsoleSender().sendMessage(player.getPlayer().getName() + " / " + temp.abilityID);
+                Ability temp;
+
+                boolean isHIDDEN;
+                do {
+                    isHIDDEN = false;
                     temp = LAbilityMain.instance.abilities.get(random.nextInt(LAbilityMain.instance.abilities.size()));
-                }
+                    for (String s : banAbilityIDList) {
+                        if (LAbilityMain.instance.abilities.get(i).abilityID.contains("HIDDEN") || LAbilityMain.instance.abilities.get(i).abilityID.contains(s)) {
+                            isHIDDEN = true;
+                            break;
+                        }
+                    }
+                } while (player.getAbility().contains(temp.abilityID) || isHIDDEN);
+
                 Ability a = new Ability(temp);
                 player.getAbility().add(a);
                 a.InitScript();
@@ -195,20 +212,39 @@ public class GameManager {
 
     public void ResignAbility(LAPlayer player, Ability ability) {
         if (player.getAbility().contains(ability.abilityID)) {
-            player.getAbility().remove(ability);
-            if (!ability.abilityID.contains("HIDDEN")) shuffledAbilityIndex.add(LAbilityMain.instance.abilities.indexOf(ability));
-            AbilityShuffle(false);
+            player.getAbility().remove(ability, player);
+
+            boolean isHIDDEN = false;
+            for (String s : banAbilityIDList) {
+                if (ability.abilityID.contains("HIDDEN") || ability.abilityID.contains(s)) {
+                    isHIDDEN = true;
+                    break;
+                }
+            }
+
+            if (!isHIDDEN) {
+                shuffledAbilityIndex.add(LAbilityMain.instance.abilities.indexOf(ability));
+                AbilityShuffle(false);
+            }
         }
     }
 
     public void ResignAbility(LAPlayer player) {
         if (player.getAbility().size() > 0) {
             for (Ability a : player.getAbility()) {
-                if (!a.abilityID.contains("HIDDEN")) shuffledAbilityIndex.add(LAbilityMain.instance.abilities.indexOf(a.abilityID));
+                boolean isHIDDEN = false;
+                for (String s : banAbilityIDList) {
+                    if (a.abilityID.contains("HIDDEN") || a.abilityID.contains(s)) {
+                        isHIDDEN = true;
+                        break;
+                    }
+                }
+
+                if (!isHIDDEN) shuffledAbilityIndex.add(LAbilityMain.instance.abilities.indexOf(a));
             }
             AbilityShuffle(false);
 
-            player.getAbility().clear();
+            player.getAbility().clear(player);
         }
     }
 
@@ -233,6 +269,7 @@ public class GameManager {
         player.getAbility().clear();
         player.getPlayer().setGameMode(GameMode.SPECTATOR);
     }
+
     public void OnGameEnd(boolean isGoodEnd){
         if (isGameReady) {
             Bukkit.getPluginManager().callEvent(new GameEndEvent(players, isGoodEnd));

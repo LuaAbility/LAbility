@@ -138,6 +138,16 @@ public class PluginWrapper extends LuaTable {
             }
         });
 
+        set("banAbilityID", new VarArgFunction() {
+            @Override
+            public LuaValue invoke(Varargs vargs) {
+                String eventName = vargs.checkjstring(1);
+
+                plugin.gameManager.banAbilityIDList.add(eventName);
+                return NIL;
+            }
+        });
+
         set("abilityItemOption", new VarArgFunction() {
             @Override
             public LuaValue invoke(Varargs vargs) {
@@ -146,6 +156,7 @@ public class PluginWrapper extends LuaTable {
 
                 plugin.gameManager.overrideItem = overrideItem;
                 plugin.gameManager.targetItem = targetItem;
+                if (!vargs.isnil(3)) plugin.gameManager.targetItemString = vargs.checkjstring(3);
                 return NIL;
             }
         });

@@ -1,6 +1,7 @@
 package com.LAbility;
 
 import com.LAbility.LuaUtility.List.FunctionList;
+import com.LAbility.Manager.GameManager;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.luaj.vm2.Globals;
@@ -8,6 +9,7 @@ import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,6 +45,7 @@ public class LARule {
     }
 
     public void InitScript(){
+        LAbilityMain.instance.gameManager.banAbilityIDList = new ArrayList<>();
         globals = JsePlatform.standardGlobals();
         script = globals.loadfile(luaScript);
         globals = setGlobals(globals);
