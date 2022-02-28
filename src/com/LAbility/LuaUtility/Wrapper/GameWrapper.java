@@ -2,10 +2,13 @@ package com.LAbility.LuaUtility.Wrapper;
 
 import com.LAbility.*;
 import com.LAbility.Event.AbilityConfirmEvent;
+import com.LAbility.Event.PlayerTargetEvent;
 import com.LAbility.LuaUtility.List.PlayerList;
+import com.LAbility.Manager.BlockManager;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.luaj.vm2.LuaTable;
@@ -61,11 +64,49 @@ public class GameWrapper extends LuaTable {
                 if (abilityPlayer.getPlayer().getName().equals(player.getPlayer().getName())) {
                     if (player.getAbility().contains(ability.abilityID)) {
                         boolean check = ability.CheckCooldown(player, funcID, showMessage);
-                        if (callEvent && check) Bukkit.getPluginManager().callEvent(new AbilityConfirmEvent(player, ability, funcID));
+                        if (callEvent && check) {
+                            AbilityConfirmEvent event = new AbilityConfirmEvent(player, ability, funcID);
+                            Bukkit.getPluginManager().callEvent(event);
+                            if (event.isCancelled()) {
+                                if (showMessage && (ability.abilityFunc.get(ability.abilityFunc.indexOf(funcID)).cooldown * LAbilityMain.instance.gameManager.cooldownMultiply) > 0) {
+                                    abilityPlayer.getPlayer().sendMessage("\2474[\247c" + ability.abilityName + "\2474] \247c다른 능력의 영향으로 능력이 취소되었습니다.");
+                                    ability.resetCooldown(funcID);
+                                }
+                                return CoerceJavaToLua.coerce(false);
+                            }
+                        }
                         return CoerceJavaToLua.coerce(check);
                     }
                     return CoerceJavaToLua.coerce(false);
                 }
+                return CoerceJavaToLua.coerce(false);
+            }
+        });
+
+        set("targetPlayer", new VarArgFunction() {
+            @Override
+            public LuaValue invoke(Varargs vargs) {
+                if (vargs.isnil(1) || vargs.isnil(2)) return CoerceJavaToLua.coerce(false);
+                LAPlayer abilityPlayer = (LAPlayer) vargs.checkuserdata(1, LAPlayer.class);
+                LAPlayer targetPlayer = (LAPlayer) vargs.checkuserdata(2, LAPlayer.class);
+                boolean showMessage = vargs.isnil(3) || vargs.checkboolean(3);
+                boolean callEvent = vargs.isnil(4) || vargs.checkboolean(4);
+
+                if (targetPlayer.getPlayer().getGameMode() == GameMode.SPECTATOR) return CoerceJavaToLua.coerce(false);
+                if (targetPlayer.getPlayer().isDead()) return CoerceJavaToLua.coerce(false);
+
+                if (targetPlayer.canTarget){
+                    if (callEvent) {
+                        PlayerTargetEvent event = new PlayerTargetEvent(abilityPlayer, targetPlayer);
+                        Bukkit.getPluginManager().callEvent(event);
+                        if (event.isCancelled()) {
+                            if (showMessage) abilityPlayer.getPlayer().sendMessage("\2474[\247cLAbility\2474] \247c플레이어 " + targetPlayer.getPlayer().getName() + " 은(는) 타겟팅 할 수 없습니다.");
+                            return CoerceJavaToLua.coerce(false);
+                        }
+                    }
+                    return CoerceJavaToLua.coerce(true);
+                }
+                else if (showMessage) abilityPlayer.getPlayer().sendMessage("\2474[\247cLAbility\2474] \247c플레이어 " + targetPlayer.getPlayer().getName() + " 은(는) 타겟팅 할 수 없습니다.");
                 return CoerceJavaToLua.coerce(false);
             }
         });
@@ -273,6 +314,14 @@ public class GameWrapper extends LuaTable {
                 boolean isGoodEnd = arg.isnil() || arg.checkboolean();
 
                 LAbilityMain.instance.gameManager.OnGameEnd(isGoodEnd);
+                return NIL;
+            }
+        });
+
+        set("resetWorld", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue arg) {
+                BlockManager.ResetChangedBlock();
                 return NIL;
             }
         });

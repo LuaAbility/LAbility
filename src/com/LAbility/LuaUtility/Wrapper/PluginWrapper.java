@@ -107,10 +107,12 @@ public class PluginWrapper extends LuaTable {
             }
         });
 
+
         set("setResourcePackPort", new VarArgFunction() {
             @Override
             public LuaValue invoke(Varargs vargs) {
                 int port = vargs.checkint(1);
+                if (port < 1) LAbilityMain.instance.useResourcePack = false;
                 LAbilityMain.instance.webServer.port = port;
                 return NIL;
             }

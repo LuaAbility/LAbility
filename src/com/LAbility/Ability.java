@@ -1,5 +1,6 @@
 package com.LAbility;
 
+import com.LAbility.LuaUtility.List.AbilityList;
 import com.LAbility.LuaUtility.List.FunctionList;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -247,6 +248,28 @@ public class Ability {
         player.sendMessage("\247eRank : \247a" + abilityRank);
         player.sendMessage("\247eType : \247a" + abilityType);
         player.sendMessage("\247a" + FilterAbilityDescription(abilityDesc));
+
+        AbilityList<Ability> relatedAbility = new AbilityList<>();
+        for (Ability a : LAbilityMain.instance.abilities) {
+            if (a.abilityID.contains(abilityID + "-")) {
+                relatedAbility.add(a);
+            }
+        }
+
+        if (relatedAbility.size() > 0) {
+            String abilityString = "tellraw " + player.getName() + " [\"\"," +
+                    "{\"text\":\"이 능력과 관련된 히든 능력 : \",\"color\":\"yellow\"},";
+
+            int index = 0;
+            for (Ability a : relatedAbility) {
+                abilityString += "{\"text\":\"" + a.abilityName + "\",\"color\":\"aqua\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/la ability " + a.abilityID + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"contents\":[{\"text\":\"" + a.abilityName + " \",\"color\":\"aqua\"},{\"text\":\"능력을 확인하려면 클릭하세요.\",\"color\":\"green\"}]}}";
+                if (index++ < (relatedAbility.size() - 1)) {
+                    abilityString += ",{\"text\":\", \",\"color\":\"yellow\"},";
+                } else abilityString += "]";
+            }
+
+            Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), abilityString);
+        }
     }
 
     public String FilterAbilityDescription(String originTxt) {

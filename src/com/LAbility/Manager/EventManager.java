@@ -2,6 +2,7 @@ package com.LAbility.Manager;
 
 import com.LAbility.LAPlayer;
 import com.LAbility.LAbilityMain;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -36,12 +37,15 @@ public class EventManager implements Listener {
                 LAbilityMain.instance.getServer().broadcastMessage("\2476[\247eLAbility\2476] \247eLAbility의 제작자, \247bMINUTE. (One_Minute_)\247e님이 입장했습니다!");
             }
         }
-        else if (LAbilityMain.instance.dataPacks.size() > 0) {
+        else if (LAbilityMain.instance.dataPacks.size() > 0 && LAbilityMain.instance.useResourcePack) {
             try {
                 String url = LAbilityMain.instance.webServer.getWebIp() + p.getUniqueId();
                 p.setResourcePack(url, null, false);
             }
-            catch (Exception e){ e.printStackTrace(); }
+            catch (Exception e){
+                Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩 오류!");
+                Bukkit.getConsoleSender().sendMessage(e.getMessage());
+            }
         }
     }
 

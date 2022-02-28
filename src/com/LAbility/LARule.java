@@ -1,5 +1,6 @@
 package com.LAbility;
 
+import com.LAbility.LuaUtility.List.BanIDList;
 import com.LAbility.LuaUtility.List.FunctionList;
 import com.LAbility.Manager.GameManager;
 import org.bukkit.command.CommandSender;
@@ -45,7 +46,7 @@ public class LARule {
     }
 
     public void InitScript(){
-        LAbilityMain.instance.gameManager.banAbilityIDList = new ArrayList<>();
+        LAbilityMain.instance.gameManager.banAbilityIDList = new BanIDList<>();
         globals = JsePlatform.standardGlobals();
         script = globals.loadfile(luaScript);
         globals = setGlobals(globals);

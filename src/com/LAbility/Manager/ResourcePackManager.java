@@ -83,7 +83,8 @@ public class ResourcePackManager {
                 Path imagePath = Paths.get(output);
                 Files.copy(in, imagePath);
             } catch (IOException e) {
-                e.printStackTrace();
+                Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩 생성 오류!");
+                Bukkit.getConsoleSender().sendMessage(e.getMessage());
             }
             fileCount++;
             zipURLList.add(output);

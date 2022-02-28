@@ -5,10 +5,12 @@ import com.LAbility.Event.GameEndEvent;
 import com.LAbility.Event.PlayerEliminateEvent;
 import com.LAbility.LAPlayer;
 import com.LAbility.LAbilityMain;
+import com.LAbility.LuaUtility.List.BanIDList;
 import com.LAbility.LuaUtility.List.PlayerList;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -27,7 +29,7 @@ public class GameManager {
 
     public BukkitTask passiveTask = null;
 
-    public ArrayList<String> banAbilityIDList = new ArrayList<>();
+    public BanIDList<String> banAbilityIDList = new BanIDList<>();
     public ArrayList<Integer> shuffledAbilityIndex = new ArrayList<Integer>();
     public int currentAbilityIndex = 0;
     public int currentRuleIndex = 0;
@@ -82,6 +84,7 @@ public class GameManager {
         players = new PlayerList<LAPlayer>();
         LAbilityMain.instance.assignAllPlayer();
         variable = new HashMap<>();
+        BlockManager.ResetData();
     }
 
     public void RunEvent(Event event) {
@@ -100,16 +103,6 @@ public class GameManager {
 
     public void RunPassive() {
         if (isGameStarted){
-            if (LAbilityMain.instance.dataPacks.size() > 0) {
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    try {
-                        String url = LAbilityMain.instance.webServer.getWebIp() + player.getUniqueId();
-                        player.setResourcePack(url, null, false);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
             passiveTask = new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -142,16 +135,14 @@ public class GameManager {
 
         if (resetShuffleIndex) {
             size = LAbilityMain.instance.abilities.size();
+            shuffledAbilityIndex.clear();
             int hiddenCount = 0;
             for (int i = 0; i < size; i++) {
                 boolean isHIDDEN = false;
-                if (LAbilityMain.instance.abilities.get(i).abilityID.contains("HIDDEN")) isHIDDEN = true;
-                else {
-                    for (String s : banAbilityIDList) {
-                        if (LAbilityMain.instance.abilities.get(i).abilityID.contains(s)) {
-                            isHIDDEN = true;
-                            break;
-                        }
+                for (String s : banAbilityIDList) {
+                    if (LAbilityMain.instance.abilities.get(i).abilityID.toLowerCase().contains(s.toLowerCase())) {
+                        isHIDDEN = true;
+                        break;
                     }
                 }
 
@@ -191,7 +182,7 @@ public class GameManager {
                     isHIDDEN = false;
                     temp = LAbilityMain.instance.abilities.get(random.nextInt(LAbilityMain.instance.abilities.size()));
                     for (String s : banAbilityIDList) {
-                        if (LAbilityMain.instance.abilities.get(i).abilityID.contains("HIDDEN") || LAbilityMain.instance.abilities.get(i).abilityID.contains(s)) {
+                        if (LAbilityMain.instance.abilities.get(i).abilityID.toLowerCase().contains(s.toLowerCase())) {
                             isHIDDEN = true;
                             break;
                         }
@@ -219,7 +210,7 @@ public class GameManager {
 
             boolean isHIDDEN = false;
             for (String s : banAbilityIDList) {
-                if (ability.abilityID.contains("HIDDEN") || ability.abilityID.contains(s)) {
+                if (ability.abilityID.toLowerCase().contains(s.toLowerCase())) {
                     isHIDDEN = true;
                     break;
                 }
@@ -237,7 +228,7 @@ public class GameManager {
             for (Ability a : player.getAbility()) {
                 boolean isHIDDEN = false;
                 for (String s : banAbilityIDList) {
-                    if (a.abilityID.contains("HIDDEN") || a.abilityID.contains(s)) {
+                    if (a.abilityID.toLowerCase().contains(s.toLowerCase())) {
                         isHIDDEN = true;
                         break;
                     }
@@ -267,14 +258,19 @@ public class GameManager {
     public void EliminatePlayer(LAPlayer player){
         Bukkit.getPluginManager().callEvent(new PlayerEliminateEvent(player));
 
-
-
         playerAbilityList(player);
         for (Ability a : player.getAbility()) a.stopActive(player);
         player.isSurvive = false;
         player.getAbility().clear();
         player.getPlayer().setGameMode(GameMode.SPECTATOR);
 
+        String abilityString = "tellraw " + player.getPlayer().getName() + " [\"\"," +
+                "{\"text\":\"남은 플레이어의 능력을 확인하려면 \",\"color\":\"yellow\"}," +
+                "{\"text\":\"이곳\",\"color\":\"aqua\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/la list\"}," +
+                "\"hoverEvent\":{\"action\":\"show_text\",\"contents\":[{\"text\":\"클릭 시 모든 플레이어의 능력을 확인합니다.\",\"color\":\"green\"}]}}," +
+                "{\"text\":\"을 클릭하세요.\",\"color\":\"yellow\"}]";
+
+        Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), abilityString);
     }
 
     public void OnGameEnd(boolean isGoodEnd){
@@ -303,19 +299,42 @@ public class GameManager {
         return survivePlayer;
     }
 
-    public void playerAbilityList(LAPlayer player){
-        String abilityString = "";
-        abilityString += ("\2476[\247eLAbility\2476] " + player.getPlayer().getName() + "\247e님은 \247b");
-        int index = 0;
-        for (Ability a : player.getAbility()) {
-            abilityString += a.abilityName;
-            if (index++ < (player.getAbility().size() - 1)) {
-                abilityString += "\247a, \247b";
+    public void ShowAllAbility(CommandSender sender){
+        sender.sendMessage("\2476-------[\247eAbility List\2476]-------");
+        for (LAPlayer lap : this.players) {
+            if (lap.isSurvive) {
+                String abilityString = "";
+                abilityString += ("\247e" + lap.getPlayer().getName() + "\2477 : \247a");
+                int index = 0;
+                for (Ability a : lap.getAbility()) {
+                    abilityString += a.abilityName;
+                    if (index++ < (lap.getAbility().size() - 1)) {
+                        abilityString += ", ";
+                    }
+                }
+                if (index == 0) abilityString += "\247c없음";
+                sender.sendMessage(abilityString);
             }
         }
-        if (index == 0) abilityString += "\247c능력이 없었습니다.";
-        else abilityString += "\247a 능력이었습니다.";
+    }
 
-        Bukkit.broadcastMessage(abilityString);
+    public void playerAbilityList(LAPlayer player){
+        String abilityString = "tellraw @a [\"\"," +
+                "{\"text\":\"[\",\"color\":\"gold\"}," +
+                "{\"text\":\"LAbility\",\"color\":\"yellow\"}," +
+                "{\"text\":\"] " + player.getPlayer().getName() + "\",\"color\":\"gold\"}," +
+                "{\"text\":\" 님은 \",\"color\":\"yellow\"},";
+
+        int index = 0;
+        for (Ability a : player.getAbility()) {
+            abilityString += "{\"text\":\"" + a.abilityName + "\",\"color\":\"aqua\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/la ability " + a.abilityID + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"contents\":[{\"text\":\"" + a.abilityName + " \",\"color\":\"aqua\"},{\"text\":\"능력을 확인하려면 클릭하세요.\",\"color\":\"green\"}]}},";
+            if (index++ < (player.getAbility().size() - 1)) {
+                abilityString += "{\"text\":\", \",\"color\":\"green\"},";
+            }
+        }
+        if (index == 0) abilityString += "{\"text\":\"능력이 없었습니다.\",\"color\":\"red\"}]";
+        else abilityString += "{\"text\":\" 능력이었습니다.\",\"color\":\"green\"}]";
+
+        Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), abilityString);
     }
 }
