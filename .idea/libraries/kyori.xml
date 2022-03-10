@@ -1,0 +1,16 @@
+<component name="libraryTable">
+  <library name="kyori">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../api/libraries/net/kyori/examination-string/1.3.0/examination-string-1.3.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../api/libraries/net/kyori/examination-api/1.3.0/examination-api-1.3.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../api/libraries/net/kyori/adventure-text-serializer-plain/4.10.0/adventure-text-serializer-plain-4.10.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../api/libraries/net/kyori/adventure-text-serializer-legacy/4.10.0/adventure-text-serializer-legacy-4.10.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../api/libraries/net/kyori/adventure-text-serializer-gson/4.10.0/adventure-text-serializer-gson-4.10.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../api/libraries/net/kyori/adventure-text-minimessage/4.10.0/adventure-text-minimessage-4.10.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../api/libraries/net/kyori/adventure-key/4.10.0/adventure-key-4.10.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../api/libraries/net/kyori/adventure-api/4.10.0/adventure-api-4.10.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

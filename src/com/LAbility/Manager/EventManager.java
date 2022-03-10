@@ -17,10 +17,12 @@ import java.util.Map;
 
 public class EventManager implements Listener {
     private static Map<String, BukkitTask> playerList = new HashMap<>();
+    public static boolean enableDisconnectOut = true;
+
     @EventHandler ()
     public static void onPlayerJoin(PlayerJoinEvent event) {
         Player p = event.getPlayer();
-        if (playerList.containsKey(p.getName())){
+        if (enableDisconnectOut && playerList.containsKey(p.getName())){
             p.sendMessage("\2476[\247eLAbility\2476] \247e돌아오신 것을 환영합니다!");
             p.sendMessage("\2476[\247eLAbility\2476] \247e게임을 계속 진행해주세요.");
             if (playerList.get(p.getName()) != null) playerList.get(p.getName()).cancel();
@@ -37,10 +39,10 @@ public class EventManager implements Listener {
                 LAbilityMain.instance.getServer().broadcastMessage("\2476[\247eLAbility\2476] \247eLAbility의 제작자, \247bMINUTE. (One_Minute_)\247e님이 입장했습니다!");
             }
         }
-        else if (LAbilityMain.instance.dataPacks.size() > 0 && LAbilityMain.instance.useResourcePack) {
+        else if (enableDisconnectOut && LAbilityMain.instance.dataPacks.size() > 0 && LAbilityMain.instance.useResourcePack) {
             try {
                 String url = LAbilityMain.instance.webServer.getWebIp() + p.getUniqueId();
-                p.setResourcePack(url, null, false);
+                p.setResourcePack(url, (byte[]) null, false);
             }
             catch (Exception e){
                 Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩 오류!");
@@ -54,6 +56,8 @@ public class EventManager implements Listener {
     {
         Player p = event.getPlayer();
         playerList.remove(event.getPlayer());
+
+        if (!enableDisconnectOut) return;
         if (!LAbilityMain.instance.gameManager.players.contains(p)) return;
         if (!LAbilityMain.instance.gameManager.isGameReady) LAbilityMain.instance.gameManager.players.remove(p);
         else if (!LAbilityMain.instance.gameManager.players.get(LAbilityMain.instance.gameManager.players.indexOf(p)).isSurvive) LAbilityMain.instance.gameManager.players.remove(p);

@@ -3,6 +3,7 @@ package com.LAbility.LuaUtility.Wrapper;
 import com.LAbility.Ability;
 import com.LAbility.LAbilityMain;
 import com.LAbility.LuaUtility.LuaException;
+import com.LAbility.Manager.EventManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -114,6 +115,15 @@ public class PluginWrapper extends LuaTable {
                 int port = vargs.checkint(1);
                 if (port < 1) LAbilityMain.instance.useResourcePack = false;
                 LAbilityMain.instance.webServer.port = port;
+                return NIL;
+            }
+        });
+
+        set("enableDisconnectOut", new VarArgFunction() {
+            @Override
+            public LuaValue invoke(Varargs vargs) {
+                boolean enable = vargs.checkboolean(1);
+                EventManager.enableDisconnectOut = enable;
                 return NIL;
             }
         });

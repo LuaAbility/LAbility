@@ -20,9 +20,10 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="luaj-jse-3.0.1" level="project" />
-    <orderEntry type="library" exported="" name="spigot-1.18.1" level="project" />
+    <orderEntry type="library" exported="" name="kyori" level="project" />
+    <orderEntry type="library" exported="" name="vertx-core-4.2.4" level="project" />
+    <orderEntry type="library" exported="" name="json-simple-1.1.1" level="project" />
+    <orderEntry type="library" exported="" name="paper-api-1.18.2-R0.1-SNAPSHOT" level="project" />
     <orderEntry type="library" exported="" name="BungeeCord" level="project" />
-    <orderEntry type="library" name="vertx-core-4.2.4" level="project" />
-    <orderEntry type="library" name="json-simple-1.1.1" level="project" />
   </component>
 </module>

@@ -26,7 +26,6 @@ public class CommandManager implements CommandExecutor {
 				sender.sendMessage("\2476/la \247eadmin \247f: \247a관리자 용 명령어를 확인합니다."); // OK
 				sender.sendMessage("\2476/la \247eutil \247f: \247a유틸 명령어를 확인합니다."); // OK
 				sender.sendMessage("\2476/la \247edebug \247f: \247a디버그 명령어를 확인합니다."); // OK
-				sender.sendMessage();
 				return true;
 			}
 			if (args.length > 0) {
@@ -513,7 +512,7 @@ public class CommandManager implements CommandExecutor {
 								for (Player player : Bukkit.getOnlinePlayers()) {
 									try {
 										String url = LAbilityMain.instance.webServer.getWebIp() + player.getUniqueId();
-										player.setResourcePack(url, null, false);
+										player.setResourcePack(url, (byte[]) null, false);
 									} catch (Exception e) {
 										Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩 로딩 오류!");
 										Bukkit.getConsoleSender().sendMessage(e.getMessage());
@@ -556,7 +555,7 @@ public class CommandManager implements CommandExecutor {
 							for (Player player : Bukkit.getOnlinePlayers()) {
 								try {
 									String url = LAbilityMain.instance.webServer.getWebIp() + player.getUniqueId();
-									player.setResourcePack(url, null, false);
+									player.setResourcePack(url, (byte[]) null, false);
 								} catch (Exception e) {
 									Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩 로딩 오류!");
 									Bukkit.getConsoleSender().sendMessage(e.getMessage());
