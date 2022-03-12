@@ -112,7 +112,7 @@ public class Ability {
         if (abilityFunc.contains(event)) {
             for (Ability.AbilityFunc af : abilityFunc) {
                 if ((af.funcEvent.isAssignableFrom(event.getClass()) || af.funcEvent.isInstance(event)) || af.funcEvent.equals(event.getClass())) {
-                    if (syncScript) {
+                    if (!syncScript) {
                         globals = JsePlatform.standardGlobals();
                         script = globals.loadfile(luaScript);
                         globals = setGlobals(globals);
@@ -132,7 +132,7 @@ public class Ability {
     }
 
     public void runPassiveFunc(LAPlayer lap) {
-        if (syncScript) {
+        if (!syncScript) {
             globals = JsePlatform.standardGlobals();
             script = globals.loadfile(luaScript);
             globals = setGlobals(globals);
@@ -193,7 +193,7 @@ public class Ability {
     }
 
     public void runResetFunc(LAPlayer lap) {
-        if (syncScript) {
+        if (!syncScript) {
             globals = JsePlatform.standardGlobals();
             script = globals.loadfile(luaScript);
             globals = setGlobals(globals);

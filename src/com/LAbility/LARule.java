@@ -59,7 +59,7 @@ public class LARule {
         if (LAbilityMain.instance.gameManager.isGameStarted){
             for( Map.Entry<String, Class<? extends Event>> func : ruleFunc.entrySet() ){
                 if ((func.getValue().equals(event.getClass()) || func.getValue().isInstance(event)) || func.getValue().isAssignableFrom(event.getClass())) {
-                    if (syncScript) {
+                    if (!syncScript) {
                         globals = JsePlatform.standardGlobals();
                         script = globals.loadfile(luaScript);
                         globals = setGlobals(globals);
@@ -73,7 +73,7 @@ public class LARule {
     }
 
     public void runPassiveFunc() {
-        if (syncScript) {
+        if (!syncScript) {
             globals = JsePlatform.standardGlobals();
             script = globals.loadfile(luaScript);
             globals = setGlobals(globals);
@@ -84,7 +84,7 @@ public class LARule {
     }
 
     public void runResetFunc() {
-        if (syncScript) {
+        if (!syncScript) {
             globals = JsePlatform.standardGlobals();
             script = globals.loadfile(luaScript);
             globals = setGlobals(globals);

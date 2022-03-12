@@ -18,7 +18,7 @@ public class ScheduleManager {
     }
 
     public void PrepareTimer() {
-        int Delay = 40;
+        int Delay = 20;
 
         if (LAbilityMain.instance.gameManager.skipInformation) {
             LAbilityMain.instance.gameManager.isGameReady = true;
@@ -91,8 +91,8 @@ public class ScheduleManager {
                                 Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e능력이 결정되지 않은 플레이어가 있습니다. 능력을 결정해주세요.");
                                 for (LAPlayer lap : LAbilityMain.instance.gameManager.players)
                                     if (!lap.isAssign) {
-                                        lap.getPlayer().sendMessage("\2476[\247eLAbility\2476] \247e능력 결정이 완료되지 않았습니다.");
-                                        lap.getPlayer().sendMessage("\2476[\247eLAbility\2476] \247e/la check로 능력 확인 후, /la yes 또는 /la no를 통해 능력을 결정해주세요.");
+                                        lap.getPlayer().sendMessage("\2474[\247cLAbility\2474] \247c능력 결정이 완료되지 않았습니다.");
+                                        lap.getPlayer().sendMessage("\2474[\247cLAbility\2474] \247c/la check로 능력 확인 후, /la yes 또는 /la no를 통해 능력을 결정해주세요.");
                                     }
                                 time_Prepare = 3;
                             }
@@ -136,7 +136,8 @@ public class ScheduleManager {
         LAbilityMain.instance.gameManager.isGameStarted = true;
         for (LAPlayer lap : LAbilityMain.instance.gameManager.players) {
             lap.isSurvive = true;
-            lap.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(lap.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue());
+            lap.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(LAbilityMain.instance.gameManager.maxHealth);
+            lap.getPlayer().setHealth(LAbilityMain.instance.gameManager.maxHealth);
             lap.getPlayer().setWalkSpeed(0.2f);
         }
         LAbilityMain.instance.gameManager.RunPassive();

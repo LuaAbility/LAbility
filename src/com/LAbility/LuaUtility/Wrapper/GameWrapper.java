@@ -9,6 +9,7 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.luaj.vm2.LuaTable;
@@ -43,10 +44,28 @@ public class GameWrapper extends LuaTable {
         set("getPlayer", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue arg1) {
-                Player player = (Player) arg1.checkuserdata(Player.class);
-                if (plugin.gameManager.players.indexOf(player.getName()) >= 0)
-                    return CoerceJavaToLua.coerce(plugin.gameManager.players.get(plugin.gameManager.players.indexOf(player.getName())));
-                else return NIL;
+                Entity entity = (Entity) arg1.checkuserdata(Entity.class);
+                if (entity instanceof Player player) {
+                    if (plugin.gameManager.players.indexOf(player.getName()) >= 0)
+                        return CoerceJavaToLua.coerce(plugin.gameManager.players.get(plugin.gameManager.players.indexOf(player.getName())));
+                    else return NIL;
+                } else return NIL;
+            }
+        });
+
+        set("setMaxHealth", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue arg1) {
+                float health = (float) arg1.checkdouble();
+                plugin.gameManager.maxHealth = health;
+                return NIL;
+            }
+        });
+
+        set("getMaxHealth", new ZeroArgFunction() {
+            @Override
+            public LuaValue call() {
+                return CoerceJavaToLua.coerce(plugin.gameManager.maxHealth);
             }
         });
 

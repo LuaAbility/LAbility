@@ -10,6 +10,7 @@ import com.LAbility.LuaUtility.List.PlayerList;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -45,6 +46,8 @@ public class GameManager {
     public boolean skipYesOrNo = false;
     public boolean skipInformation = false;
     public Map<String, Object> variable = new HashMap<>();
+
+    public float maxHealth = 20;
 
     public Object getVariable(String key) {
         Object obj = variable.getOrDefault(key, null);
@@ -103,19 +106,24 @@ public class GameManager {
 
     public void RunPassive() {
         if (isGameStarted){
-            passiveTask = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (LAbilityMain.instance.rules.size() > 0 && !isTestMode) LAbilityMain.instance.rules.get(currentRuleIndex).runPassiveFunc();
-                    for (LAPlayer player : players){
-                        if (player.isSurvive && (player.getVariable("abilityLock") == null || player.getVariable("abilityLock").equals(false))) {
-                            for (Ability ab : player.getAbility()) {
-                                ab.runPassiveFunc(player);
+            try {
+                passiveTask = new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        if (LAbilityMain.instance.rules.size() > 0 && !isTestMode)
+                            LAbilityMain.instance.rules.get(currentRuleIndex).runPassiveFunc();
+                        for (LAPlayer player : players) {
+                            if (player.isSurvive && (player.getVariable("abilityLock") == null || player.getVariable("abilityLock").equals(false))) {
+                                for (Ability ab : player.getAbility()) {
+                                    ab.runPassiveFunc(player);
+                                }
                             }
                         }
                     }
-                }
-            }.runTaskTimer(LAbilityMain.plugin, 0, 2);
+                }.runTaskTimer(LAbilityMain.plugin, 0, 1);
+            } catch (Exception ignore) {
+
+            }
         }
     }
 
@@ -336,5 +344,8 @@ public class GameManager {
         else abilityString += "{\"text\":\" 능력이었습니다.\",\"color\":\"green\"}]";
 
         Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), abilityString);
+
+        player.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(player.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue());
+        player.getPlayer().setWalkSpeed(0.2f);
     }
 }
