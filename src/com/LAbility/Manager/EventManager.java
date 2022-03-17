@@ -3,9 +3,14 @@ package com.LAbility.Manager;
 import com.LAbility.LAPlayer;
 import com.LAbility.LAbilityMain;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -47,6 +52,30 @@ public class EventManager implements Listener {
             catch (Exception e){
                 Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩 오류!");
                 Bukkit.getConsoleSender().sendMessage(e.getMessage());
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public static void checkPlayerTeam(EntityDamageByEntityEvent event) {
+        Entity damagee = event.getEntity();
+        Entity damager = event.getDamager();
+
+        if (damagee instanceof Player) {
+            if (damager instanceof Projectile proj) {
+                if (proj.getShooter() instanceof Player player) damager = player;
+                else return;
+            }
+
+            LAPlayer lap1 = LAbilityMain.instance.gameManager.players.get(damagee);
+            LAPlayer lap2 = LAbilityMain.instance.gameManager.players.get(damager);
+
+            if ((lap1 != null && lap2 != null)) {
+                if (lap1.getTeam() == null) return;
+                if (lap2.getTeam() == null) return;
+                if (lap2.getTeam().canTeamAttack) return;
+
+                if (lap1.getTeam().equals(lap2.getTeam())) event.setCancelled(true);
             }
         }
     }

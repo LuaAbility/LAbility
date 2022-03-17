@@ -25,6 +25,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
     public UtilitiesWrapper utilitiesWrapper;
     public GameWrapper gameWrapper;
     public GameManager gameManager;
+    public TeamManager teamManager;
     public ScheduleManager scheduleManager;
     public ResourcePackManager packManager;
     public ResourcePackWebServer webServer;
@@ -41,6 +42,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         plugin = this.getServer().getPluginManager().getPlugin("LAbility");
         hasError = 0;
         gameManager = new GameManager();
+        teamManager = new TeamManager();
         scheduleManager = new ScheduleManager();
         dataPacks = new HashMap<>();
         packManager = new ResourcePackManager();

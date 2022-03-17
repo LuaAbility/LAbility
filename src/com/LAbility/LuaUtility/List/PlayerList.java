@@ -49,6 +49,28 @@ public class PlayerList<E extends LAPlayer> extends ArrayList<LAPlayer> {
         return -1;
     }
 
+    public LAPlayer get(Object o) {
+        if (o instanceof Integer) return super.get((int)o);
+
+        if (o instanceof Player aID) {
+            for (LAPlayer a : this) {
+                if (a.getPlayer().equals(aID)){
+                    return a;
+                }
+            }
+        }
+
+        if (o instanceof String aID) {
+            for (LAPlayer a : this) {
+                if (a.getPlayer().getName().equals(aID)){
+                    return a;
+                }
+            }
+        }
+
+        return null;
+    }
+
     @Override
     public boolean remove(Object o) {
         if (o instanceof LAPlayer){

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LAPlayer {
+    LATeam team;
     Player player;
     AbilityList<Ability> ability = new AbilityList<>();
     Map<String, Object> variable = new HashMap<>();
@@ -25,6 +26,12 @@ public class LAPlayer {
 
     public Player getPlayer() {
         return player;
+    }
+
+    public void setTeam(LATeam t) { team = t; }
+
+    public LATeam getTeam() {
+        return team;
     }
 
     public AbilityList<Ability> getAbility() {

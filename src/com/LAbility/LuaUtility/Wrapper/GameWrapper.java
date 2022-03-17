@@ -113,19 +113,24 @@ public class GameWrapper extends LuaTable {
 
                 if (targetPlayer.getPlayer().getGameMode() == GameMode.SPECTATOR) return CoerceJavaToLua.coerce(false);
                 if (targetPlayer.getPlayer().isDead()) return CoerceJavaToLua.coerce(false);
+                if (abilityPlayer.getTeam() != null && targetPlayer.getTeam() != null) {
+                    if (abilityPlayer.getTeam().equals(targetPlayer.getTeam()) && !abilityPlayer.getTeam().canTeamAttack)
+                        return CoerceJavaToLua.coerce(false);
+                }
 
-                if (targetPlayer.canTarget){
+                if (targetPlayer.canTarget) {
                     if (callEvent) {
                         PlayerTargetEvent event = new PlayerTargetEvent(abilityPlayer, targetPlayer);
                         Bukkit.getPluginManager().callEvent(event);
                         if (event.isCancelled()) {
-                            if (showMessage) abilityPlayer.getPlayer().sendMessage("\2474[\247cLAbility\2474] \247c플레이어 " + targetPlayer.getPlayer().getName() + " 은(는) 타겟팅 할 수 없습니다.");
+                            if (showMessage)
+                                abilityPlayer.getPlayer().sendMessage("\2474[\247cLAbility\2474] \247c플레이어 " + targetPlayer.getPlayer().getName() + " 은(는) 타겟팅 할 수 없습니다.");
                             return CoerceJavaToLua.coerce(false);
                         }
                     }
                     return CoerceJavaToLua.coerce(true);
-                }
-                else if (showMessage) abilityPlayer.getPlayer().sendMessage("\2474[\247cLAbility\2474] \247c플레이어 " + targetPlayer.getPlayer().getName() + " 은(는) 타겟팅 할 수 없습니다.");
+                } else if (showMessage)
+                    abilityPlayer.getPlayer().sendMessage("\2474[\247cLAbility\2474] \247c플레이어 " + targetPlayer.getPlayer().getName() + " 은(는) 타겟팅 할 수 없습니다.");
                 return CoerceJavaToLua.coerce(false);
             }
         });
@@ -151,8 +156,7 @@ public class GameWrapper extends LuaTable {
                 if (deleteAll) {
                     for (Ability a : player.getAbility()) a.stopActive(player);
                     player.getAbility().clear();
-                }
-                else {
+                } else {
                     int abilityIndex = player.getAbility().indexOf(ability.abilityID);
                     for (Ability abilities : player.getAbility()) {
                         if (abilities.equals(ability)) {
@@ -173,7 +177,7 @@ public class GameWrapper extends LuaTable {
             public LuaValue invoke(Varargs vargs) {
                 if (vargs.isnil(1)) return CoerceJavaToLua.coerce(false);
                 LAPlayer player = (LAPlayer) vargs.checkuserdata(1, LAPlayer.class);
-                Ability ability =  vargs.isnil(2) ? null : (Ability) vargs.checkuserdata(2, Ability.class);
+                Ability ability = vargs.isnil(2) ? null : (Ability) vargs.checkuserdata(2, Ability.class);
                 boolean deleteAll = vargs.isnil(3) || vargs.checkboolean(3);
 
                 player.getPlayer().sendMessage("\2474[\247cLAbility\2474] \247c자신의 능력이 제거됩니다.");
@@ -182,14 +186,13 @@ public class GameWrapper extends LuaTable {
                 if (deleteAll) {
                     for (Ability a : player.getAbility()) a.stopActive(player);
                     player.getAbility().clear();
-                }
-                else {
+                } else {
                     int abilityIndex = player.getAbility().indexOf(ability.abilityID);
                     if (abilityIndex >= 0) {
                         player.getAbility().get(abilityIndex).stopActive(player);
                         player.getAbility().remove(abilityIndex);
-                    }
-                    else Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c" + player.getPlayer().getName() + " 플레이어는 " + ability + " 능력을 가지고 있지 않습니다.");
+                    } else
+                        Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c" + player.getPlayer().getName() + " 플레이어는 " + ability + " 능력을 가지고 있지 않습니다.");
                 }
 
                 return CoerceJavaToLua.coerce(false);
@@ -210,8 +213,8 @@ public class GameWrapper extends LuaTable {
                 if (abilityIndex >= 0) {
                     player.getAbility().get(abilityIndex).stopActive(player);
                     player.getAbility().remove(abilityIndex);
-                }
-                else Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c" + player.getPlayer().getName() + " 플레이어는 " + ability + " 능력을 가지고 있지 않습니다.");
+                } else
+                    Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c" + player.getPlayer().getName() + " 플레이어는 " + ability + " 능력을 가지고 있지 않습니다.");
 
                 return CoerceJavaToLua.coerce(false);
             }
@@ -296,8 +299,9 @@ public class GameWrapper extends LuaTable {
             public LuaValue call(LuaValue arg1) {
                 String message = arg1.checkjstring();
 
-                for (LAPlayer lap : plugin.gameManager.players){
-                    if (lap.isSurvive) lap.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
+                for (LAPlayer lap : plugin.gameManager.players) {
+                    if (lap.isSurvive)
+                        lap.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
                 }
 
                 return CoerceJavaToLua.coerce(true);
@@ -311,7 +315,8 @@ public class GameWrapper extends LuaTable {
                 ItemStack item = (ItemStack) vargs.checkuserdata(1, ItemStack.class);
                 String targetItems = vargs.checkjstring(2);
 
-                if (LAbilityMain.instance.gameManager.overrideItem) return CoerceJavaToLua.coerce(item.getType().equals(LAbilityMain.instance.gameManager.targetItem));
+                if (LAbilityMain.instance.gameManager.overrideItem)
+                    return CoerceJavaToLua.coerce(item.getType().equals(LAbilityMain.instance.gameManager.targetItem));
                 else return CoerceJavaToLua.coerce(item.getType().toString().contains(targetItems));
             }
         });
@@ -342,6 +347,13 @@ public class GameWrapper extends LuaTable {
             public LuaValue call(LuaValue arg) {
                 BlockManager.ResetChangedBlock();
                 return NIL;
+            }
+        });
+
+        set("getTeamManager", new ZeroArgFunction() {
+            @Override
+            public LuaValue call() {
+                return CoerceJavaToLua.coerce(LAbilityMain.instance.teamManager);
             }
         });
     }

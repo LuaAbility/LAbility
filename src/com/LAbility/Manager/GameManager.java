@@ -4,10 +4,12 @@ import com.LAbility.Ability;
 import com.LAbility.Event.GameEndEvent;
 import com.LAbility.Event.PlayerEliminateEvent;
 import com.LAbility.LAPlayer;
+import com.LAbility.LATeam;
 import com.LAbility.LAbilityMain;
 import com.LAbility.LuaUtility.List.BanIDList;
 import com.LAbility.LuaUtility.List.PlayerList;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -105,25 +107,25 @@ public class GameManager {
     }
 
     public void RunPassive() {
-        if (isGameStarted){
-            try {
-                passiveTask = new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        if (LAbilityMain.instance.rules.size() > 0 && !isTestMode)
-                            LAbilityMain.instance.rules.get(currentRuleIndex).runPassiveFunc();
-                        for (LAPlayer player : players) {
-                            if (player.isSurvive && (player.getVariable("abilityLock") == null || player.getVariable("abilityLock").equals(false))) {
-                                for (Ability ab : player.getAbility()) {
-                                    ab.runPassiveFunc(player);
-                                }
+        if (isGameStarted) {
+            passiveTask = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (LAbilityMain.instance.rules.size() > 0 && !isTestMode)
+                        LAbilityMain.instance.rules.get(currentRuleIndex).runPassiveFunc();
+                    for (LAPlayer player : players) {
+                        if (player.getTeam() != null) {
+                            player.getPlayer().setDisplayName(player.getTeam().color + player.getTeam().teamName + " " + ChatColor.RESET + player.getPlayer().getName());
+                            player.getPlayer().setPlayerListName(player.getTeam().color + player.getTeam().teamName + " " + ChatColor.RESET + player.getPlayer().getName());
+                        }
+                        if (player.isSurvive && (player.getVariable("abilityLock") == null || player.getVariable("abilityLock").equals(false))) {
+                            for (Ability ab : player.getAbility()) {
+                                ab.runPassiveFunc(player);
                             }
                         }
                     }
-                }.runTaskTimer(LAbilityMain.plugin, 0, 1);
-            } catch (Exception ignore) {
-
-            }
+                }
+            }.runTaskTimer(LAbilityMain.plugin, 0, 1);
         }
     }
 
@@ -279,6 +281,24 @@ public class GameManager {
                 "{\"text\":\"을 클릭하세요.\",\"color\":\"yellow\"}]";
 
         Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), abilityString);
+
+        CheckGameEnd();
+    }
+
+    public void CheckGameEnd(){
+        if (LAbilityMain.instance.teamManager.teams.size() > 0) {
+            Map<LATeam, ArrayList<LAPlayer>> teams = new HashMap<>();
+
+            teams.put(null, new ArrayList<>());
+            for (LATeam t : LAbilityMain.instance.teamManager.teams) teams.put(t, new ArrayList<>());
+            for (LAPlayer p : getSurvivePlayer()) teams.get(p.getTeam()).add(p);
+
+            int surviveTeams = teams.get(null).size();
+            teams.remove(null);
+
+            for (Map.Entry<LATeam, ArrayList<LAPlayer>> data : teams.entrySet()) if (data.getValue().size() > 0) surviveTeams++;
+            if (surviveTeams <= 1) OnGameEnd(true);
+        } else if (getSurvivePlayer().size() <= 1) OnGameEnd(true);
     }
 
     public void OnGameEnd(boolean isGoodEnd){
@@ -291,6 +311,10 @@ public class GameManager {
             Bukkit.broadcastMessage("\247e플러그인 개선을 위해 현재 설문을 진행 중입니다. 작성해주시면, 더 좋은 플러그인을 만드는데 도움됩니다 :)");
             Bukkit.broadcastMessage("\247e설문조사 링크 \2476( \247nhttps://forms.gle/VjWJXKMCYAmbNBrg9\247r\2476 )");
             Bukkit.broadcastMessage("\247e개발자 디스코드 : MINUTE#4438");
+
+            for (LAPlayer player : players) {
+                player.getPlayer().setPlayerListName(ChatColor.RESET + player.getPlayer().getName());
+            }
 
             LAbilityMain.instance.scheduleManager.ClearTimer();
             if (LAbilityMain.instance.rules.size() > 0) LAbilityMain.instance.rules.get(currentRuleIndex).runResetFunc();

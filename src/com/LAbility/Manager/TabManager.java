@@ -1,9 +1,7 @@
 package com.LAbility.Manager;
 
-import com.LAbility.Ability;
-import com.LAbility.LAPlayer;
-import com.LAbility.LARule;
-import com.LAbility.LAbilityMain;
+import com.LAbility.*;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -35,6 +33,8 @@ public class TabManager implements TabCompleter {
             basicCommand.add("ability");
             basicCommand.add("rlist");
             basicCommand.add("rule");
+            basicCommand.add("team");
+
             if (commandSender.isOp()) {
                 basicCommand.add("ob");
                 basicCommand.add("ruleset");
@@ -65,7 +65,7 @@ public class TabManager implements TabCompleter {
                 if (args.length == 2) return abilityList();
             }
 
-            if (args[0].equalsIgnoreCase("rule") || args[0].equalsIgnoreCase("ruleset") ) {
+            if (args[0].equalsIgnoreCase("rule") || args[0].equalsIgnoreCase("ruleset")) {
                 if (args.length == 2) return ruleList();
             }
 
@@ -78,7 +78,7 @@ public class TabManager implements TabCompleter {
             }
 
             if (args[0].equalsIgnoreCase("see")) {
-                if (args.length == 2) return playerList();
+                if (args.length == 2) return survivePlayerList();
             }
 
             if (args[0].equalsIgnoreCase("add")) {
@@ -94,11 +94,59 @@ public class TabManager implements TabCompleter {
             if (args[0].equalsIgnoreCase("reroll")) {
                 if (args.length == 2) return playerList();
             }
+
+            if (args[0].equalsIgnoreCase("team")) {
+                if (args.length == 2) {
+                    List<String> team = new ArrayList<String>();
+                    team.add("create");
+                    team.add("remove");
+                    team.add("join");
+                    team.add("leave");
+                    team.add("list");
+                    team.add("divide");
+                    team.add("auto");
+
+                    return team;
+                } else {
+                    if (args[1].equalsIgnoreCase("create")) {
+                        if (args.length == 3) return blank;
+                        if (args.length == 4) return colorList();
+                        if (args.length == 5) return bool();
+                    }
+
+                    if (args[1].equalsIgnoreCase("remove")) {
+                        if (args.length == 3) return teamList();
+                    }
+
+                    if (args[1].equalsIgnoreCase("join")) {
+                        if (args.length == 3) return teamMembers(false);
+                        if (args.length == 4) return teamList();
+                    }
+
+                    if (args[1].equalsIgnoreCase("leave")) {
+                        if (args.length == 3) return teamMembers(true);
+                    }
+
+                    if (args[1].equalsIgnoreCase("list")) return blank;
+
+                    if (args[1].equalsIgnoreCase("divide")) return blank;
+
+                    if (args[1].equalsIgnoreCase("auto")) {
+                        if (args.length == 3) {
+                            List<String> auto = new ArrayList<String>();
+                            auto.add("player");
+                            auto.add("team");
+
+                            return auto;
+                        } else return blank;
+                    }
+                }
+            }
         }
         return blank;
     }
 
-    private List<String> abilityList(){
+    private List<String> abilityList() {
         List<String> command = new ArrayList<String>();
         for (Ability a : main.abilities) {
             command.add(a.abilityID);
@@ -106,7 +154,7 @@ public class TabManager implements TabCompleter {
         return command;
     }
 
-    private List<String> ruleList(){
+    private List<String> ruleList() {
         List<String> command = new ArrayList<String>();
         for (LARule a : main.rules) {
             command.add(a.ruleID);
@@ -114,7 +162,7 @@ public class TabManager implements TabCompleter {
         return command;
     }
 
-    private List<String> playerList(){
+    private List<String> playerList() {
         List<String> command = new ArrayList<String>();
         for (LAPlayer lap : main.gameManager.players) {
             command.add(lap.getPlayer().getName());
@@ -122,7 +170,7 @@ public class TabManager implements TabCompleter {
         return command;
     }
 
-    private List<String> survivePlayerList(){
+    private List<String> survivePlayerList() {
         List<String> command = new ArrayList<String>();
         for (LAPlayer lap : main.gameManager.getSurvivePlayer()) {
             command.add(lap.getPlayer().getName());
@@ -130,7 +178,7 @@ public class TabManager implements TabCompleter {
         return command;
     }
 
-    private List<String> playerAbilityList(String playerName){
+    private List<String> playerAbilityList(String playerName) {
         List<String> command = new ArrayList<String>();
         for (LAPlayer lap : main.gameManager.players) {
             if (lap.getPlayer().getName().equals(playerName)) {
@@ -138,6 +186,36 @@ public class TabManager implements TabCompleter {
                     command.add(a.abilityID);
                 }
             }
+        }
+        return command;
+    }
+
+    private List<String> colorList() {
+        List<String> color = new ArrayList<String>();
+        for (ChatColor c : ChatColor.values()) color.add(c.name());
+        return color;
+    }
+
+    private List<String> bool() {
+        List<String> bool = new ArrayList<String>();
+        bool.add("true");
+        bool.add("false");
+        return bool;
+    }
+
+    private List<String> teamList() {
+        List<String> team = new ArrayList<String>();
+        for (LATeam t : main.teamManager.teams) {
+            team.add(t.teamName);
+        }
+        return team;
+    }
+
+    private List<String> teamMembers(boolean isJoin) {
+        List<String> command = new ArrayList<String>();
+        for (LAPlayer lap : main.gameManager.players) {
+            if ((isJoin && lap.getTeam() != null) || (!isJoin && lap.getTeam() == null))
+                command.add(lap.getPlayer().getName());
         }
         return command;
     }
