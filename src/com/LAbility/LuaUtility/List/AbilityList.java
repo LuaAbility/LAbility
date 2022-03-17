@@ -1,8 +1,7 @@
 package com.LAbility.LuaUtility.List;
 
 import com.LAbility.Ability;
-import org.bukkit.Bukkit;
-import org.bukkit.event.Event;
+import com.LAbility.LAPlayer;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -34,6 +33,16 @@ public class AbilityList<E extends Ability> extends ArrayList<Ability> {
             }
         }
         return -1;
+    }
+
+    public boolean remove(Ability ability, LAPlayer lap) {
+        ability.stopActive(lap);
+        return super.remove(ability);
+    }
+
+    public void clear(LAPlayer lap) {
+        for (Ability a : this) a.stopActive(lap);
+        super.clear();
     }
 
     @Override

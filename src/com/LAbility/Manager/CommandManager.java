@@ -1,6 +1,7 @@
 package com.LAbility.Manager;
 
 import com.LAbility.*;
+import com.LAbility.LuaUtility.List.AbilityList;
 import com.LAbility.LuaUtility.LuaAbilityLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
@@ -25,7 +26,6 @@ public class CommandManager implements CommandExecutor {
 				sender.sendMessage("\2476/la \247eadmin \247f: \247a관리자 용 명령어를 확인합니다."); // OK
 				sender.sendMessage("\2476/la \247eutil \247f: \247a유틸 명령어를 확인합니다."); // OK
 				sender.sendMessage("\2476/la \247edebug \247f: \247a디버그 명령어를 확인합니다."); // OK
-				sender.sendMessage();
 				return true;
 			}
 			if (args.length > 0) {
@@ -54,7 +54,7 @@ public class CommandManager implements CommandExecutor {
 				}
 
 				if (args[0].equalsIgnoreCase("util")) {
-					sender.sendMessage("\2476-------[\247eAdmin Command\2476]-------");
+					sender.sendMessage("\2476-------[\247eUtil Command\2476]-------");
 					sender.sendMessage("\2476/la \247eablist <Page> \247f: \247a현재 로드된 능력 리스트를 확인합니다.");  // OK
 					sender.sendMessage("\2476/la \247eability <AbilityID> \247f: \247a해당 능력의 정보를 확인합니다.");  // OK
 					sender.sendMessage("\2476/la \247erlist <Page> \247f: \247a현재 로드된 룰 리스트를 확인합니다.");  // OK
@@ -138,7 +138,17 @@ public class CommandManager implements CommandExecutor {
 					for (int i = 0; i < 8; i++) {
 						int targetIndex = ((index - 1) * 8 + i);
 						if (targetIndex >= allData) break;
-						sender.sendMessage("\2476[" + main.abilities.get(targetIndex).abilityID + "] \247e" + main.abilities.get(targetIndex).abilityName);
+
+						boolean isHIDDEN = false;
+						for (String s : main.gameManager.banAbilityIDList) {
+							if (main.abilities.get(targetIndex).abilityID.toLowerCase().contains(s.toLowerCase())) {
+								isHIDDEN = true;
+								break;
+							}
+						}
+
+						if (isHIDDEN) sender.sendMessage("\2474[" + main.abilities.get(targetIndex).abilityID + "] \247c" + main.abilities.get(targetIndex).abilityName);
+						else sender.sendMessage("\2476[" + main.abilities.get(targetIndex).abilityID + "] \247e" + main.abilities.get(targetIndex).abilityName);
 					}
 					return true;
 				}
@@ -193,8 +203,13 @@ public class CommandManager implements CommandExecutor {
 							int index = main.rules.indexOf(args[1]);
 							if (index >= 0) {
 								main.gameManager.currentRuleIndex = index;
+								LAbilityMain.instance.gameManager.banAbilityIDList.clear();
+
 								main.rules.get(index).InitScript();
 								Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e룰 \2476[" + main.rules.get(index).ruleName + "]\247e이(가) 적용되었습니다.");
+
+								LAbilityMain.instance.gameManager.AbilityShuffle(true);
+								Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \247e미추첨 능력 개수 : " + (LAbilityMain.instance.abilities.size() - LAbilityMain.instance.gameManager.shuffledAbilityIndex.size()) + "개");
 								return true;
 							} else {
 								sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 룰 ID 입니다.");
@@ -234,6 +249,16 @@ public class CommandManager implements CommandExecutor {
 							if (index >= 0) {
 								Bukkit.broadcastMessage("\2474[\247cLAbility\2474] " + main.gameManager.players.get(index).getPlayer().getName() + "\247c님이 관리자에 의해 탈락하셨습니다.");
 								main.gameManager.EliminatePlayer(main.gameManager.players.get(index));
+
+								if (main.gameManager.getSurvivePlayer().size() == 1) {
+									main.getServer().broadcastMessage("§6[§eLAbility§6] §e게임이 종료되었습니다.");
+									main.getServer().broadcastMessage("§6[§eLAbility§6] §e" + main.gameManager.getSurvivePlayer().get(0).getPlayer().getName() + "님이 우승하셨습니다!");
+									main.gameManager.OnGameEnd(true);
+								} else if (LAbilityMain.instance.gameManager.getSurvivePlayer().size() < 1) {
+									main.getServer().broadcastMessage("§6[§eLAbility§6] §e게임이 종료되었습니다.");
+									main.getServer().broadcastMessage("§6[§eLAbility§6] §e우승자가 없습니다.");
+									main.gameManager.OnGameEnd(true);
+								}
 								return true;
 							} else {
 								sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 플레이어 입니다.");
@@ -353,37 +378,47 @@ public class CommandManager implements CommandExecutor {
 					}
 				}
 
-				if (args[0].equalsIgnoreCase("list") && sender.isOp()) {
-					sender.sendMessage("\2476-------[\247eAbility List\2476]-------");
-					for (LAPlayer lap : main.gameManager.players) {
-						String abilityString = "";
-						abilityString += ("\247e" + lap.getPlayer().getName() + "\2477 : \247a");
-						int index = 0;
-						for (Ability a : lap.getAbility()) {
-							abilityString += a.abilityName;
-							if (index++ < (lap.getAbility().size() - 1)) {
-								abilityString += ", ";
+				if (args[0].equalsIgnoreCase("list")) {
+					if (!sender.isOp()) {
+						if (!(sender instanceof Player player)) return true;
+						int index = main.gameManager.players.indexOf(player);
+						if (index >= 0) {
+							if (main.gameManager.players.get(index).isSurvive) {
+								sender.sendMessage("\2474[\247cLAbility\2474] \247c현재 참여 중인 플레이어는 능력 확인이 불가능합니다.");
+								return true;
 							}
 						}
-						if (index == 0) abilityString += "\247c없음";
-						sender.sendMessage(abilityString);
 					}
+
+					main.gameManager.ShowAllAbility(sender);
 				}
 
 				if (args[0].equalsIgnoreCase("reroll") && sender.isOp()) {
 					if (main.gameManager.isGameReady) {
+						main.gameManager.AbilityShuffle(true);
 						if ((args.length > 1)) {
 							int index = main.gameManager.players.indexOf(args[1]);
 							if (index >= 0) {
 								LAPlayer p = main.gameManager.players.get(index);
-								main.gameManager.ResignAbility(p);
+
+								AbilityList<Ability> alist = (AbilityList<Ability>) p.getAbility().clone();
+
 								main.gameManager.AssignAbility(p);
+								for (Ability a : alist){
+									main.gameManager.ResignAbility(p, a);
+								}
 							} else {
 								sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 플레이어 입니다.");
 							}
 						} else {
-							main.gameManager.ResignAbility();
-							main.gameManager.AssignAbility();
+							for (LAPlayer p : main.gameManager.getSurvivePlayer()) {
+								AbilityList<Ability> alist = (AbilityList<Ability>) p.getAbility().clone();
+
+								main.gameManager.AssignAbility(p);
+								for (Ability a : alist){
+									main.gameManager.ResignAbility(p, a);
+								}
+							}
 							Bukkit.broadcastMessage("\2474[\247cLAbility\2474] \247c관리자가 강제로 능력을 재추첨했습니다.");
 						}
 					} else {
@@ -431,8 +466,13 @@ public class CommandManager implements CommandExecutor {
 								senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c이미 능력이 확정되었습니다.");
 								return true;
 							}
-							main.gameManager.ResignAbility(lap);
+
+							AbilityList<Ability> alist = (AbilityList<Ability>) lap.getAbility().clone();
+
 							main.gameManager.AssignAbility(lap);
+							for (Ability a : alist){
+								main.gameManager.ResignAbility(lap, a);
+							}
 							lap.isAssign = true;
 							sender.sendMessage("\2472[\247aLAbility\2472] \247a" + "현재 능력을 버리고 새로운 능력을 갖습니다.");
 							return true;
@@ -467,7 +507,21 @@ public class CommandManager implements CommandExecutor {
 						} else if (LAbilityMain.instance.gameManager.players.size() < 2){
 							sender.sendMessage("\2474[\247cLAbility\2474] \247c한 명일때는 게임 시작이 불가능합니다.");
 						}
-						else LAbilityMain.instance.scheduleManager.PrepareTimer();
+						else {
+							if (LAbilityMain.instance.dataPacks.size() > 0 && LAbilityMain.instance.useResourcePack) {
+								for (Player player : Bukkit.getOnlinePlayers()) {
+									try {
+										String url = LAbilityMain.instance.webServer.getWebIp() + player.getUniqueId();
+										player.setResourcePack(url, (byte[]) null, false);
+									} catch (Exception e) {
+										Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩 로딩 오류!");
+										Bukkit.getConsoleSender().sendMessage(e.getMessage());
+									}
+								}
+							}
+
+							LAbilityMain.instance.scheduleManager.PrepareTimer();
+						}
 					}
 					else {
 						sender.sendMessage("\2474[\247cLAbility\2474] \247c게임이 진행 중입니다.");
@@ -496,6 +550,18 @@ public class CommandManager implements CommandExecutor {
 							lap.getPlayer().setWalkSpeed(0.2f);
 						}
 
+
+						if (LAbilityMain.instance.dataPacks.size() > 0 && LAbilityMain.instance.useResourcePack) {
+							for (Player player : Bukkit.getOnlinePlayers()) {
+								try {
+									String url = LAbilityMain.instance.webServer.getWebIp() + player.getUniqueId();
+									player.setResourcePack(url, (byte[]) null, false);
+								} catch (Exception e) {
+									Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩 로딩 오류!");
+									Bukkit.getConsoleSender().sendMessage(e.getMessage());
+								}
+							}
+						}
 						LAbilityMain.instance.gameManager.RunPassive();
 					}
 				}
@@ -519,12 +585,17 @@ public class CommandManager implements CommandExecutor {
 					LAbilityMain.instance.rules = LuaAbilityLoader.LoadLuaRules();
 					LAbilityMain.instance.abilities = LuaAbilityLoader.LoadAllLuaAbilities();
 					LAbilityMain.instance.gameManager.ResetAll();
+					BlockManager.ResetData();
+
+					LAbilityMain.instance.gameManager.AbilityShuffle(true);
+
 					if (LAbilityMain.instance.dataPacks.size() > 0) {
 						try {
-							LAbilityMain.instance.appendResourcePacks();
-							LAbilityMain.instance.webServer.start();
+							if (LAbilityMain.instance.webServer.start()) LAbilityMain.instance.appendResourcePacks();
+							else Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩을 사용하지 않습니다. 일부 능력의 효과음이 재생되지 않습니다.");
 						} catch (Exception e) {
-							e.printStackTrace();
+							Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩 생성 오류!");
+							Bukkit.getConsoleSender().sendMessage(e.getMessage());
 						}
 					}
 
@@ -536,6 +607,7 @@ public class CommandManager implements CommandExecutor {
 
 					if (LAbilityMain.instance.hasError > 0) Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c" + LAbilityMain.instance.hasError + "개의 능력을 로드하는데 문제가 생겼습니다. 해당 능력들은 로드하지 않습니다.");
 					Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \2477v0.2 " + LAbilityMain.instance.abilities.size() + "개 능력 로드 완료!");
+					Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \247e미추첨 능력 개수 : " + (LAbilityMain.instance.abilities.size() - LAbilityMain.instance.gameManager.shuffledAbilityIndex.size()) + "개");
 					Bukkit.getConsoleSender().sendMessage("Made by MINUTE.");
 					sender.sendMessage("\2472[\247aLAbility\2472] \247aReload Complete.");
 				}

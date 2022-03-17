@@ -1,6 +1,9 @@
 package com.LAbility;
 
+import com.LAbility.LuaUtility.List.AbilityList;
 import com.LAbility.LuaUtility.List.FunctionList;
+import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -14,6 +17,8 @@ import org.luaj.vm2.lib.jse.JsePlatform;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.LAbility.LuaUtility.LuaAbilityLoader.setGlobals;
 
@@ -63,6 +68,7 @@ public class Ability {
 
     Globals globals;
     LuaValue script;
+    boolean syncScript = true;
 
     public Ability(String id, String type, String name, String rank, String desc, String script) {
         abilityID = id;
@@ -71,6 +77,8 @@ public class Ability {
         abilityRank = rank;
         abilityDesc = desc;
         luaScript = script;
+
+
     }
 
     public Ability(Ability a) {
@@ -86,6 +94,10 @@ public class Ability {
         }
     }
 
+    public void sync(boolean sync){
+        syncScript = sync;
+    }
+
     public void InitScript(){
         globals = JsePlatform.standardGlobals();
         script = globals.loadfile(luaScript);
@@ -96,13 +108,16 @@ public class Ability {
     }
 
     public void runAbilityFunc(LAPlayer lap, Event event) {
+        if (lap.getVariable("abilityLock") != null && lap.getVariable("abilityLock").equals(true)) return;
         if (abilityFunc.contains(event)) {
             for (Ability.AbilityFunc af : abilityFunc) {
                 if ((af.funcEvent.isAssignableFrom(event.getClass()) || af.funcEvent.isInstance(event)) || af.funcEvent.equals(event.getClass())) {
-                    globals = JsePlatform.standardGlobals();
-                    script = globals.loadfile(luaScript);
-                    globals = setGlobals(globals);
-                    script.call();
+                    if (!syncScript) {
+                        globals = JsePlatform.standardGlobals();
+                        script = globals.loadfile(luaScript);
+                        globals = setGlobals(globals);
+                        script.call();
+                    }
 
                     LuaTable table = new LuaTable();
                     table.insert(1, CoerceJavaToLua.coerce(af.funcID));
@@ -117,10 +132,12 @@ public class Ability {
     }
 
     public void runPassiveFunc(LAPlayer lap) {
-        globals = JsePlatform.standardGlobals();
-        script = globals.loadfile(luaScript);
-        globals = setGlobals(globals);
-        script.call();
+        if (!syncScript) {
+            globals = JsePlatform.standardGlobals();
+            script = globals.loadfile(luaScript);
+            globals = setGlobals(globals);
+            script.call();
+        }
 
         if (!globals.get("onTimer").isnil()) globals.get("onTimer").call(CoerceJavaToLua.coerce(lap), CoerceJavaToLua.coerce(this));
     }
@@ -133,27 +150,54 @@ public class Ability {
 
         if ((abilityFunc.get(index).cooldown * LAbilityMain.instance.gameManager.cooldownMultiply) <= 0) return true;
 
-        if (abilityFunc.get(index).currentTime >= (abilityFunc.get(index).cooldown * LAbilityMain.instance.gameManager.cooldownMultiply)) {
+        long maxCooldown = Math.round(abilityFunc.get(index).cooldown * LAbilityMain.instance.gameManager.cooldownMultiply);
+
+        if (abilityFunc.get(index).currentTime >= maxCooldown) {
             if (abilityFunc.get(index).currentTask != null) abilityFunc.get(index).currentTask.cancel();
             abilityFunc.get(index).currentTime = 0;
             abilityFunc.get(index).currentTask = new BukkitRunnable() {
                 @Override
-                public void run() { abilityFunc.get(index).currentTime++; }
+                public void run() {
+                    abilityFunc.get(index).currentTime++;
+                    if (showMessage && maxCooldown >= 100) {
+                        if (abilityFunc.get(index).currentTime == maxCooldown) {
+                            lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b재사용 대기시간이 종료되었습니다. (" + abilityFunc.get(index).funcID + ")");
+                            lap.player.playSound(lap.player, Sound.ENTITY_PLAYER_LEVELUP, 0.5F, 2F);
+                        } else if (abilityFunc.get(index).currentTime == maxCooldown - 20) {
+                            lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b남은 시간 : 1초 (" + abilityFunc.get(index).funcID + ")");
+                            lap.player.playSound(lap.player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 2F);
+                        } else if (abilityFunc.get(index).currentTime == maxCooldown - 40) {
+                            lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b남은 시간 : 2초 (" + abilityFunc.get(index).funcID + ")");
+                            lap.player.playSound(lap.player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 2F);
+                        } else if (abilityFunc.get(index).currentTime == maxCooldown - 60) {
+                            lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b남은 시간 : 3초 (" + abilityFunc.get(index).funcID + ")");
+                            lap.player.playSound(lap.player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 2F);
+                        } else if (abilityFunc.get(index).currentTime == maxCooldown - 80) {
+                            lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b남은 시간 : 4초 (" + abilityFunc.get(index).funcID + ")");
+                            lap.player.playSound(lap.player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 2F);
+                        } else if (abilityFunc.get(index).currentTime == maxCooldown - 100) {
+                            lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b남은 시간 : 5초 (" + abilityFunc.get(index).funcID + ")");
+                            lap.player.playSound(lap.player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 2F);
+                        }
+                    }
+                }
             }.runTaskTimer(LAbilityMain.plugin, 0, 1);
 
-            if (showMessage) lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b능력을 사용했습니다." );
+            if (showMessage) lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b능력을 사용했습니다. (" + abilityFunc.get(index).funcID + ")" );
             return true;
         }
 
         double cooldown = ((abilityFunc.get(index).cooldown * LAbilityMain.instance.gameManager.cooldownMultiply) - abilityFunc.get(index).currentTime) / 20.0;
-        if (showMessage) lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b쿨타임 입니다. (" + cooldown + "s)" );
+        if (showMessage) lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b재사용 대기시간 입니다. (" + cooldown + "초 / " + abilityFunc.get(index).funcID + ")" );
         return false;
     }
 
     public void runResetFunc(LAPlayer lap) {
-        globals = JsePlatform.standardGlobals();
-        script = globals.loadfile(luaScript);
-        globals = setGlobals(globals);
+        if (!syncScript) {
+            globals = JsePlatform.standardGlobals();
+            script = globals.loadfile(luaScript);
+            globals = setGlobals(globals);
+        }
         script.call();
 
         if (!globals.get("Reset").isnil()) globals.get("Reset").call(CoerceJavaToLua.coerce(lap), CoerceJavaToLua.coerce(this));
@@ -196,7 +240,6 @@ public class Ability {
             if (af.currentTask != null) af.currentTask.cancel();
         }
 
-
         runResetFunc(lap);
     }
 
@@ -204,6 +247,45 @@ public class Ability {
         player.sendMessage("\2476[\247e" + abilityName + "\2476]");
         player.sendMessage("\247eRank : \247a" + abilityRank);
         player.sendMessage("\247eType : \247a" + abilityType);
-        player.sendMessage("\247a" + abilityDesc);
+        player.sendMessage("\247a" + FilterAbilityDescription(abilityDesc));
+
+        AbilityList<Ability> relatedAbility = new AbilityList<>();
+        for (Ability a : LAbilityMain.instance.abilities) {
+            if (a.abilityID.contains(abilityID + "-")) {
+                relatedAbility.add(a);
+            }
+        }
+
+        if (relatedAbility.size() > 0) {
+            String abilityString = "tellraw " + player.getName() + " [\"\"," +
+                    "{\"text\":\"이 능력과 관련된 히든 능력 : \",\"color\":\"yellow\"},";
+
+            int index = 0;
+            for (Ability a : relatedAbility) {
+                abilityString += "{\"text\":\"" + a.abilityName + "\",\"color\":\"aqua\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/la ability " + a.abilityID + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"contents\":[{\"text\":\"" + a.abilityName + " \",\"color\":\"aqua\"},{\"text\":\"능력을 확인하려면 클릭하세요.\",\"color\":\"green\"}]}}";
+                if (index++ < (relatedAbility.size() - 1)) {
+                    abilityString += ",{\"text\":\", \",\"color\":\"yellow\"},";
+                } else abilityString += "]";
+            }
+
+            Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), abilityString);
+        }
+    }
+
+    public String FilterAbilityDescription(String originTxt) {
+        if (!LAbilityMain.instance.gameManager.overrideItem) return originTxt;
+
+        String reg = "\247e(?:.*?)\247";
+
+        Pattern pattern = Pattern.compile(reg);
+        Matcher matcher = pattern.matcher(originTxt);
+
+        while (matcher.find()) {
+            String targetString = matcher.group(0);
+            targetString = targetString.substring(2, targetString.length() - 1);
+            originTxt = originTxt.replace(targetString, LAbilityMain.instance.gameManager.targetItemString);
+        }
+
+        return originTxt;
     }
 }

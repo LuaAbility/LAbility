@@ -7,6 +7,7 @@ import com.LAbility.LuaUtility.Wrapper.GameWrapper;
 import com.LAbility.LuaUtility.Wrapper.UtilitiesWrapper;
 import com.LAbility.Manager.*;
 import org.bukkit.Bukkit;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.plugin.EventExecutor;
@@ -28,6 +29,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
     public ResourcePackManager packManager;
     public ResourcePackWebServer webServer;
     public int hasError = 0;
+    public boolean useResourcePack = false;
     public AbilityList<Ability> abilities = new AbilityList<>();
     public RuleList<LARule> rules = new RuleList<>();
     public ArrayList<Class<? extends Event>> registeredEventList = new ArrayList<>();
@@ -56,14 +58,19 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         getCommand("la").setExecutor(new CommandManager(this));
         getCommand("la").setTabCompleter(new TabManager(this));
         getServer().getPluginManager().registerEvents(new EventManager(), this);
+        getServer().getPluginManager().registerEvents(new BlockManager(), this);
+
+        BlockManager.ResetData();
+        gameManager.AbilityShuffle(true);
 
         assignAllPlayer();
         if (dataPacks.size() > 0) {
             try {
-                appendResourcePacks();
-                webServer.start();
+                if (webServer.start()) appendResourcePacks();
+                else Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩을 사용하지 않습니다. 일부 능력의 효과음이 재생되지 않습니다.");
             } catch (Exception e) {
-                e.printStackTrace();
+                Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩 생성 오류!");
+                Bukkit.getConsoleSender().sendMessage(e.getMessage());
             }
         }
 
@@ -75,6 +82,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
 
         if (hasError > 0) Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c" + hasError + "개의 능력을 로드하는데 문제가 생겼습니다. 해당 능력들은 로드하지 않습니다.");
         Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \247ev" + instance.getDescription().getVersion() + " " + abilities.size() + "개 능력 로드 완료!");
+        Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \247e미추첨 능력 개수 : " + (abilities.size() - gameManager.shuffledAbilityIndex.size()) + "개");
         Bukkit.getConsoleSender().sendMessage("Made by MINUTE.");
     }
 
@@ -132,5 +140,6 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \247e리소스팩 결합 작업을 진행합니다." );
         packManager.patch(fileList);
         Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \247e리소스팩 결합 완료!");
+        useResourcePack = true;
     }
 }

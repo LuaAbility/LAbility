@@ -5,10 +5,13 @@ import com.LAbility.Event.GameEndEvent;
 import com.LAbility.Event.PlayerEliminateEvent;
 import com.LAbility.LAPlayer;
 import com.LAbility.LAbilityMain;
+import com.LAbility.LuaUtility.List.BanIDList;
 import com.LAbility.LuaUtility.List.PlayerList;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -27,6 +30,7 @@ public class GameManager {
 
     public BukkitTask passiveTask = null;
 
+    public BanIDList<String> banAbilityIDList = new BanIDList<>();
     public ArrayList<Integer> shuffledAbilityIndex = new ArrayList<Integer>();
     public int currentAbilityIndex = 0;
     public int currentRuleIndex = 0;
@@ -37,10 +41,13 @@ public class GameManager {
     public boolean canCheckAbility = true;
     public double cooldownMultiply = 1;
     public Material targetItem = Material.IRON_INGOT;
+    public String targetItemString = "철괴";
     public boolean overrideItem = false;
     public boolean skipYesOrNo = false;
     public boolean skipInformation = false;
     public Map<String, Object> variable = new HashMap<>();
+
+    public float maxHealth = 20;
 
     public Object getVariable(String key) {
         Object obj = variable.getOrDefault(key, null);
@@ -80,6 +87,7 @@ public class GameManager {
         players = new PlayerList<LAPlayer>();
         LAbilityMain.instance.assignAllPlayer();
         variable = new HashMap<>();
+        BlockManager.ResetData();
     }
 
     public void RunEvent(Event event) {
@@ -98,29 +106,24 @@ public class GameManager {
 
     public void RunPassive() {
         if (isGameStarted){
-            if (LAbilityMain.instance.dataPacks.size() > 0) {
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    try {
-                        String url = LAbilityMain.instance.webServer.getWebIp() + player.getUniqueId();
-                        player.setResourcePack(url, null, false);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            passiveTask = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (LAbilityMain.instance.rules.size() > 0 && !isTestMode) LAbilityMain.instance.rules.get(currentRuleIndex).runPassiveFunc();
-                    for (LAPlayer player : players){
-                        if (player.isSurvive && (player.getVariable("abilityLock") == null || player.getVariable("abilityLock").equals(false))) {
-                            for (Ability ab : player.getAbility()) {
-                                ab.runPassiveFunc(player);
+            try {
+                passiveTask = new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        if (LAbilityMain.instance.rules.size() > 0 && !isTestMode)
+                            LAbilityMain.instance.rules.get(currentRuleIndex).runPassiveFunc();
+                        for (LAPlayer player : players) {
+                            if (player.isSurvive && (player.getVariable("abilityLock") == null || player.getVariable("abilityLock").equals(false))) {
+                                for (Ability ab : player.getAbility()) {
+                                    ab.runPassiveFunc(player);
+                                }
                             }
                         }
                     }
-                }
-            }.runTaskTimer(LAbilityMain.plugin, 0, 2);
+                }.runTaskTimer(LAbilityMain.plugin, 0, 1);
+            } catch (Exception ignore) {
+
+            }
         }
     }
 
@@ -140,11 +143,18 @@ public class GameManager {
 
         if (resetShuffleIndex) {
             size = LAbilityMain.instance.abilities.size();
+            shuffledAbilityIndex.clear();
             int hiddenCount = 0;
             for (int i = 0; i < size; i++) {
-                if (!LAbilityMain.instance.abilities.get(i).abilityID.contains("HIDDEN")) {
-                    shuffledAbilityIndex.add(i);
+                boolean isHIDDEN = false;
+                for (String s : banAbilityIDList) {
+                    if (LAbilityMain.instance.abilities.get(i).abilityID.toLowerCase().contains(s.toLowerCase())) {
+                        isHIDDEN = true;
+                        break;
+                    }
                 }
+
+                if (!isHIDDEN) shuffledAbilityIndex.add(i);
                 else hiddenCount++;
             }
             size -= hiddenCount;
@@ -173,11 +183,20 @@ public class GameManager {
         for (int i = 0; i < abilityAmount; i++) {
             if (overlapAbility) {
                 Random random = new Random();
-                Ability temp = LAbilityMain.instance.abilities.get(random.nextInt(LAbilityMain.instance.abilities.size()));
-                while (player.getAbility().contains(temp.abilityID) || temp.abilityID.contains("HIDDEN")){
-                    Bukkit.getConsoleSender().sendMessage(player.getPlayer().getName() + " / " + temp.abilityID);
+                Ability temp;
+
+                boolean isHIDDEN;
+                do {
+                    isHIDDEN = false;
                     temp = LAbilityMain.instance.abilities.get(random.nextInt(LAbilityMain.instance.abilities.size()));
-                }
+                    for (String s : banAbilityIDList) {
+                        if (LAbilityMain.instance.abilities.get(i).abilityID.toLowerCase().contains(s.toLowerCase())) {
+                            isHIDDEN = true;
+                            break;
+                        }
+                    }
+                } while (player.getAbility().contains(temp.abilityID) || isHIDDEN);
+
                 Ability a = new Ability(temp);
                 player.getAbility().add(a);
                 a.InitScript();
@@ -195,20 +214,39 @@ public class GameManager {
 
     public void ResignAbility(LAPlayer player, Ability ability) {
         if (player.getAbility().contains(ability.abilityID)) {
-            player.getAbility().remove(ability);
-            if (!ability.abilityID.contains("HIDDEN")) shuffledAbilityIndex.add(LAbilityMain.instance.abilities.indexOf(ability));
-            AbilityShuffle(false);
+            player.getAbility().remove(ability, player);
+
+            boolean isHIDDEN = false;
+            for (String s : banAbilityIDList) {
+                if (ability.abilityID.toLowerCase().contains(s.toLowerCase())) {
+                    isHIDDEN = true;
+                    break;
+                }
+            }
+
+            if (!isHIDDEN) {
+                shuffledAbilityIndex.add(LAbilityMain.instance.abilities.indexOf(ability));
+                AbilityShuffle(false);
+            }
         }
     }
 
     public void ResignAbility(LAPlayer player) {
         if (player.getAbility().size() > 0) {
             for (Ability a : player.getAbility()) {
-                if (!a.abilityID.contains("HIDDEN")) shuffledAbilityIndex.add(LAbilityMain.instance.abilities.indexOf(a.abilityID));
+                boolean isHIDDEN = false;
+                for (String s : banAbilityIDList) {
+                    if (a.abilityID.toLowerCase().contains(s.toLowerCase())) {
+                        isHIDDEN = true;
+                        break;
+                    }
+                }
+
+                if (!isHIDDEN) shuffledAbilityIndex.add(LAbilityMain.instance.abilities.indexOf(a));
             }
             AbilityShuffle(false);
 
-            player.getAbility().clear();
+            player.getAbility().clear(player);
         }
     }
 
@@ -228,18 +266,31 @@ public class GameManager {
     public void EliminatePlayer(LAPlayer player){
         Bukkit.getPluginManager().callEvent(new PlayerEliminateEvent(player));
 
+        playerAbilityList(player);
         for (Ability a : player.getAbility()) a.stopActive(player);
         player.isSurvive = false;
         player.getAbility().clear();
         player.getPlayer().setGameMode(GameMode.SPECTATOR);
+
+        String abilityString = "tellraw " + player.getPlayer().getName() + " [\"\"," +
+                "{\"text\":\"남은 플레이어의 능력을 확인하려면 \",\"color\":\"yellow\"}," +
+                "{\"text\":\"이곳\",\"color\":\"aqua\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/la list\"}," +
+                "\"hoverEvent\":{\"action\":\"show_text\",\"contents\":[{\"text\":\"클릭 시 모든 플레이어의 능력을 확인합니다.\",\"color\":\"green\"}]}}," +
+                "{\"text\":\"을 클릭하세요.\",\"color\":\"yellow\"}]";
+
+        Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), abilityString);
     }
+
     public void OnGameEnd(boolean isGoodEnd){
         if (isGameReady) {
             Bukkit.getPluginManager().callEvent(new GameEndEvent(players, isGoodEnd));
+            PlayerList<LAPlayer> survivePlayer = getSurvivePlayer();
+            for (LAPlayer lap : survivePlayer) playerAbilityList(lap);
 
             Bukkit.broadcastMessage("\2476LAbility\247e를 사용해 주셔서 감사합니다!");
             Bukkit.broadcastMessage("\247e플러그인 개선을 위해 현재 설문을 진행 중입니다. 작성해주시면, 더 좋은 플러그인을 만드는데 도움됩니다 :)");
-            Bukkit.broadcastMessage("\247eMade by MINUTE. \2476( \247nhttps://forms.gle/G9hxtEv2U1ody2yKA\247r\2476 )");
+            Bukkit.broadcastMessage("\247e설문조사 링크 \2476( \247nhttps://forms.gle/VjWJXKMCYAmbNBrg9\247r\2476 )");
+            Bukkit.broadcastMessage("\247e개발자 디스코드 : MINUTE#4438");
 
             LAbilityMain.instance.scheduleManager.ClearTimer();
             if (LAbilityMain.instance.rules.size() > 0) LAbilityMain.instance.rules.get(currentRuleIndex).runResetFunc();
@@ -254,5 +305,47 @@ public class GameManager {
             if (lap.isSurvive) survivePlayer.add(lap);
         }
         return survivePlayer;
+    }
+
+    public void ShowAllAbility(CommandSender sender){
+        sender.sendMessage("\2476-------[\247eAbility List\2476]-------");
+        for (LAPlayer lap : this.players) {
+            if (lap.isSurvive) {
+                String abilityString = "";
+                abilityString += ("\247e" + lap.getPlayer().getName() + "\2477 : \247a");
+                int index = 0;
+                for (Ability a : lap.getAbility()) {
+                    abilityString += a.abilityName;
+                    if (index++ < (lap.getAbility().size() - 1)) {
+                        abilityString += ", ";
+                    }
+                }
+                if (index == 0) abilityString += "\247c없음";
+                sender.sendMessage(abilityString);
+            }
+        }
+    }
+
+    public void playerAbilityList(LAPlayer player){
+        String abilityString = "tellraw @a [\"\"," +
+                "{\"text\":\"[\",\"color\":\"gold\"}," +
+                "{\"text\":\"LAbility\",\"color\":\"yellow\"}," +
+                "{\"text\":\"] " + player.getPlayer().getName() + "\",\"color\":\"gold\"}," +
+                "{\"text\":\" 님은 \",\"color\":\"yellow\"},";
+
+        int index = 0;
+        for (Ability a : player.getAbility()) {
+            abilityString += "{\"text\":\"" + a.abilityName + "\",\"color\":\"aqua\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/la ability " + a.abilityID + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"contents\":[{\"text\":\"" + a.abilityName + " \",\"color\":\"aqua\"},{\"text\":\"능력을 확인하려면 클릭하세요.\",\"color\":\"green\"}]}},";
+            if (index++ < (player.getAbility().size() - 1)) {
+                abilityString += "{\"text\":\", \",\"color\":\"green\"},";
+            }
+        }
+        if (index == 0) abilityString += "{\"text\":\"능력이 없었습니다.\",\"color\":\"red\"}]";
+        else abilityString += "{\"text\":\" 능력이었습니다.\",\"color\":\"green\"}]";
+
+        Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), abilityString);
+
+        player.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(player.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue());
+        player.getPlayer().setWalkSpeed(0.2f);
     }
 }

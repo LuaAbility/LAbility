@@ -23,7 +23,8 @@ public class ResourcePackWebServer {
     private HttpServer httpServer;
     private BukkitTask task;
 
-    public void start() {
+    public boolean start() {
+        if (port < 0) return false;
         if (port == 0) port = 13356;
         stopTask();
         task = new BukkitRunnable() {
@@ -69,10 +70,11 @@ public class ResourcePackWebServer {
                 }
             }
         }.runTaskAsynchronously(LAbilityMain.instance);
+        return true;
     }
 
     public final String getWebIp() throws IOException {
-        URL url = new URL("https://api.ip.pe.kr/");
+        URL url = new URL("https://mcv.kr/myip/api.php");
         BufferedReader bf = new BufferedReader(new InputStreamReader(url.openStream()));
 
         String ip = bf.readLine();

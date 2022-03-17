@@ -15,6 +15,7 @@ public class LAPlayer {
     Map<String, Object> variable = new HashMap<>();
     public boolean isAssign = false;
     public boolean isSurvive = true;
+    public boolean canTarget = true;
 
     public LAPlayer(Player p){
         player = p;

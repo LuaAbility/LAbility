@@ -1,18 +1,15 @@
 package com.LAbility.Event;
 
-import com.LAbility.Ability;
 import com.LAbility.LAPlayer;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-public class AbilityConfirmEvent extends Event implements Cancellable {
+public class PlayerTargetEvent extends Event implements Cancellable {
     public static HandlerList handlerlist = new HandlerList();
-
     public static HandlerList getHandlerList(){
         return handlerlist;
     }
-
     private boolean cancelled = false;
 
     @Override
@@ -20,26 +17,19 @@ public class AbilityConfirmEvent extends Event implements Cancellable {
         return handlerlist;
     }
 
-    LAPlayer player;
-    Ability ability;
-    String funcID;
+    LAPlayer abilityPlayer;
+    LAPlayer targetPlayer;
 
-    public AbilityConfirmEvent(LAPlayer player, Ability ability, String funcID){
-        this.player = player;
-        this.ability = ability;
-        this.funcID = funcID;
+    public PlayerTargetEvent(LAPlayer aPlayer, LAPlayer tPlayer) {
+        this.abilityPlayer = aPlayer;
+        this.targetPlayer = tPlayer;
     }
 
-    public LAPlayer getPlayer(){
-        return player;
+    public LAPlayer getUsingPlayer() {
+        return abilityPlayer;
     }
-
-    public Ability getAbility(){
-        return ability;
-    }
-
-    public String getFunctionID(){
-        return funcID;
+    public LAPlayer getTargetPlayer() {
+        return targetPlayer;
     }
 
     @Override

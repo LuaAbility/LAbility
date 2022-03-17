@@ -188,6 +188,7 @@ public class UtilitiesWrapper extends LuaTable {
                 int type = targetType.isnil() ? 0 : targetType.checkint();
                 Player player = targetPlayer.isnil() ? null : (Player) targetPlayer.checkuserdata(Player.class);
 
+                if (player == null) type = 0;
                 switch (type) {
                     case 1:
                         boolean isOP = player.isOp();
