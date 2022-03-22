@@ -182,8 +182,6 @@ public class Ability {
                     }
                 }
             }.runTaskTimer(LAbilityMain.plugin, 0, 1);
-
-            if (showMessage) lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b능력을 사용했습니다. (" + abilityFunc.get(index).funcID + ")" );
             return true;
         }
 

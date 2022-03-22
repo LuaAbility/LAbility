@@ -146,7 +146,7 @@ public class TeamManager {
             order[randomIndex] = temp;
         }
 
-        if (memberCount > 1) {
+        if (memberCount > 1 && memberCount < order.length) {
             teams = new TeamList<>();
             int maxCount = (int) Math.ceil((double) order.length / memberCount);
             for (int currentCount = 0; currentCount < maxCount; currentCount++) {

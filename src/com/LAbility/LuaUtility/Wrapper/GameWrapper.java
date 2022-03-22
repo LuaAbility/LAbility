@@ -94,6 +94,8 @@ public class GameWrapper extends LuaTable {
                                 return CoerceJavaToLua.coerce(false);
                             }
                         }
+
+                        if (check && showMessage) abilityPlayer.getPlayer().sendMessage("\2471[\247b" + ability.abilityName + "\2471] \247b능력을 사용했습니다. (" + funcID + ")" );
                         return CoerceJavaToLua.coerce(check);
                     }
                     return CoerceJavaToLua.coerce(false);
@@ -109,14 +111,15 @@ public class GameWrapper extends LuaTable {
                 LAPlayer abilityPlayer = (LAPlayer) vargs.checkuserdata(1, LAPlayer.class);
                 LAPlayer targetPlayer = (LAPlayer) vargs.checkuserdata(2, LAPlayer.class);
                 boolean showMessage = vargs.isnil(3) || vargs.checkboolean(3);
-                boolean callEvent = vargs.isnil(4) || vargs.checkboolean(4);
+                boolean isFriendly = vargs.isnil(4) || vargs.checkboolean(4);
+                boolean callEvent = vargs.isnil(5) || vargs.checkboolean(5);
 
+                if (vargs.isnil(4)) isFriendly = false;
+
+                if (targetPlayer.equals(abilityPlayer)) return CoerceJavaToLua.coerce(false);
                 if (targetPlayer.getPlayer().getGameMode() == GameMode.SPECTATOR) return CoerceJavaToLua.coerce(false);
                 if (targetPlayer.getPlayer().isDead()) return CoerceJavaToLua.coerce(false);
-                if (abilityPlayer.getTeam() != null && targetPlayer.getTeam() != null) {
-                    if (abilityPlayer.getTeam().equals(targetPlayer.getTeam()) && !abilityPlayer.getTeam().canTeamAttack)
-                        return CoerceJavaToLua.coerce(false);
-                }
+                if (!isFriendly && abilityPlayer.getTeam() != null && abilityPlayer.getTeam().equals(targetPlayer.getTeam()) && !abilityPlayer.getTeam().canTeamAttack) return CoerceJavaToLua.coerce(false);
 
                 if (targetPlayer.canTarget) {
                     if (callEvent) {

@@ -8,10 +8,7 @@ import com.LAbility.LATeam;
 import com.LAbility.LAbilityMain;
 import com.LAbility.LuaUtility.List.BanIDList;
 import com.LAbility.LuaUtility.List.PlayerList;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -19,10 +16,7 @@ import org.bukkit.event.Event;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class GameManager {
     public boolean isGameReady = false;
@@ -80,6 +74,12 @@ public class GameManager {
                 ab.runResetFunc(player);
             }
         }
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.setDisplayName(ChatColor.RESET + p.getName());
+            p.setPlayerListName(ChatColor.RESET + p.getName());
+        }
+
         isGameStarted = false;
         isGameReady = false;
         isTestMode = false;
@@ -113,6 +113,14 @@ public class GameManager {
                 public void run() {
                     if (LAbilityMain.instance.rules.size() > 0 && !isTestMode)
                         LAbilityMain.instance.rules.get(currentRuleIndex).runPassiveFunc();
+
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        if (!players.contains(p)) {
+                            p.setDisplayName(ChatColor.RESET + p.getName());
+                            p.setPlayerListName(ChatColor.RESET + p.getName());
+                        }
+                    }
+
                     for (LAPlayer player : players) {
                         if (player.getTeam() != null) {
                             player.getPlayer().setDisplayName(player.getTeam().color + player.getTeam().teamName + " " + ChatColor.RESET + player.getPlayer().getName());
@@ -297,29 +305,55 @@ public class GameManager {
             teams.remove(null);
 
             for (Map.Entry<LATeam, ArrayList<LAPlayer>> data : teams.entrySet()) if (data.getValue().size() > 0) surviveTeams++;
-            if (surviveTeams <= 1) OnGameEnd(true);
-        } else if (getSurvivePlayer().size() <= 1) OnGameEnd(true);
+            if (surviveTeams <= 1) {
+
+                for (Map.Entry<LATeam, ArrayList<LAPlayer>> data : teams.entrySet()) {
+                    if (data.getValue().size() > 0) {
+                        int index = 0;
+                        StringBuilder teamMember = new StringBuilder();
+
+                        for (LAPlayer p : LAbilityMain.instance.teamManager.getTeamMember(data.getKey(), true)) {
+                            teamMember.append(p.getPlayer().getName());
+                            if (++index < getSurvivePlayer().size()) {
+                                teamMember.append(", ");
+                            }
+                        }
+
+                        Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e게임이 종료되었습니다.");
+                        Bukkit.broadcastMessage("\2476[\247eLAbility\2476] " + data.getKey().color + data.getKey().teamName + "\247e 팀 \2477(" + teamMember + ") \247e우승!");
+                    }
+                }
+
+                OnGameEnd(true);
+            }
+        } else if (getSurvivePlayer().size() == 1) {
+            Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e게임이 종료되었습니다.");
+            Bukkit.broadcastMessage("\2476[\247eLAbility\2476] " + getSurvivePlayer().get(0) + "\247e 우승!");
+
+            OnGameEnd(true);
+        }
     }
 
     public void OnGameEnd(boolean isGoodEnd){
         if (isGameReady) {
             Bukkit.getPluginManager().callEvent(new GameEndEvent(players, isGoodEnd));
-            PlayerList<LAPlayer> survivePlayer = getSurvivePlayer();
-            for (LAPlayer lap : survivePlayer) playerAbilityList(lap);
 
-            Bukkit.broadcastMessage("\2476LAbility\247e를 사용해 주셔서 감사합니다!");
-            Bukkit.broadcastMessage("\247e플러그인 개선을 위해 현재 설문을 진행 중입니다. 작성해주시면, 더 좋은 플러그인을 만드는데 도움됩니다 :)");
-            Bukkit.broadcastMessage("\247e설문조사 링크 \2476( \247nhttps://forms.gle/VjWJXKMCYAmbNBrg9\247r\2476 )");
-            Bukkit.broadcastMessage("\247e개발자 디스코드 : MINUTE#4438");
-
-            for (LAPlayer player : players) {
-                player.getPlayer().setPlayerListName(ChatColor.RESET + player.getPlayer().getName());
-            }
+            for (LAPlayer lap : getSurvivePlayer()) playerAbilityList(lap);
+            if (LAbilityMain.instance.rules.size() > 0) LAbilityMain.instance.rules.get(currentRuleIndex).runResetFunc();
 
             LAbilityMain.instance.scheduleManager.ClearTimer();
-            if (LAbilityMain.instance.rules.size() > 0) LAbilityMain.instance.rules.get(currentRuleIndex).runResetFunc();
             LAbilityMain.instance.gameManager.ResetAll();
             LAbilityMain.instance.getServer().getScheduler().cancelTasks(LAbilityMain.plugin);
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    Bukkit.broadcastMessage("\2476LAbility\247e를 사용해 주셔서 감사합니다!");
+                    Bukkit.broadcastMessage("\247e플러그인 개선을 위해 현재 설문을 진행 중입니다. 작성해주시면, 더 좋은 플러그인을 만드는데 도움됩니다 :)");
+                    Bukkit.broadcastMessage("\247e설문조사 링크 \2476( https://forms.gle/VjWJXKMCYAmbNBrg9 \2476 )");
+                    Bukkit.broadcastMessage("\247e개발자 디스코드 : MINUTE#4438");
+                }
+            }.runTaskLater(LAbilityMain.plugin, 60);
         }
     }
 

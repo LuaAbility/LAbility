@@ -2,7 +2,9 @@ package com.LAbility.Manager;
 
 import com.LAbility.LAPlayer;
 import com.LAbility.LAbilityMain;
+import com.LAbility.LuaUtility.List.PlayerList;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -11,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -112,6 +115,27 @@ public class EventManager implements Listener {
                 }
             }.runTaskLater(LAbilityMain.plugin,1200);
             playerList.put(p.getName(), task);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public static void onChat(AsyncPlayerChatEvent event){
+        if (!event.getMessage().startsWith("!")) return;
+
+        String targetMsg = event.getMessage().substring(1);
+        while (targetMsg.startsWith(" ")) targetMsg = targetMsg.substring(1);
+
+        Player p = event.getPlayer();
+        if (!LAbilityMain.instance.gameManager.players.contains(p)) return;
+
+        LAPlayer lap = LAbilityMain.instance.gameManager.players.get(LAbilityMain.instance.gameManager.players.indexOf(p));
+        PlayerList<LAPlayer> teams = LAbilityMain.instance.teamManager.getMyTeam(lap, true);
+
+        if (teams.size() > 1) {
+            event.setCancelled(true);
+            String msg = "<" + lap.getTeam().color + p.getName() + " (팀 채팅)" + ChatColor.RESET + "> " + targetMsg;
+
+            for (LAPlayer tm : teams) tm.getPlayer().sendMessage(msg);
         }
     }
 }

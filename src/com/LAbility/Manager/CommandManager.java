@@ -659,6 +659,7 @@ public class CommandManager implements CommandExecutor {
 						sender.sendMessage("\2476/la \247eteam divide \247f: \247a모든 플레이어를 무작위 팀으로 배정합니다."); //
 						sender.sendMessage("\2476/la \247eteam auto player <팀 인원 수> \247f: \247a자동으로 인원 수에 맞춰 팀을 생성해 배정합니다."); //
 						sender.sendMessage("\2476/la \247eteam auto team <팀 갯수> \247f: \247a자동으로 팀을 생성해 배정합니다."); //
+						sender.sendMessage("\2476!<할 말> \247f: \247a팀원에게 메세지를 전송합니다. 팀원이 2명 이상일 때만 작동합니다."); //
 						return true;
 					}
 
@@ -730,7 +731,7 @@ public class CommandManager implements CommandExecutor {
 								sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 플레이어입니다.");
 							}
 						}
-						case "list" -> main.teamManager.ShowAllMember(senderPlayer);
+						case "list" -> main.teamManager.ShowAllMember(sender);
 						case "divide" -> {
 							if (!sender.isOp()) break;
 							if (main.teamManager.teams.size() > 0) {
@@ -748,9 +749,16 @@ public class CommandManager implements CommandExecutor {
 								case "player":
 									try {
 										int memberCount = Integer.parseInt(args[3]);
-										if (memberCount < 2)
+										if (memberCount < 2) {
 											sender.sendMessage("\2474[\247cLAbility\2474] \247c값이 너무 적습니다.");
+											break;
+										}
+										if (memberCount >= main.gameManager.players.size()) {
+											sender.sendMessage("\2474[\247cLAbility\2474] \247c값이 너무 많습니다.");
+											break;
+										}
 										main.teamManager.divideTeamByMemberCount(memberCount);
+										sender.sendMessage("\2476[\247eLAbility\2476] \247e팀을 자동 생성 후, 무작위 배정했습니다.");
 										break;
 									} catch (Exception e) {
 										sender.sendMessage("\2474[\247cLAbility\2474] \247c숫자를 입력해 주세요.");
@@ -759,9 +767,16 @@ public class CommandManager implements CommandExecutor {
 								case "team":
 									try {
 										int teamCount = Integer.parseInt(args[3]);
-										if (teamCount < 2)
+										if (teamCount < 2) {
 											sender.sendMessage("\2474[\247cLAbility\2474] \247c값이 너무 적습니다.");
+											break;
+										}
+										if (teamCount > main.gameManager.players.size()) {
+											sender.sendMessage("\2474[\247cLAbility\2474] \247c값이 너무 많습니다.");
+											break;
+										}
 										main.teamManager.divideTeamByTeamCount(teamCount);
+										sender.sendMessage("\2476[\247eLAbility\2476] \247e팀을 자동 생성 후, 무작위 배정했습니다.");
 										break;
 									} catch (Exception e) {
 										sender.sendMessage("\2474[\247cLAbility\2474] \247c숫자를 입력해 주세요.");

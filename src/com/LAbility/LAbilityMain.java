@@ -90,6 +90,8 @@ public class LAbilityMain extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
+        getServer().getScheduler().cancelTasks(plugin);
+
         webServer.stopTask();
         gameManager.OnGameEnd(false);
 
