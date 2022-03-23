@@ -31,6 +31,8 @@ public class LAbilityMain extends JavaPlugin implements Listener {
     public ResourcePackWebServer webServer;
     public int hasError = 0;
     public boolean useResourcePack = false;
+    public boolean burntBlock = true;
+    public boolean explodeBlock = true;
     public AbilityList<Ability> abilities = new AbilityList<>();
     public RuleList<LARule> rules = new RuleList<>();
     public ArrayList<Class<? extends Event>> registeredEventList = new ArrayList<>();

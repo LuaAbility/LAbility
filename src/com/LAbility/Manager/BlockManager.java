@@ -19,6 +19,7 @@ import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.util.HashMap;
@@ -61,6 +62,8 @@ public class BlockManager  implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public static void onBlockBurnt(BlockBurnEvent event) {
+        event.setCancelled(!LAbilityMain.instance.burntBlock);
+
         if (!event.isCancelled()) {
             Block block = event.getBlock();
             if (!changedBlocks.containsKey(block.getLocation())) {
@@ -86,6 +89,23 @@ public class BlockManager  implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public static void onBlockExplode(BlockExplodeEvent event) {
+        if (!LAbilityMain.instance.explodeBlock) event.blockList().clear();
+
+        if (!event.isCancelled()) {
+            for (Block b : event.blockList()) {
+                if (!changedBlocks.containsKey(b.getLocation())) {
+                    ChangedBlockData data = new ChangedBlockData(b.getType(), b.getBlockData());
+                    changedBlocks.put(b.getLocation(), data);
+                }
+            }
+        }
+    }
+
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public static void onEntityExplode(EntityExplodeEvent event) {
+        if (!LAbilityMain.instance.explodeBlock) event.blockList().clear();
+
         if (!event.isCancelled()) {
             for (Block b : event.blockList()) {
                 if (!changedBlocks.containsKey(b.getLocation())) {

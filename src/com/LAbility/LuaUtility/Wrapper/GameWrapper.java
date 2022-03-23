@@ -95,7 +95,7 @@ public class GameWrapper extends LuaTable {
                             }
                         }
 
-                        if (check && showMessage) abilityPlayer.getPlayer().sendMessage("\2471[\247b" + ability.abilityName + "\2471] \247b능력을 사용했습니다. (" + funcID + ")" );
+                        if (check && showMessage && (ability.abilityFunc.get(ability.abilityFunc.indexOf(funcID)).cooldown * LAbilityMain.instance.gameManager.cooldownMultiply) > 0) abilityPlayer.getPlayer().sendMessage("\2471[\247b" + ability.abilityName + "\2471] \247b능력을 사용했습니다. (" + funcID + ")" );
                         return CoerceJavaToLua.coerce(check);
                     }
                     return CoerceJavaToLua.coerce(false);
