@@ -1,6 +1,7 @@
 package com.LAbility;
 
 import com.LAbility.LuaUtility.List.AbilityList;
+import com.LAbility.Manager.TeamManager;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -28,7 +29,11 @@ public class LAPlayer {
         return player;
     }
 
-    public void setTeam(LATeam t) { team = t; }
+    public void setTeam(LATeam t) {
+        if (team != null) team.scoreboardTeam.removeEntry(player.getName());
+        if (t != null) t.scoreboardTeam.addEntry(player.getName());
+        team = t;
+    }
 
     public LATeam getTeam() {
         return team;

@@ -45,7 +45,8 @@ public class TeamList<E extends LATeam> extends ArrayList<LATeam> {
 
     @Override
     public boolean remove(Object o) {
-        if (o instanceof LAPlayer){
+        if (o instanceof LATeam team){
+            team.scoreboardTeam.unregister();
             super.remove(o);
             return true;
         }
@@ -53,11 +54,18 @@ public class TeamList<E extends LATeam> extends ArrayList<LATeam> {
         if (o instanceof String name) {
             for (LATeam t : this) {
                 if (t.teamName.equals(name)) {
+                    t.scoreboardTeam.unregister();
                     super.remove(t);
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    @Override
+    public void clear() {
+        for (LATeam t : this) t.scoreboardTeam.unregister();
+        super.clear();
     }
 }

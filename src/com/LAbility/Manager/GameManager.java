@@ -10,9 +10,16 @@ import com.LAbility.LuaUtility.List.BanIDList;
 import com.LAbility.LuaUtility.List.PlayerList;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.KeyedBossBar;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -80,6 +87,7 @@ public class GameManager {
             p.setPlayerListName(ChatColor.RESET + p.getName());
         }
 
+        LAbilityMain.instance.teamManager.clearTeam();
         isGameStarted = false;
         isGameReady = false;
         isTestMode = false;
@@ -90,6 +98,13 @@ public class GameManager {
         LAbilityMain.instance.assignAllPlayer();
         variable = new HashMap<>();
         BlockManager.ResetData();
+
+        for (Iterator<KeyedBossBar> it = Bukkit.getServer().getBossBars(); it.hasNext(); ) {
+            KeyedBossBar bb = it.next();
+            bb.removeAll();
+            bb.setVisible(false);
+            Bukkit.getServer().removeBossBar(bb.getKey());
+        }
     }
 
     public void RunEvent(Event event) {
@@ -122,6 +137,8 @@ public class GameManager {
                     }
 
                     for (LAPlayer player : players) {
+                        player.getPlayer().setScoreboard(TeamManager.scoreboard);
+
                         if (player.getTeam() != null) {
                             player.getPlayer().setDisplayName(player.getTeam().color + player.getTeam().teamName + " " + ChatColor.RESET + player.getPlayer().getName());
                             player.getPlayer().setPlayerListName(player.getTeam().color + player.getTeam().teamName + " " + ChatColor.RESET + player.getPlayer().getName());
@@ -268,7 +285,7 @@ public class GameManager {
 
     public boolean IsAllAsigned(){
         for (LAPlayer player : players){
-            if (player.isAssign == false) return false;
+            if (!player.isAssign) return false;
         }
         return true;
     }
@@ -293,42 +310,52 @@ public class GameManager {
         CheckGameEnd();
     }
 
-    public void CheckGameEnd(){
-        if (LAbilityMain.instance.teamManager.teams.size() > 0) {
-            Map<LATeam, ArrayList<LAPlayer>> teams = new HashMap<>();
+    public void CheckGameEnd() {
+        Map<LATeam, ArrayList<LAPlayer>> teams = new HashMap<>();
 
-            teams.put(null, new ArrayList<>());
-            for (LATeam t : LAbilityMain.instance.teamManager.teams) teams.put(t, new ArrayList<>());
-            for (LAPlayer p : getSurvivePlayer()) teams.get(p.getTeam()).add(p);
+        teams.put(null, new ArrayList<>());
+        for (LATeam t : LAbilityMain.instance.teamManager.teams) teams.put(t, new ArrayList<>());
+        for (LAPlayer p : getSurvivePlayer()) teams.get(p.getTeam()).add(p);
 
-            int surviveTeams = teams.get(null).size();
-            teams.remove(null);
+        int surviveTeams = teams.get(null).size();
+        teams.remove(null);
 
-            for (Map.Entry<LATeam, ArrayList<LAPlayer>> data : teams.entrySet()) if (data.getValue().size() > 0) surviveTeams++;
-            if (surviveTeams <= 1) {
+        for (Map.Entry<LATeam, ArrayList<LAPlayer>> data : teams.entrySet()) {
+            if (data.getValue().size() > 0) surviveTeams++;
+        }
 
-                for (Map.Entry<LATeam, ArrayList<LAPlayer>> data : teams.entrySet()) {
-                    if (data.getValue().size() > 0) {
-                        int index = 0;
-                        StringBuilder teamMember = new StringBuilder();
+        if (surviveTeams == 1) {
+            if (getSurvivePlayer().size() == 1 && getSurvivePlayer().get(0).getTeam() == null) {
+                Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e게임이 종료되었습니다.");
+                Bukkit.broadcastMessage("\2476[\247eLAbility\2476] " + getSurvivePlayer().get(0).getPlayer().getName() + "\247e 우승!");
 
-                        for (LAPlayer p : LAbilityMain.instance.teamManager.getTeamMember(data.getKey(), true)) {
-                            teamMember.append(p.getPlayer().getName());
-                            if (++index < getSurvivePlayer().size()) {
-                                teamMember.append(", ");
-                            }
-                        }
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    p.sendTitle("\247e게임 종료!", "\2476" + getSurvivePlayer().get(0).getPlayer().getName() + "\247e 우승!", 10, 60, 10);
+                    p.playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 0.5f, 1f);
+                }
+                OnGameEnd(true);
+                return;
+            }
 
-                        Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e게임이 종료되었습니다.");
-                        Bukkit.broadcastMessage("\2476[\247eLAbility\2476] " + data.getKey().color + data.getKey().teamName + "\247e 팀 \2477(" + teamMember + ") \247e우승!");
+            for (Map.Entry<LATeam, ArrayList<LAPlayer>> data : teams.entrySet()) {
+                if (data.getValue().size() > 0) {
+                    StringBuilder teamMember = new StringBuilder();
+                    ArrayList<LAPlayer> winner = LAbilityMain.instance.teamManager.getTeamMember(data.getKey(), true);
+
+                    for (int i = 0; i < winner.size(); i++) {
+                        teamMember.append(winner.get(i).getPlayer().getName());
+                        if (i < (winner.size() - 1)) teamMember.append(", ");
+                    }
+
+                    Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e게임이 종료되었습니다.");
+                    Bukkit.broadcastMessage("\2476[\247eLAbility\2476] " + data.getKey().color + data.getKey().teamName + "\247e 팀 \2477(" + teamMember + ") \247e우승!");
+
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        p.sendTitle("\247e게임 종료!", data.getKey().color + data.getKey().teamName + " 팀 우승!", 10, 60, 10);
+                        p.playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 0.5f, 1f);
                     }
                 }
-
-                OnGameEnd(true);
             }
-        } else if (getSurvivePlayer().size() == 1) {
-            Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e게임이 종료되었습니다.");
-            Bukkit.broadcastMessage("\2476[\247eLAbility\2476] " + getSurvivePlayer().get(0) + "\247e 우승!");
 
             OnGameEnd(true);
         }
@@ -338,22 +365,43 @@ public class GameManager {
         if (isGameReady) {
             Bukkit.getPluginManager().callEvent(new GameEndEvent(players, isGoodEnd));
 
+            if (isGoodEnd) {
+                final ArrayList<LAPlayer> survive = getSurvivePlayer();
+                final int[] i = {0};
+                new BukkitRunnable(){
+                    @Override
+                    public void run() {
+                        for (LAPlayer lap : survive) summonFirework(lap.getPlayer());
+                        if (i[0]++ > 3) {
+                            Bukkit.broadcastMessage("\2476LAbility\247e를 사용해 주셔서 감사합니다!");
+                            Bukkit.broadcastMessage("\247e플러그인 개선을 위해 현재 설문을 진행 중입니다. 작성해주시면, 더 좋은 플러그인을 만드는데 도움됩니다 :)");
+                            Bukkit.broadcastMessage("\247e설문조사 링크 \2476( https://forms.gle/VjWJXKMCYAmbNBrg9 \2476 )");
+                            Bukkit.broadcastMessage("\247e개발자 디스코드 : MINUTE#4438");
+                            cancel();
+                        }
+                    }
+                }.runTaskTimer(LAbilityMain.plugin, 0, 40);
+            }
+
+            for (Entity e : getSurvivePlayer().get(0).getPlayer().getWorld().getEntities()){
+                if (e.getType().equals(EntityType.PRIMED_TNT)) e.remove();
+                if (e.getType().equals(EntityType.ARROW)) e.remove();
+                if (e.getType().equals(EntityType.ZOMBIE)) e.remove();
+                if (e.getType().equals(EntityType.STRAY)) e.remove();
+                if (e.getType().equals(EntityType.WITHER_SKELETON)) e.remove();
+                if (e.getType().equals(EntityType.FIREBALL)) e.remove();
+                if (e.getType().equals(EntityType.DRAGON_FIREBALL)) e.remove();
+                if (e.getType().equals(EntityType.SMALL_FIREBALL)) e.remove();
+                if (e.getType().equals(EntityType.WOLF)) e.remove();
+                if (e.getType().equals(EntityType.ARMOR_STAND)) e.remove();
+            }
             for (LAPlayer lap : getSurvivePlayer()) playerAbilityList(lap);
             if (LAbilityMain.instance.rules.size() > 0) LAbilityMain.instance.rules.get(currentRuleIndex).runResetFunc();
+
 
             LAbilityMain.instance.scheduleManager.ClearTimer();
             LAbilityMain.instance.gameManager.ResetAll();
             LAbilityMain.instance.getServer().getScheduler().cancelTasks(LAbilityMain.plugin);
-
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    Bukkit.broadcastMessage("\2476LAbility\247e를 사용해 주셔서 감사합니다!");
-                    Bukkit.broadcastMessage("\247e플러그인 개선을 위해 현재 설문을 진행 중입니다. 작성해주시면, 더 좋은 플러그인을 만드는데 도움됩니다 :)");
-                    Bukkit.broadcastMessage("\247e설문조사 링크 \2476( https://forms.gle/VjWJXKMCYAmbNBrg9 \2476 )");
-                    Bukkit.broadcastMessage("\247e개발자 디스코드 : MINUTE#4438");
-                }
-            }.runTaskLater(LAbilityMain.plugin, 60);
         }
     }
 
@@ -370,7 +418,7 @@ public class GameManager {
         for (LAPlayer lap : this.players) {
             if (lap.isSurvive) {
                 String abilityString = "";
-                abilityString += ("\247e" + lap.getPlayer().getName() + "\2477 : \247a");
+                abilityString += (lap.getPlayer().getDisplayName() + "\247e : \247a");
                 int index = 0;
                 for (Ability a : lap.getAbility()) {
                     abilityString += a.abilityName;
@@ -404,6 +452,28 @@ public class GameManager {
         Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), abilityString);
 
         player.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(player.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue());
+        player.getPlayer().setGravity(true);
         player.getPlayer().setWalkSpeed(0.2f);
+        if (player.getPlayer().getGameMode().equals(GameMode.SURVIVAL) || player.getPlayer().getGameMode().equals(GameMode.ADVENTURE)) player.getPlayer().setFlying(false);
+    }
+
+    public void summonFirework(Player player){
+        final Firework f = (Firework) player.getWorld().spawnEntity(player.getLocation(), EntityType.FIREWORK);
+        FireworkMeta fm = f.getFireworkMeta();
+
+        fm.addEffect(FireworkEffect.builder()
+                .flicker(true)
+                .trail(true)
+                .with(FireworkEffect.Type.STAR)
+                .with(FireworkEffect.Type.BALL)
+                .with(FireworkEffect.Type.BALL_LARGE)
+                .withColor(Color.AQUA)
+                .withColor(Color.YELLOW)
+                .withColor(Color.RED)
+                .withColor(Color.WHITE)
+                .build());
+
+        fm.setPower(0);
+        f.setFireworkMeta(fm);
     }
 }

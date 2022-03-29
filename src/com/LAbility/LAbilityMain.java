@@ -29,6 +29,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
     public ScheduleManager scheduleManager;
     public ResourcePackManager packManager;
     public ResourcePackWebServer webServer;
+    public int autoSkipTimer = 30;
     public int hasError = 0;
     public boolean useResourcePack = false;
     public boolean burntBlock = true;
@@ -43,8 +44,8 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         instance = this;
         plugin = this.getServer().getPluginManager().getPlugin("LAbility");
         hasError = 0;
-        gameManager = new GameManager();
         teamManager = new TeamManager();
+        gameManager = new GameManager();
         scheduleManager = new ScheduleManager();
         dataPacks = new HashMap<>();
         packManager = new ResourcePackManager();

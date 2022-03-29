@@ -252,16 +252,6 @@ public class CommandManager implements CommandExecutor {
 								if (index >= 0) {
 									Bukkit.broadcastMessage("\2474[\247cLAbility\2474] " + main.gameManager.players.get(index).getPlayer().getName() + "\247c님이 관리자에 의해 탈락하셨습니다.");
 									main.gameManager.EliminatePlayer(main.gameManager.players.get(index));
-
-									if (main.gameManager.getSurvivePlayer().size() == 1) {
-										main.getServer().broadcastMessage("§6[§eLAbility§6] §e게임이 종료되었습니다.");
-										main.getServer().broadcastMessage("§6[§eLAbility§6] §e" + main.gameManager.getSurvivePlayer().get(0).getPlayer().getName() + "님이 우승하셨습니다!");
-										main.gameManager.OnGameEnd(true);
-									} else if (LAbilityMain.instance.gameManager.getSurvivePlayer().size() < 1) {
-										main.getServer().broadcastMessage("§6[§eLAbility§6] §e게임이 종료되었습니다.");
-										main.getServer().broadcastMessage("§6[§eLAbility§6] §e우승자가 없습니다.");
-										main.gameManager.OnGameEnd(true);
-									}
 									return true;
 								} else {
 									sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 플레이어 입니다.");
@@ -639,7 +629,7 @@ public class CommandManager implements CommandExecutor {
 						sender.sendMessage(serverVariables);
 
 						for (LAPlayer lap : main.gameManager.players) {
-							String variables = "\247a" + lap.getPlayer().getName() + " \2476: \247b";
+							String variables = lap.getPlayer().getDisplayName() + " \2476: \247b";
 							for (String key : lap.getVariableMap().keySet()) {
 								variables += key + "(" + lap.getVariableMap().get(key) + ")  ";
 							}
@@ -761,6 +751,7 @@ public class CommandManager implements CommandExecutor {
 										sender.sendMessage("\2476[\247eLAbility\2476] \247e팀을 자동 생성 후, 무작위 배정했습니다.");
 										break;
 									} catch (Exception e) {
+										e.printStackTrace();
 										sender.sendMessage("\2474[\247cLAbility\2474] \247c숫자를 입력해 주세요.");
 									}
 									break;
@@ -779,6 +770,7 @@ public class CommandManager implements CommandExecutor {
 										sender.sendMessage("\2476[\247eLAbility\2476] \247e팀을 자동 생성 후, 무작위 배정했습니다.");
 										break;
 									} catch (Exception e) {
+										e.printStackTrace();
 										sender.sendMessage("\2474[\247cLAbility\2474] \247c숫자를 입력해 주세요.");
 									}
 									break;

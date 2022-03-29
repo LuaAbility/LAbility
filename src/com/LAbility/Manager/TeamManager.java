@@ -18,6 +18,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,8 +29,11 @@ public class TeamManager {
     public TeamList<LATeam> teams = new TeamList<>();
     public ArrayList<ChatColor> presetColor = new ArrayList<>();
     public ArrayList<String> presetName = new ArrayList<>();
+    public static Scoreboard scoreboard;
 
     public TeamManager() {
+        scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+
         presetColor.add(ChatColor.RED);
         presetColor.add(ChatColor.BLUE);
         presetColor.add(ChatColor.GREEN);
@@ -67,8 +71,10 @@ public class TeamManager {
 
     public ArrayList<LAPlayer> getTeamMember(LATeam team, boolean allMember) {
         ArrayList<LAPlayer> teamMember = new ArrayList<>();
-        for (LAPlayer lap : LAbilityMain.instance.gameManager.players) {
-            if (lap.getTeam().equals(team) && (allMember || lap.isSurvive)) teamMember.add(lap);
+        if (team != null) {
+            for (LAPlayer lap : LAbilityMain.instance.gameManager.players) {
+                if (lap.getTeam() != null && lap.getTeam().equals(team) && (allMember || lap.isSurvive)) teamMember.add(lap);
+            }
         }
 
         return teamMember;
@@ -78,9 +84,9 @@ public class TeamManager {
         PlayerList<LAPlayer> opponentTeam = new PlayerList<>();
 
         if (lap.getTeam() == null) {
-            for (LAPlayer p : LAbilityMain.instance.gameManager.players) {
-                if (!lap.getPlayer().getName().equals(p.getPlayer().getName()) && (allMember || lap.isSurvive)) opponentTeam.add(p);
-            }
+            if (allMember) opponentTeam = (PlayerList<LAPlayer>)LAbilityMain.instance.gameManager.players.clone();
+            else opponentTeam = (PlayerList<LAPlayer>)LAbilityMain.instance.gameManager.getSurvivePlayer().clone();
+            opponentTeam.remove(lap);
         } else {
             for (LAPlayer p : LAbilityMain.instance.gameManager.players) {
                 if (!lap.getTeam().equals(p.getTeam()) && (allMember || lap.isSurvive)) opponentTeam.add(p);
@@ -94,7 +100,6 @@ public class TeamManager {
         PlayerList<LAPlayer> myTeam = new PlayerList<>();
 
         if (lap.getTeam() == null) myTeam.add(lap);
-
         else {
             for (LAPlayer p : LAbilityMain.instance.gameManager.players) {
                 if (lap.getTeam().equals(p.getTeam()) && (allMember || lap.isSurvive)) myTeam.add(p);
@@ -118,7 +123,7 @@ public class TeamManager {
         }
 
         if (teamCount > 1) {
-            teams = new TeamList<>();
+            clearTeam();
             for (int currentCount = 0; currentCount < teamCount; currentCount++) {
                 teams.add(new LATeam(presetColor.get(currentCount), presetName.get(currentCount), false));
             }
@@ -147,7 +152,7 @@ public class TeamManager {
         }
 
         if (memberCount > 1 && memberCount < order.length) {
-            teams = new TeamList<>();
+            clearTeam();
             int maxCount = (int) Math.ceil((double) order.length / memberCount);
             for (int currentCount = 0; currentCount < maxCount; currentCount++) {
                 teams.add(new LATeam(presetColor.get(currentCount), presetName.get(currentCount), false));
@@ -156,7 +161,8 @@ public class TeamManager {
 
         if (teams.size() > 0) {
             for (int i = 0; i < order.length; i++) {
-                int teamIndex = ((i + 1) % teams.size());
+                int teamIndex = i == 0 ? 0 : i / memberCount;
+                Bukkit.getConsoleSender().sendMessage(teamIndex + "");
                 LAPlayer lap = LAbilityMain.instance.gameManager.players.get(order[i]);
                 lap.setTeam(teams.get(teamIndex));
             }
@@ -169,9 +175,15 @@ public class TeamManager {
 
     public void removeTeam(String teamName) {
         for (LAPlayer lap : LAbilityMain.instance.gameManager.players) {
-            if (lap.getTeam().teamName.equals(teamName)) lap.setTeam(null);
+            if (lap.getTeam() != null && lap.getTeam().teamName.equals(teamName)) lap.setTeam(null);
         }
+
         teams.remove(teamName);
+    }
+
+    public void clearTeam() {
+        for (LAPlayer lap : LAbilityMain.instance.gameManager.players) lap.setTeam(null);
+        teams.clear();
     }
 
     public void joinTeam(LAPlayer lap, LATeam team) { lap.setTeam(team); }

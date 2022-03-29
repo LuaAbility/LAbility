@@ -242,10 +242,9 @@ public class Ability {
     }
 
     public void ExplainAbility(CommandSender player) {
-        player.sendMessage("\2476[\247e" + abilityName + "\2476]");
-        player.sendMessage("\247eRank : \247a" + abilityRank);
-        player.sendMessage("\247eType : \247a" + abilityType);
-        player.sendMessage("\247a" + FilterAbilityDescription(abilityDesc));
+        player.sendMessage("\2476===============[\247e " + abilityName + " \2476]===============");
+        player.sendMessage("\247eRank : \247a" + abilityRank + " \247e/ Type : \247a" + abilityType);
+        player.sendMessage("\247f" + FilterAbilityDescription(abilityDesc));
 
         AbilityList<Ability> relatedAbility = new AbilityList<>();
         for (Ability a : LAbilityMain.instance.abilities) {

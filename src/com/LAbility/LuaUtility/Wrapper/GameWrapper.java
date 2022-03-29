@@ -208,9 +208,12 @@ public class GameWrapper extends LuaTable {
                 if (vargs.isnil(1)) return CoerceJavaToLua.coerce(false);
                 LAPlayer player = (LAPlayer) vargs.checkuserdata(1, LAPlayer.class);
                 String ability = vargs.checkjstring(2);
+                boolean showMessage = vargs.isnil(3) || vargs.checkboolean(3);
 
-                player.getPlayer().sendMessage("\2474[\247cLAbility\2474] \247c자신의 능력이 제거됩니다.");
-                player.getPlayer().sendMessage("\2474[\247cLAbility\2474] \247c/la check로 능력을 재 확인 해주세요.");
+                if (showMessage) {
+                    player.getPlayer().sendMessage("\2474[\247cLAbility\2474] \247c자신의 능력이 제거됩니다.");
+                    player.getPlayer().sendMessage("\2474[\247cLAbility\2474] \247c/la check로 능력을 재 확인 해주세요.");
+                }
 
                 int abilityIndex = player.getAbility().indexOf(ability);
                 if (abilityIndex >= 0) {
@@ -229,15 +232,17 @@ public class GameWrapper extends LuaTable {
                 if (vargs.isnil(1)) return CoerceJavaToLua.coerce(false);
                 LAPlayer player = (LAPlayer) vargs.checkuserdata(1, LAPlayer.class);
                 String abilityID = vargs.checkjstring(2);
+                boolean showMessage = vargs.isnil(3) || vargs.checkboolean(3);
 
                 Ability newAbility;
                 int aindex = LAbilityMain.instance.abilities.indexOf(abilityID);
                 if (aindex >= 0) newAbility = new Ability(LAbilityMain.instance.abilities.get(aindex));
                 else return CoerceJavaToLua.coerce(false);
 
-
-                player.getPlayer().sendMessage("\2476[\247eLAbility\2476] \247e자신의 능력이 추가되었습니다.");
-                player.getPlayer().sendMessage("\2476[\247eLAbility\2476] \247e/la check로 능력을 재 확인 해주세요.");
+                if (showMessage) {
+                    player.getPlayer().sendMessage("\2476[\247eLAbility\2476] \247e자신의 능력이 추가되었습니다.");
+                    player.getPlayer().sendMessage("\2476[\247eLAbility\2476] \247e/la check로 능력을 재 확인 해주세요.");
+                }
 
                 player.getAbility().add(newAbility);
                 newAbility.InitScript();
