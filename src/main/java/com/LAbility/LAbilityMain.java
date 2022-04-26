@@ -34,6 +34,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
     public boolean useResourcePack = false;
     public boolean burntBlock = true;
     public boolean explodeBlock = true;
+    public boolean autoRespawn = true;
     public AbilityList<Ability> abilities = new AbilityList<>();
     public RuleList<LARule> rules = new RuleList<>();
     public ArrayList<Class<? extends Event>> registeredEventList = new ArrayList<>();
@@ -87,7 +88,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
 
         if (hasError > 0) Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c" + hasError + "개의 능력을 로드하는데 문제가 생겼습니다. 해당 능력들은 로드하지 않습니다.");
         Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \247ev" + instance.getDescription().getVersion() + " " + abilities.size() + "개 능력 로드 완료!");
-        Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \247e미추첨 능력 개수 : " + (abilities.size() - gameManager.shuffledAbilityIndex.size()) + "개");
+        Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \247e미추첨 능력 개수 : " + (abilities.size() - gameManager.shuffledAbilityIndex.size()) + "개 / 추첨 능력 개수 : "  + gameManager.shuffledAbilityIndex.size() + "개");
         Bukkit.getConsoleSender().sendMessage("Made by MINUTE.");
     }
 

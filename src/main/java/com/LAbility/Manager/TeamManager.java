@@ -115,7 +115,7 @@ public class TeamManager {
 
         for (int i = 0; i < order.length; i++) order[i] = i;
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10000; i++) {
             int randomIndex = random.nextInt(0, order.length);
             int temp = order[0];
             order[0] = order[randomIndex];
@@ -144,7 +144,7 @@ public class TeamManager {
 
         for (int i = 0; i < order.length; i++) order[i] = i;
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10000; i++) {
             int randomIndex = random.nextInt(0, order.length);
             int temp = order[0];
             order[0] = order[randomIndex];
@@ -162,7 +162,6 @@ public class TeamManager {
         if (teams.size() > 0) {
             for (int i = 0; i < order.length; i++) {
                 int teamIndex = i == 0 ? 0 : i / memberCount;
-                Bukkit.getConsoleSender().sendMessage(teamIndex + "");
                 LAPlayer lap = LAbilityMain.instance.gameManager.players.get(order[i]);
                 lap.setTeam(teams.get(teamIndex));
             }

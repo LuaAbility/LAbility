@@ -57,40 +57,44 @@ public class LARule {
 
     public void RunEvent(Event event) {
         if (LAbilityMain.instance.gameManager.isGameStarted){
+            int size = ruleFunc.entrySet().size();
             for( Map.Entry<String, Class<? extends Event>> func : ruleFunc.entrySet() ){
+                if (size != ruleFunc.entrySet().size()) break;
                 if ((func.getValue().equals(event.getClass()) || func.getValue().isInstance(event)) || func.getValue().isAssignableFrom(event.getClass())) {
-                    if (!syncScript) {
-                        globals = JsePlatform.standardGlobals();
-                        script = globals.loadfile(luaScript);
-                        globals = setGlobals(globals);
-                        script.call();
-                    }
+                    //if (!syncScript) {
+                    //    globals = JsePlatform.standardGlobals();
+                    //    script = globals.loadfile(luaScript);
+                    //    globals = setGlobals(globals);
+                    //    script.call();
+                    //}
 
-                    if (!globals.get("onEvent").isnil()) globals.get("onEvent").call(CoerceJavaToLua.coerce(func.getKey()), CoerceJavaToLua.coerce(event));
+                    if (globals == null) return;
+                    if (!globals.get("onEvent").isnil() && func.getKey() != null) globals.get("onEvent").call(CoerceJavaToLua.coerce(func.getKey()), CoerceJavaToLua.coerce(event));
                 }
             }
         }
     }
 
     public void runPassiveFunc() {
-        if (!syncScript) {
-            globals = JsePlatform.standardGlobals();
-            script = globals.loadfile(luaScript);
-            globals = setGlobals(globals);
-            script.call();
-        }
+        //if (!syncScript) {
+        //    globals = JsePlatform.standardGlobals();
+        //    script = globals.loadfile(luaScript);
+        //    globals = setGlobals(globals);
+        //    script.call();
+        //}
 
+        if (globals == null) return;
         if (!globals.get("onTimer").isnil()) globals.get("onTimer").call();
     }
 
     public void runResetFunc() {
-        if (!syncScript) {
-            globals = JsePlatform.standardGlobals();
-            script = globals.loadfile(luaScript);
-            globals = setGlobals(globals);
-            script.call();
-        }
-
+        //if (!syncScript) {
+        //    globals = JsePlatform.standardGlobals();
+        //    script = globals.loadfile(luaScript);
+        //    globals = setGlobals(globals);
+        //    script.call();
+        //}
+        if (globals == null) return;
         if (!globals.get("Reset").isnil()) globals.get("Reset").call();
     }
 

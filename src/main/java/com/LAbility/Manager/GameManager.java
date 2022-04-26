@@ -34,6 +34,7 @@ public class GameManager {
     public BukkitTask passiveTask = null;
 
     public BanIDList<String> banAbilityIDList = new BanIDList<>();
+    public ArrayList<String> banAbilityRankList = new ArrayList<>();
     public ArrayList<Integer> shuffledAbilityIndex = new ArrayList<Integer>();
     public int currentAbilityIndex = 0;
     public int currentRuleIndex = 0;
@@ -62,13 +63,17 @@ public class GameManager {
     }
 
     public void setVariable(String key, Object value){
-        if (variable.containsKey(key)) variable.replace(key, value);
-        else addVariable(key, value);
+        if (isGameStarted) {
+            if (variable.containsKey(key)) variable.replace(key, value);
+            else addVariable(key, value);
+        }
     }
 
     public void addVariable(String key, Object value) {
-        if (!variable.containsKey(key)) variable.put(key, value);
-        else variable.replace(key, value);
+        if (isGameStarted) {
+            if (!variable.containsKey(key)) variable.put(key, value);
+            else variable.replace(key, value);
+        }
     }
 
     public void removeVariable(String key) {
@@ -87,37 +92,46 @@ public class GameManager {
             p.setPlayerListName(ChatColor.RESET + p.getName());
         }
 
+        SoftReset();
         LAbilityMain.instance.teamManager.clearTeam();
+        players = new PlayerList<LAPlayer>();
+        LAbilityMain.instance.assignAllPlayer();
         isGameStarted = false;
         isGameReady = false;
         isTestMode = false;
         currentAbilityIndex = 0;
         shuffledAbilityIndex = new ArrayList<Integer>();
         StopPassive();
-        players = new PlayerList<LAPlayer>();
-        LAbilityMain.instance.assignAllPlayer();
         variable = new HashMap<>();
         BlockManager.ResetData();
+        LAbilityMain.instance.scheduleManager.ClearTimer();
 
         for (Iterator<KeyedBossBar> it = Bukkit.getServer().getBossBars(); it.hasNext(); ) {
             KeyedBossBar bb = it.next();
-            bb.removeAll();
-            bb.setVisible(false);
-            Bukkit.getServer().removeBossBar(bb.getKey());
+            if (bb != null && bb.getKey().toString().toLowerCase().contains("lability")) {
+                bb.removeAll();
+                bb.setVisible(false);
+                Bukkit.getServer().removeBossBar(bb.getKey());
+            }
         }
+    }
+
+    public void SoftReset(){
     }
 
     public void RunEvent(Event event) {
         if (isGameStarted){
             for (LAPlayer player : players){
-                if (player.isSurvive) {
-                    for (Ability ab : player.getAbility()) {
-                        ab.runAbilityFunc(player, event);
+                if (player.isSurvive && player.getAbility() != null) {
+                    int size = player.getAbility().size();
+                    for (int i = 0; i < player.getAbility().size(); i++) {
+                        if (size != player.getAbility().size()) break;
+                        player.getAbility().get(i).runAbilityFunc(player, event);
                     }
                 }
             }
 
-            if (LAbilityMain.instance.rules.size() > 0) LAbilityMain.instance.rules.get(currentRuleIndex).RunEvent(event);
+            if (LAbilityMain.instance.rules.size() > currentRuleIndex) LAbilityMain.instance.rules.get(currentRuleIndex).RunEvent(event);
         }
     }
 
@@ -138,14 +152,17 @@ public class GameManager {
 
                     for (LAPlayer player : players) {
                         player.getPlayer().setScoreboard(TeamManager.scoreboard);
+                        player.ShowActionBar();
 
                         if (player.getTeam() != null) {
                             player.getPlayer().setDisplayName(player.getTeam().color + player.getTeam().teamName + " " + ChatColor.RESET + player.getPlayer().getName());
                             player.getPlayer().setPlayerListName(player.getTeam().color + player.getTeam().teamName + " " + ChatColor.RESET + player.getPlayer().getName());
                         }
                         if (player.isSurvive && (player.getVariable("abilityLock") == null || player.getVariable("abilityLock").equals(false))) {
-                            for (Ability ab : player.getAbility()) {
-                                ab.runPassiveFunc(player);
+                            int size = player.getAbility().size();
+                            for (int i = 0; i < player.getAbility().size(); i++) {
+                                if (size != player.getAbility().size()) break;
+                                player.getAbility().get(i).runPassiveFunc(player);
                             }
                         }
                     }
@@ -180,6 +197,12 @@ public class GameManager {
                         break;
                     }
                 }
+                for (String s : banAbilityRankList) {
+                    if (LAbilityMain.instance.abilities.get(i).abilityRank.equalsIgnoreCase(s)) {
+                        isHIDDEN = true;
+                        break;
+                    }
+                }
 
                 if (!isHIDDEN) shuffledAbilityIndex.add(i);
                 else hiddenCount++;
@@ -191,7 +214,7 @@ public class GameManager {
         }
 
         if (size < 2) return;
-        for (int i = 0 ; i < 1000; i++) {
+        for (int i = 0 ; i < 10000; i++) {
             int randomIndex = random.nextInt(0, size);
             final int temp = shuffledAbilityIndex.get(0);
             shuffledAbilityIndex.set(0, shuffledAbilityIndex.get(randomIndex));
@@ -218,6 +241,12 @@ public class GameManager {
                     temp = LAbilityMain.instance.abilities.get(random.nextInt(LAbilityMain.instance.abilities.size()));
                     for (String s : banAbilityIDList) {
                         if (LAbilityMain.instance.abilities.get(i).abilityID.toLowerCase().contains(s.toLowerCase())) {
+                            isHIDDEN = true;
+                            break;
+                        }
+                    }
+                    for (String s : banAbilityRankList) {
+                        if (LAbilityMain.instance.abilities.get(i).abilityRank.equalsIgnoreCase(s)) {
                             isHIDDEN = true;
                             break;
                         }
@@ -250,6 +279,12 @@ public class GameManager {
                     break;
                 }
             }
+            for (String s : banAbilityRankList) {
+                if (ability.abilityRank.equalsIgnoreCase(s)) {
+                    isHIDDEN = true;
+                    break;
+                }
+            }
 
             if (!isHIDDEN) {
                 shuffledAbilityIndex.add(LAbilityMain.instance.abilities.indexOf(ability));
@@ -264,6 +299,12 @@ public class GameManager {
                 boolean isHIDDEN = false;
                 for (String s : banAbilityIDList) {
                     if (a.abilityID.toLowerCase().contains(s.toLowerCase())) {
+                        isHIDDEN = true;
+                        break;
+                    }
+                }
+                for (String s : banAbilityRankList) {
+                    if (a.abilityRank.equalsIgnoreCase(s)) {
                         isHIDDEN = true;
                         break;
                     }
@@ -298,6 +339,7 @@ public class GameManager {
         player.isSurvive = false;
         player.getAbility().clear();
         player.getPlayer().setGameMode(GameMode.SPECTATOR);
+        player.clearMessage();
 
         String abilityString = "tellraw " + player.getPlayer().getName() + " [\"\"," +
                 "{\"text\":\"남은 플레이어의 능력을 확인하려면 \",\"color\":\"yellow\"}," +

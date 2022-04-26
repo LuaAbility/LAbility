@@ -124,6 +124,8 @@ public class ScheduleManager {
                             break;
                         case 27:
                             Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e잠시 후, 게임을 시작합니다.");
+                            LAbilityMain.instance.gameManager.isGameReady = true;
+                            for (LAPlayer lap : LAbilityMain.instance.gameManager.players) lap.isAssign = true;
                             break;
                         case 28:
                             Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e5");

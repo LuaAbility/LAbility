@@ -9,6 +9,7 @@ import org.bukkit.SoundGroup;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Waterlogged;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -20,6 +21,7 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.util.HashMap;
@@ -116,11 +118,28 @@ public class BlockManager  implements Listener {
         }
     }
 
+    @EventHandler(priority = EventPriority.LOWEST)
+    public static void onEntityExplode(PlayerBucketEmptyEvent event) {
+        if (!event.isCancelled()) {
+            Block block = event.getBlock();
+            if (!changedBlocks.containsKey(block.getLocation())) {
+                ChangedBlockData data = new ChangedBlockData(block.getType(), block.getBlockData());
+                changedBlocks.put(block.getLocation(), data);
+            }
+        }
+    }
+
+
     public static void ResetChangedBlock() {
         for (Map.Entry<Location, ChangedBlockData> data : changedBlocks.entrySet()) {
             Location loc = data.getKey();
             loc.getBlock().setType(data.getValue().blockType);
-            if (data.getValue().blockData != null) loc.getBlock().setBlockData(data.getValue().blockData);
+            if (data.getValue().blockData != null) {
+                if (data.getValue().blockData instanceof Waterlogged){
+                    ((Waterlogged) data.getValue().blockData).setWaterlogged(false);
+                }
+                loc.getBlock().setBlockData(data.getValue().blockData);
+            }
         }
         ResetData();
     }

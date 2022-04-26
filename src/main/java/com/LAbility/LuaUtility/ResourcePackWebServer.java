@@ -37,18 +37,15 @@ public class ResourcePackWebServer {
                         url.replace("http://", "");
 
                         if (url.contains("/favicon.ico")) {
-                            Bukkit.getConsoleSender().sendMessage("1");
                             httpServerRequest.response().setStatusCode(401);
                             httpServerRequest.response().end();
                         } else {
                             if (!url.contains("/")) {
-                                Bukkit.getConsoleSender().sendMessage("2");
                                 httpServerRequest.response().setStatusCode(401);
                                 httpServerRequest.response().end();
                             } else {
                                 String[] parts = url.split("/");
                                 if (parts.length != 2) {
-                                    Bukkit.getConsoleSender().sendMessage("3");
                                     httpServerRequest.response().setStatusCode(401);
                                     httpServerRequest.response().end();
                                 } else {

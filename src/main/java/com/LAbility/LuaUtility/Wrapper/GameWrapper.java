@@ -12,6 +12,7 @@ import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
@@ -291,25 +292,54 @@ public class GameWrapper extends LuaTable {
             }
         });
 
-        set("sendActionBarMessage", new TwoArgFunction() {
+        set("sendActionBarMessage", new VarArgFunction() {
             @Override
-            public LuaValue call(LuaValue arg1, LuaValue arg2) {
-                Player player = (Player) arg1.checkuserdata(Player.class);
-                String message = arg2.checkjstring();
+            public LuaValue invoke(Varargs vargs) {
+                Player player = (Player) vargs.checkuserdata(1, Player.class);
+                String key = vargs.checkjstring(2);
+                String message = vargs.checkjstring(3);
+                int time = vargs.isnil(4) ? 0 : vargs.checkint(4);
 
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
+                if (plugin.gameManager.players.contains(player.getName())) {
+                    LAPlayer lap = plugin.gameManager.players.get(plugin.gameManager.players.indexOf(player.getName()));
+                    if (message.length() > 0) {
+                        lap.addMessage(key, message);
+                        if (time > 0) {
+                            new BukkitRunnable() {
+                                @Override
+                                public void run() {
+                                    lap.removeMessage(key);
+                                }
+                            }.runTaskLater(LAbilityMain.plugin, time);
+                        }
+                    } else lap.removeMessage(key);
+                }
+
                 return CoerceJavaToLua.coerce(true);
             }
         });
 
-        set("sendActionBarMessageToAll", new OneArgFunction() {
+        set("sendActionBarMessageToAll", new VarArgFunction() {
             @Override
-            public LuaValue call(LuaValue arg1) {
-                String message = arg1.checkjstring();
+            public LuaValue invoke(Varargs vargs) {
+                String key = vargs.checkjstring(1);
+                String message = vargs.checkjstring(2);
+                int time = vargs.isnil(3) ? 0 : vargs.checkint(3);
 
                 for (LAPlayer lap : plugin.gameManager.players) {
-                    if (lap.isSurvive)
-                        lap.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
+                    if (lap.isSurvive) {
+                        if (message.length() > 0) {
+                            lap.addMessage(key, message);
+                            if (time > 0) {
+                                new BukkitRunnable() {
+                                    @Override
+                                    public void run() {
+                                        lap.removeMessage(key);
+                                    }
+                                }.runTaskLater(LAbilityMain.plugin, time);
+                            }
+                        } else lap.removeMessage(key);
+                    }
                 }
 
                 return CoerceJavaToLua.coerce(true);

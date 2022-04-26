@@ -13,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -24,19 +25,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EventManager implements Listener {
-    private static Map<String, BukkitTask> playerList = new HashMap<>();
     public static boolean enableDisconnectOut = true;
 
     @EventHandler ()
     public static void onPlayerJoin(PlayerJoinEvent event) {
         Player p = event.getPlayer();
-
-        if (enableDisconnectOut && playerList.containsKey(p.getName())){
-            p.sendMessage("\2476[\247eLAbility\2476] \247e돌아오신 것을 환영합니다!");
-            p.sendMessage("\2476[\247eLAbility\2476] \247e게임을 계속 진행해주세요.");
-            if (playerList.get(p.getName()) != null) playerList.get(p.getName()).cancel();
-            playerList.remove(p.getName());
-        }
 
         int index = LAbilityMain.instance.gameManager.players.indexOf(p.getName());
         if (index >= 0) LAbilityMain.instance.gameManager.players.get(index).setPlayer(p);
@@ -85,27 +78,32 @@ public class EventManager implements Listener {
     }
 
     @EventHandler
+    public static void onPlayerDeath(PlayerDeathEvent event) {
+        if (LAbilityMain.instance.autoRespawn) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    event.getEntity().spigot().respawn();
+                }
+            }.runTaskLater(LAbilityMain.plugin, 60);
+        }
+    }
+
+    @EventHandler
     public static void onPlayerQuit(PlayerQuitEvent event)
     {
         Player p = event.getPlayer();
-        playerList.remove(event.getPlayer());
 
         if (!enableDisconnectOut) return;
         if (!LAbilityMain.instance.gameManager.players.contains(p)) return;
         if (!LAbilityMain.instance.gameManager.isGameReady) LAbilityMain.instance.gameManager.players.remove(p);
         else if (!LAbilityMain.instance.gameManager.players.get(LAbilityMain.instance.gameManager.players.indexOf(p)).isSurvive) LAbilityMain.instance.gameManager.players.remove(p);
         else {
-            BukkitTask task = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (LAbilityMain.instance.gameManager.isGameReady) {
-                        LAbilityMain.instance.getServer().broadcastMessage("\2476[\247eLAbility\2476] \247e" + p.getName() + "님은 게임 중 장기 미접속으로 인해 탈락처리되었습니다.");
-                        LAbilityMain.instance.gameManager.EliminatePlayer(LAbilityMain.instance.gameManager.players.get(LAbilityMain.instance.gameManager.players.indexOf(p)));
-                        playerList.remove(p.getName());
-                    }
-                }
-            }.runTaskLater(LAbilityMain.plugin,1200);
-            playerList.put(p.getName(), task);
+            if (LAbilityMain.instance.gameManager.isGameReady) {
+                LAbilityMain.instance.getServer().broadcastMessage("\2476[\247eLAbility\2476] \247e" + p.getName() + "님은 게임 중 접속 종료로 인해 탈락처리되었습니다.");
+                LAbilityMain.instance.gameManager.EliminatePlayer(LAbilityMain.instance.gameManager.players.get(LAbilityMain.instance.gameManager.players.indexOf(p)));
+                LAbilityMain.instance.gameManager.players.remove(LAbilityMain.instance.gameManager.players.get(LAbilityMain.instance.gameManager.players.indexOf(p)));
+            }
         }
     }
 

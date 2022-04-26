@@ -85,23 +85,18 @@ public class CommandManager implements CommandExecutor {
 					senderPlayer = (Player) sender;
 					index = main.gameManager.players.indexOf(senderPlayer.getName());
 					if (index >= 0) {
-						if (main.gameManager.canCheckAbility) {
-							LAPlayer lap = main.gameManager.players.get(index);
-							if ((args.length > 1)) {
-								lap.CheckAbility(senderPlayer, Integer.parseInt(args[1]));
-								return true;
-							} else {
-								lap.CheckAbility(senderPlayer, -1);
-								return true;
-							}
+						LAPlayer lap = main.gameManager.players.get(index);
+						if ((args.length > 1)) {
+							lap.CheckAbility(senderPlayer, Integer.parseInt(args[1]));
+							return true;
 						} else {
-							senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c현재 게임 설정에서는 자신의 능력을 확인할 수 없습니다.");
+							lap.CheckAbility(senderPlayer, -1);
+							return true;
 						}
 					} else {
 						senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c게임에 참여 중이 아닙니다.");
 						return true;
 					}
-					break;
 
 				case "ob":
 					if (sender.isOp()) {
@@ -149,6 +144,13 @@ public class CommandManager implements CommandExecutor {
 						boolean isHIDDEN = false;
 						for (String s : main.gameManager.banAbilityIDList) {
 							if (main.abilities.get(targetIndex).abilityID.toLowerCase().contains(s.toLowerCase())) {
+								isHIDDEN = true;
+								break;
+							}
+						}
+
+						for (String s : main.gameManager.banAbilityRankList) {
+							if (main.abilities.get(targetIndex).abilityRank.equalsIgnoreCase(s)) {
 								isHIDDEN = true;
 								break;
 							}
@@ -212,7 +214,7 @@ public class CommandManager implements CommandExecutor {
 								Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e룰 \2476[" + main.rules.get(index).ruleName + "]\247e이(가) 적용되었습니다.");
 
 								LAbilityMain.instance.gameManager.AbilityShuffle(true);
-								Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \247e미추첨 능력 개수 : " + (LAbilityMain.instance.abilities.size() - LAbilityMain.instance.gameManager.shuffledAbilityIndex.size()) + "개");
+								Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \247e미추첨 능력 개수 : " + (LAbilityMain.instance.abilities.size() - LAbilityMain.instance.gameManager.shuffledAbilityIndex.size()) + "개 / 추첨 능력 개수 : "  + LAbilityMain.instance.gameManager.shuffledAbilityIndex.size() + "개");
 								return true;
 							} else {
 								sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 룰 ID 입니다.");
@@ -460,12 +462,14 @@ public class CommandManager implements CommandExecutor {
 
 							AbilityList<Ability> alist = (AbilityList<Ability>) lap.getAbility().clone();
 
+							if (alist.size() == 1) sender.sendMessage("\2472[\247aLAbility\2472] \247e" + alist.get(0).abilityName +" \247a능력을 버리고 새로운 능력을 갖습니다.");
+							else if (alist.size() > 1) sender.sendMessage("\2472[\247aLAbility\2472] \247e" + alist.get(0).abilityName +" 등... \247a의 능력을 버리고 새로운 능력을 갖습니다.");
+
 							main.gameManager.AssignAbility(lap);
 							for (Ability a : alist) {
 								main.gameManager.ResignAbility(lap, a);
 							}
 							lap.isAssign = true;
-							sender.sendMessage("\2472[\247aLAbility\2472] \247a" + "현재 능력을 버리고 새로운 능력을 갖습니다.");
 							return true;
 						} else {
 							senderPlayer.sendMessage("\2474[\247cLAbility\2474] \247c게임에 참여 중이 아닙니다.");
@@ -611,8 +615,8 @@ public class CommandManager implements CommandExecutor {
 
 						if (LAbilityMain.instance.hasError > 0)
 							Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c" + LAbilityMain.instance.hasError + "개의 능력을 로드하는데 문제가 생겼습니다. 해당 능력들은 로드하지 않습니다.");
-						Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \2477v0.2 " + LAbilityMain.instance.abilities.size() + "개 능력 로드 완료!");
-						Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \247e미추첨 능력 개수 : " + (LAbilityMain.instance.abilities.size() - LAbilityMain.instance.gameManager.shuffledAbilityIndex.size()) + "개");
+						Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \247ev" + LAbilityMain.instance.getDescription().getVersion() + " " +  LAbilityMain.instance.abilities.size() + "개 능력 로드 완료!");
+						Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \247e미추첨 능력 개수 : " + (LAbilityMain.instance.abilities.size() - LAbilityMain.instance.gameManager.shuffledAbilityIndex.size()) + "개 / 추첨 능력 개수 : "  + LAbilityMain.instance.gameManager.shuffledAbilityIndex.size() + "개");
 						Bukkit.getConsoleSender().sendMessage("Made by MINUTE.");
 						sender.sendMessage("\2472[\247aLAbility\2472] \247aReload Complete.");
 					}
@@ -725,7 +729,7 @@ public class CommandManager implements CommandExecutor {
 						case "divide" -> {
 							if (!sender.isOp()) break;
 							if (main.teamManager.teams.size() > 0) {
-								main.teamManager.divideTeamByMemberCount(0);
+								main.teamManager.divideTeamByTeamCount(0);
 								sender.sendMessage("\2476[\247eLAbility\2476] \247e팀을 무작위 배정했습니다.");
 							} else sender.sendMessage("\2474[\247cLAbility\2474] \247c팀이 생성된 상태가 아닙니다.");
 						}
