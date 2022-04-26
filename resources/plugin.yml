@@ -1,6 +1,6 @@
 name: LAbility
 main: com.LAbility.LAbilityMain
-version: 0.8.2
+version: 0.9
 api-version: 1.17
 commands:
   la:

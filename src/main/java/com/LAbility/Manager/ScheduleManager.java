@@ -4,17 +4,29 @@ import com.LAbility.Event.GameStartEvent;
 import com.LAbility.LAPlayer;
 import com.LAbility.LAbilityMain;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.KeyedBossBar;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 public class ScheduleManager {
-    static BukkitTask Prepare_Scheduler;
-    static int time_Main = 0, time_Prepare = 0;
+    static BukkitTask Prepare_Scheduler, autoSkip;
+    static int time_Skip = 0, time_Prepare = 0;
+    static KeyedBossBar skipBossBar = null;
 
     public void ClearTimer(){
         if (Prepare_Scheduler != null) Prepare_Scheduler.cancel();
-        time_Main = 0; time_Prepare = 0;
+        if (autoSkip != null) autoSkip.cancel();
+        if (skipBossBar != null){
+            skipBossBar.removeAll();
+            Bukkit.getServer().removeBossBar(skipBossBar.getKey());
+            skipBossBar = null;
+        }
+        time_Skip = 0; time_Prepare = 0;
+
     }
 
     public void PrepareTimer() {
@@ -64,6 +76,7 @@ public class ScheduleManager {
                                 time_Prepare = 26;
                             } else {
                                 Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e/la check로 능력 확인 후, /la yes 또는 /la no를 통해 능력을 결정해주세요.");
+                                if (LAbilityMain.instance.autoSkipTimer > 0) autoSkip();
                             }
                         case 4:
                         case 5:
@@ -99,12 +112,20 @@ public class ScheduleManager {
                             break;
                         case 24:
                             Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e모든 플레이어가 능력 결정을 완료했습니다.");
+                            if (autoSkip != null) autoSkip.cancel();
+                            if (skipBossBar != null){
+                                skipBossBar.removeAll();
+                                Bukkit.getServer().removeBossBar(skipBossBar.getKey());
+                                skipBossBar = null;
+                            }
                             break;
                         case 25:
                         case 26:
                             break;
                         case 27:
                             Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e잠시 후, 게임을 시작합니다.");
+                            LAbilityMain.instance.gameManager.isGameReady = true;
+                            for (LAPlayer lap : LAbilityMain.instance.gameManager.players) lap.isAssign = true;
                             break;
                         case 28:
                             Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e5");
@@ -141,5 +162,32 @@ public class ScheduleManager {
             lap.getPlayer().setWalkSpeed(0.2f);
         }
         LAbilityMain.instance.gameManager.RunPassive();
+    }
+
+    public void autoSkip() {
+        time_Skip = 0;
+        Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e원활한 진행을 위해, " + LAbilityMain.instance.autoSkipTimer + "초 뒤 능력을 강제로 확정합니다.");
+
+        autoSkip = new BukkitRunnable(){
+            @Override
+            public void run() {
+                ++time_Skip;
+
+                if (skipBossBar == null) {
+                    skipBossBar = Bukkit.getServer().createBossBar(new NamespacedKey(LAbilityMain.plugin, "skipBossBar"), "\2476[\247e능력 결정\2476]", BarColor.GREEN, BarStyle.SEGMENTED_20);
+                    for (LAPlayer lap : LAbilityMain.instance.gameManager.players) {
+                        skipBossBar.addPlayer(lap.getPlayer());
+                    }
+                }
+                skipBossBar.setTitle("\2476[\247e능력 결정\2476] \247a스킵까지 \247e" + (LAbilityMain.instance.autoSkipTimer - time_Skip) + "초");
+                skipBossBar.setProgress(time_Skip / (float)LAbilityMain.instance.autoSkipTimer);
+
+                if (time_Skip >= LAbilityMain.instance.autoSkipTimer) {
+                    for (LAPlayer lap : LAbilityMain.instance.gameManager.players) lap.isAssign = true;
+                    time_Prepare = 24;
+                    Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e능력을 강제로 확정합니다.");
+                }
+            }
+        }.runTaskTimer(LAbilityMain.plugin, 0, 20);
     }
 }

@@ -160,6 +160,16 @@ public class PluginWrapper extends LuaTable {
             }
         });
 
+        set("banAbilityRank", new VarArgFunction() {
+            @Override
+            public LuaValue invoke(Varargs vargs) {
+                String eventName = vargs.checkjstring(1);
+
+                plugin.gameManager.banAbilityRankList.add(eventName);
+                return NIL;
+            }
+        });
+
         set("abilityItemOption", new VarArgFunction() {
             @Override
             public LuaValue invoke(Varargs vargs) {

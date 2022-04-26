@@ -1,10 +1,13 @@
 package com.LAbility.LuaUtility.Wrapper;
 
+import com.LAbility.Ability;
 import com.LAbility.LAbilityMain;
 import com.LAbility.LuaUtility.LuaException;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.projectiles.BlockProjectileSource;
+import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
@@ -63,6 +66,13 @@ public class UtilitiesWrapper extends LuaTable {
                 }
 
                 return t;
+            }
+        });
+
+        set("getDummyAbility", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue arg) {
+                return CoerceJavaToLua.coerce(new Ability("", "", "", "", "", ""));
             }
         });
 
@@ -201,6 +211,24 @@ public class UtilitiesWrapper extends LuaTable {
                     default:
                         return CoerceJavaToLua.coerce(Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command));
                 }
+            }
+        });
+
+        set("getRealDamager", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue entity) {
+                Entity damager = entity.isnil() ? null : (Entity) entity.checkuserdata(Entity.class);
+                if (damager instanceof Projectile proj){
+                    ProjectileSource source = proj.getShooter();
+                    if (source instanceof BlockProjectileSource) return NIL;
+                    else damager = (Entity)source;
+                }
+
+                if (damager instanceof TNTPrimed tnt){
+                    damager = tnt.getSource();
+                }
+
+                return CoerceJavaToLua.coerce(damager);
             }
         });
     }

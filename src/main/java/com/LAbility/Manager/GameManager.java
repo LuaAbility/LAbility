@@ -4,23 +4,26 @@ import com.LAbility.Ability;
 import com.LAbility.Event.GameEndEvent;
 import com.LAbility.Event.PlayerEliminateEvent;
 import com.LAbility.LAPlayer;
+import com.LAbility.LATeam;
 import com.LAbility.LAbilityMain;
 import com.LAbility.LuaUtility.List.BanIDList;
 import com.LAbility.LuaUtility.List.PlayerList;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.KeyedBossBar;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class GameManager {
     public boolean isGameReady = false;
@@ -31,6 +34,7 @@ public class GameManager {
     public BukkitTask passiveTask = null;
 
     public BanIDList<String> banAbilityIDList = new BanIDList<>();
+    public ArrayList<String> banAbilityRankList = new ArrayList<>();
     public ArrayList<Integer> shuffledAbilityIndex = new ArrayList<Integer>();
     public int currentAbilityIndex = 0;
     public int currentRuleIndex = 0;
@@ -59,13 +63,17 @@ public class GameManager {
     }
 
     public void setVariable(String key, Object value){
-        if (variable.containsKey(key)) variable.replace(key, value);
-        else addVariable(key, value);
+        if (isGameStarted) {
+            if (variable.containsKey(key)) variable.replace(key, value);
+            else addVariable(key, value);
+        }
     }
 
     public void addVariable(String key, Object value) {
-        if (!variable.containsKey(key)) variable.put(key, value);
-        else variable.replace(key, value);
+        if (isGameStarted) {
+            if (!variable.containsKey(key)) variable.put(key, value);
+            else variable.replace(key, value);
+        }
     }
 
     public void removeVariable(String key) {
@@ -78,52 +86,88 @@ public class GameManager {
                 ab.runResetFunc(player);
             }
         }
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.setDisplayName(ChatColor.RESET + p.getName());
+            p.setPlayerListName(ChatColor.RESET + p.getName());
+        }
+
+        SoftReset();
+        LAbilityMain.instance.teamManager.clearTeam();
+        players = new PlayerList<LAPlayer>();
+        LAbilityMain.instance.assignAllPlayer();
         isGameStarted = false;
         isGameReady = false;
         isTestMode = false;
         currentAbilityIndex = 0;
         shuffledAbilityIndex = new ArrayList<Integer>();
         StopPassive();
-        players = new PlayerList<LAPlayer>();
-        LAbilityMain.instance.assignAllPlayer();
         variable = new HashMap<>();
         BlockManager.ResetData();
+        LAbilityMain.instance.scheduleManager.ClearTimer();
+
+        for (Iterator<KeyedBossBar> it = Bukkit.getServer().getBossBars(); it.hasNext(); ) {
+            KeyedBossBar bb = it.next();
+            if (bb != null && bb.getKey().toString().toLowerCase().contains("lability")) {
+                bb.removeAll();
+                bb.setVisible(false);
+                Bukkit.getServer().removeBossBar(bb.getKey());
+            }
+        }
+    }
+
+    public void SoftReset(){
     }
 
     public void RunEvent(Event event) {
         if (isGameStarted){
             for (LAPlayer player : players){
-                if (player.isSurvive) {
-                    for (Ability ab : player.getAbility()) {
-                        ab.runAbilityFunc(player, event);
+                if (player.isSurvive && player.getAbility() != null) {
+                    int size = player.getAbility().size();
+                    for (int i = 0; i < player.getAbility().size(); i++) {
+                        if (size != player.getAbility().size()) break;
+                        player.getAbility().get(i).runAbilityFunc(player, event);
                     }
                 }
             }
 
-            if (LAbilityMain.instance.rules.size() > 0) LAbilityMain.instance.rules.get(currentRuleIndex).RunEvent(event);
+            if (LAbilityMain.instance.rules.size() > currentRuleIndex) LAbilityMain.instance.rules.get(currentRuleIndex).RunEvent(event);
         }
     }
 
     public void RunPassive() {
-        if (isGameStarted){
-            try {
-                passiveTask = new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        if (LAbilityMain.instance.rules.size() > 0 && !isTestMode)
-                            LAbilityMain.instance.rules.get(currentRuleIndex).runPassiveFunc();
-                        for (LAPlayer player : players) {
-                            if (player.isSurvive && (player.getVariable("abilityLock") == null || player.getVariable("abilityLock").equals(false))) {
-                                for (Ability ab : player.getAbility()) {
-                                    ab.runPassiveFunc(player);
-                                }
+        if (isGameStarted) {
+            passiveTask = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (LAbilityMain.instance.rules.size() > 0 && !isTestMode)
+                        LAbilityMain.instance.rules.get(currentRuleIndex).runPassiveFunc();
+
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        if (!players.contains(p)) {
+                            p.setDisplayName(ChatColor.RESET + p.getName());
+                            p.setPlayerListName(ChatColor.RESET + p.getName());
+                        }
+                    }
+
+                    for (LAPlayer player : players) {
+                        player.getPlayer().setScoreboard(TeamManager.scoreboard);
+                        player.ShowActionBar();
+
+                        if (player.getTeam() != null) {
+                            player.getPlayer().setDisplayName(player.getTeam().color + player.getTeam().teamName + " " + ChatColor.RESET + player.getPlayer().getName());
+                            player.getPlayer().setPlayerListName(player.getTeam().color + player.getTeam().teamName + " " + ChatColor.RESET + player.getPlayer().getName());
+                        }
+                        if (player.isSurvive && (player.getVariable("abilityLock") == null || player.getVariable("abilityLock").equals(false))) {
+                            int size = player.getAbility().size();
+                            for (int i = 0; i < player.getAbility().size(); i++) {
+                                if (size != player.getAbility().size()) break;
+                                player.getAbility().get(i).runPassiveFunc(player);
                             }
                         }
                     }
-                }.runTaskTimer(LAbilityMain.plugin, 0, 1);
-            } catch (Exception ignore) {
-
-            }
+                }
+            }.runTaskTimer(LAbilityMain.plugin, 0, 1);
         }
     }
 
@@ -153,6 +197,12 @@ public class GameManager {
                         break;
                     }
                 }
+                for (String s : banAbilityRankList) {
+                    if (LAbilityMain.instance.abilities.get(i).abilityRank.equalsIgnoreCase(s)) {
+                        isHIDDEN = true;
+                        break;
+                    }
+                }
 
                 if (!isHIDDEN) shuffledAbilityIndex.add(i);
                 else hiddenCount++;
@@ -164,7 +214,7 @@ public class GameManager {
         }
 
         if (size < 2) return;
-        for (int i = 0 ; i < 1000; i++) {
+        for (int i = 0 ; i < 10000; i++) {
             int randomIndex = random.nextInt(0, size);
             final int temp = shuffledAbilityIndex.get(0);
             shuffledAbilityIndex.set(0, shuffledAbilityIndex.get(randomIndex));
@@ -191,6 +241,12 @@ public class GameManager {
                     temp = LAbilityMain.instance.abilities.get(random.nextInt(LAbilityMain.instance.abilities.size()));
                     for (String s : banAbilityIDList) {
                         if (LAbilityMain.instance.abilities.get(i).abilityID.toLowerCase().contains(s.toLowerCase())) {
+                            isHIDDEN = true;
+                            break;
+                        }
+                    }
+                    for (String s : banAbilityRankList) {
+                        if (LAbilityMain.instance.abilities.get(i).abilityRank.equalsIgnoreCase(s)) {
                             isHIDDEN = true;
                             break;
                         }
@@ -223,6 +279,12 @@ public class GameManager {
                     break;
                 }
             }
+            for (String s : banAbilityRankList) {
+                if (ability.abilityRank.equalsIgnoreCase(s)) {
+                    isHIDDEN = true;
+                    break;
+                }
+            }
 
             if (!isHIDDEN) {
                 shuffledAbilityIndex.add(LAbilityMain.instance.abilities.indexOf(ability));
@@ -237,6 +299,12 @@ public class GameManager {
                 boolean isHIDDEN = false;
                 for (String s : banAbilityIDList) {
                     if (a.abilityID.toLowerCase().contains(s.toLowerCase())) {
+                        isHIDDEN = true;
+                        break;
+                    }
+                }
+                for (String s : banAbilityRankList) {
+                    if (a.abilityRank.equalsIgnoreCase(s)) {
                         isHIDDEN = true;
                         break;
                     }
@@ -258,7 +326,7 @@ public class GameManager {
 
     public boolean IsAllAsigned(){
         for (LAPlayer player : players){
-            if (player.isAssign == false) return false;
+            if (!player.isAssign) return false;
         }
         return true;
     }
@@ -271,6 +339,7 @@ public class GameManager {
         player.isSurvive = false;
         player.getAbility().clear();
         player.getPlayer().setGameMode(GameMode.SPECTATOR);
+        player.clearMessage();
 
         String abilityString = "tellraw " + player.getPlayer().getName() + " [\"\"," +
                 "{\"text\":\"남은 플레이어의 능력을 확인하려면 \",\"color\":\"yellow\"}," +
@@ -279,21 +348,100 @@ public class GameManager {
                 "{\"text\":\"을 클릭하세요.\",\"color\":\"yellow\"}]";
 
         Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), abilityString);
+
+        CheckGameEnd();
+    }
+
+    public void CheckGameEnd() {
+        Map<LATeam, ArrayList<LAPlayer>> teams = new HashMap<>();
+
+        teams.put(null, new ArrayList<>());
+        for (LATeam t : LAbilityMain.instance.teamManager.teams) teams.put(t, new ArrayList<>());
+        for (LAPlayer p : getSurvivePlayer()) teams.get(p.getTeam()).add(p);
+
+        int surviveTeams = teams.get(null).size();
+        teams.remove(null);
+
+        for (Map.Entry<LATeam, ArrayList<LAPlayer>> data : teams.entrySet()) {
+            if (data.getValue().size() > 0) surviveTeams++;
+        }
+
+        if (surviveTeams == 1) {
+            if (getSurvivePlayer().size() == 1 && getSurvivePlayer().get(0).getTeam() == null) {
+                Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e게임이 종료되었습니다.");
+                Bukkit.broadcastMessage("\2476[\247eLAbility\2476] " + getSurvivePlayer().get(0).getPlayer().getName() + "\247e 우승!");
+
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    p.sendTitle("\247e게임 종료!", "\2476" + getSurvivePlayer().get(0).getPlayer().getName() + "\247e 우승!", 10, 60, 10);
+                    p.playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 0.5f, 1f);
+                }
+                OnGameEnd(true);
+                return;
+            }
+
+            for (Map.Entry<LATeam, ArrayList<LAPlayer>> data : teams.entrySet()) {
+                if (data.getValue().size() > 0) {
+                    StringBuilder teamMember = new StringBuilder();
+                    ArrayList<LAPlayer> winner = LAbilityMain.instance.teamManager.getTeamMember(data.getKey(), true);
+
+                    for (int i = 0; i < winner.size(); i++) {
+                        teamMember.append(winner.get(i).getPlayer().getName());
+                        if (i < (winner.size() - 1)) teamMember.append(", ");
+                    }
+
+                    Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e게임이 종료되었습니다.");
+                    Bukkit.broadcastMessage("\2476[\247eLAbility\2476] " + data.getKey().color + data.getKey().teamName + "\247e 팀 \2477(" + teamMember + ") \247e우승!");
+
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        p.sendTitle("\247e게임 종료!", data.getKey().color + data.getKey().teamName + " 팀 우승!", 10, 60, 10);
+                        p.playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.MASTER, 0.5f, 1f);
+                    }
+                }
+            }
+
+            OnGameEnd(true);
+        }
     }
 
     public void OnGameEnd(boolean isGoodEnd){
         if (isGameReady) {
             Bukkit.getPluginManager().callEvent(new GameEndEvent(players, isGoodEnd));
-            PlayerList<LAPlayer> survivePlayer = getSurvivePlayer();
-            for (LAPlayer lap : survivePlayer) playerAbilityList(lap);
 
-            Bukkit.broadcastMessage("\2476LAbility\247e를 사용해 주셔서 감사합니다!");
-            Bukkit.broadcastMessage("\247e플러그인 개선을 위해 현재 설문을 진행 중입니다. 작성해주시면, 더 좋은 플러그인을 만드는데 도움됩니다 :)");
-            Bukkit.broadcastMessage("\247e설문조사 링크 \2476( \247nhttps://forms.gle/VjWJXKMCYAmbNBrg9\247r\2476 )");
-            Bukkit.broadcastMessage("\247e개발자 디스코드 : MINUTE#4438");
+            if (isGoodEnd) {
+                final ArrayList<LAPlayer> survive = getSurvivePlayer();
+                final int[] i = {0};
+                new BukkitRunnable(){
+                    @Override
+                    public void run() {
+                        for (LAPlayer lap : survive) summonFirework(lap.getPlayer());
+                        if (i[0]++ > 3) {
+                            Bukkit.broadcastMessage("\2476LAbility\247e를 사용해 주셔서 감사합니다!");
+                            Bukkit.broadcastMessage("\247e플러그인 개선을 위해 현재 설문을 진행 중입니다. 작성해주시면, 더 좋은 플러그인을 만드는데 도움됩니다 :)");
+                            Bukkit.broadcastMessage("\247e설문조사 링크 \2476( https://forms.gle/VjWJXKMCYAmbNBrg9 \2476 )");
+                            Bukkit.broadcastMessage("\247e개발자 디스코드 : MINUTE#4438");
+                            cancel();
+                        }
+                    }
+                }.runTaskTimer(LAbilityMain.plugin, 0, 40);
+            }
+
+            for (Entity e : getSurvivePlayer().get(0).getPlayer().getWorld().getEntities()){
+                if (e.getType().equals(EntityType.PRIMED_TNT)) e.remove();
+                if (e.getType().equals(EntityType.ARROW)) e.remove();
+                if (e.getType().equals(EntityType.ZOMBIE)) e.remove();
+                if (e.getType().equals(EntityType.STRAY)) e.remove();
+                if (e.getType().equals(EntityType.WITHER_SKELETON)) e.remove();
+                if (e.getType().equals(EntityType.FIREBALL)) e.remove();
+                if (e.getType().equals(EntityType.DRAGON_FIREBALL)) e.remove();
+                if (e.getType().equals(EntityType.SMALL_FIREBALL)) e.remove();
+                if (e.getType().equals(EntityType.WOLF)) e.remove();
+                if (e.getType().equals(EntityType.ARMOR_STAND)) e.remove();
+            }
+            for (LAPlayer lap : getSurvivePlayer()) playerAbilityList(lap);
+            if (LAbilityMain.instance.rules.size() > 0) LAbilityMain.instance.rules.get(currentRuleIndex).runResetFunc();
+
 
             LAbilityMain.instance.scheduleManager.ClearTimer();
-            if (LAbilityMain.instance.rules.size() > 0) LAbilityMain.instance.rules.get(currentRuleIndex).runResetFunc();
             LAbilityMain.instance.gameManager.ResetAll();
             LAbilityMain.instance.getServer().getScheduler().cancelTasks(LAbilityMain.plugin);
         }
@@ -312,7 +460,7 @@ public class GameManager {
         for (LAPlayer lap : this.players) {
             if (lap.isSurvive) {
                 String abilityString = "";
-                abilityString += ("\247e" + lap.getPlayer().getName() + "\2477 : \247a");
+                abilityString += (lap.getPlayer().getDisplayName() + "\247e : \247a");
                 int index = 0;
                 for (Ability a : lap.getAbility()) {
                     abilityString += a.abilityName;
@@ -346,6 +494,28 @@ public class GameManager {
         Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), abilityString);
 
         player.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(player.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue());
+        player.getPlayer().setGravity(true);
         player.getPlayer().setWalkSpeed(0.2f);
+        if (player.getPlayer().getGameMode().equals(GameMode.SURVIVAL) || player.getPlayer().getGameMode().equals(GameMode.ADVENTURE)) player.getPlayer().setFlying(false);
+    }
+
+    public void summonFirework(Player player){
+        final Firework f = (Firework) player.getWorld().spawnEntity(player.getLocation(), EntityType.FIREWORK);
+        FireworkMeta fm = f.getFireworkMeta();
+
+        fm.addEffect(FireworkEffect.builder()
+                .flicker(true)
+                .trail(true)
+                .with(FireworkEffect.Type.STAR)
+                .with(FireworkEffect.Type.BALL)
+                .with(FireworkEffect.Type.BALL_LARGE)
+                .withColor(Color.AQUA)
+                .withColor(Color.YELLOW)
+                .withColor(Color.RED)
+                .withColor(Color.WHITE)
+                .build());
+
+        fm.setPower(0);
+        f.setFireworkMeta(fm);
     }
 }
