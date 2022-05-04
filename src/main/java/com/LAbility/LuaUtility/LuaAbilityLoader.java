@@ -15,9 +15,11 @@ import org.luaj.vm2.lib.OneArgFunction;
 import org.luaj.vm2.lib.VarArgFunction;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 import org.luaj.vm2.lib.jse.JsePlatform;
+import org.mozilla.universalchardet.UniversalDetector;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 public class LuaAbilityLoader {
@@ -48,7 +50,13 @@ public class LuaAbilityLoader {
                             luaScriptLoc = file2.toString();
                         } else if (file2.toString().toLowerCase().contains("data.yml")) {
                             try {
-                                Map<String, Object> abilityData = new Yaml().load(new FileReader(file2));
+                                String charsetStr = findFileEncoding(file2);
+                                if (charsetStr == null) {
+                                    Bukkit.getConsoleSender().sendMessage("\2474[\247cEasySoundQuiz\2474] \247c파일을 로드하는데 문제가 생겼습니다. (위치 : " + file2.toString() + ")");
+                                    continue;
+                                }
+                                Charset charset = Charset.forName(charsetStr);
+                                Map<String, Object> abilityData = new Yaml().load(new FileReader(file2, charset));
                                 abilityID = abilityData.get("id").toString();
                                 abilityType = abilityData.get("type").toString();
                                 abilityName = abilityData.get("name").toString();
@@ -102,7 +110,13 @@ public class LuaAbilityLoader {
                             luaScriptLoc = file2.toString();
                         } else if (file2.toString().toLowerCase().contains("data.yml")) {
                             try {
-                                Map<String, Object> ruleData = new Yaml().load(new FileReader(file2));
+                                String charsetStr = findFileEncoding(file2);
+                                if (charsetStr == null) {
+                                    Bukkit.getConsoleSender().sendMessage("\2474[\247cEasySoundQuiz\2474] \247c파일을 로드하는데 문제가 생겼습니다. (위치 : " + file2.toString() + ")");
+                                    continue;
+                                }
+                                Charset charset = Charset.forName(charsetStr);
+                                Map<String, Object> ruleData = new Yaml().load(new FileReader(file2, charset));
                                 ruleID = ruleData.get("id").toString();
                                 ruleName = ruleData.get("name").toString();
                                 ruleDescription = ruleData.get("description").toString();
@@ -218,6 +232,27 @@ public class LuaAbilityLoader {
             }
         });
         return globals;
+    }
+
+    public static String findFileEncoding(File file) throws IOException {
+        byte[] buf = new byte[4096];
+        java.io.FileInputStream fis = new java.io.FileInputStream(file);
+
+        // (1)
+        UniversalDetector detector = new UniversalDetector(null);
+
+        // (2)
+        int nread;
+        while ((nread = fis.read(buf)) > 0 && !detector.isDone()) {
+            detector.handleData(buf, 0, nread);
+        }
+        // (3)
+        detector.dataEnd();
+
+        // (4)
+        String encoding = detector.getDetectedCharset();
+        detector.reset();
+        return encoding;
     }
 }
 

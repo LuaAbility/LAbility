@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/NMS/1_17/1_17.iml" filepath="$PROJECT_DIR$/NMS/1_17/1_17.iml" />
+      <module fileurl="file://$PROJECT_DIR$/NMS/1_18_R1/1_18_R1.iml" filepath="$PROJECT_DIR$/NMS/1_18_R1/1_18_R1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/NMS/1_18_R2/1_18_R2.iml" filepath="$PROJECT_DIR$/NMS/1_18_R2/1_18_R2.iml" />
       <module fileurl="file://$PROJECT_DIR$/LAbility.iml" filepath="$PROJECT_DIR$/LAbility.iml" />
+      <module fileurl="file://$PROJECT_DIR$/NMS/NMSUtil/NMSUtil.iml" filepath="$PROJECT_DIR$/NMS/NMSUtil/NMSUtil.iml" />
     </modules>
   </component>
 </project>

@@ -7,7 +7,6 @@ import com.LAbility.LuaUtility.Wrapper.GameWrapper;
 import com.LAbility.LuaUtility.Wrapper.UtilitiesWrapper;
 import com.LAbility.Manager.*;
 import org.bukkit.Bukkit;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.plugin.EventExecutor;
@@ -29,6 +28,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
     public ScheduleManager scheduleManager;
     public ResourcePackManager packManager;
     public ResourcePackWebServer webServer;
+    public NMS nms;
     public int autoSkipTimer = 30;
     public int hasError = 0;
     public boolean useResourcePack = false;
@@ -55,6 +55,17 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         if (!LAbilityMain.instance.getDataFolder().exists()){
             LAbilityMain.instance.getDataFolder().mkdir();
             (new File(LAbilityMain.instance.getDataFolder().toString() + "\\Ability")).mkdir();
+        }
+
+        if(Bukkit.getVersion().contains("1.17")) {
+            this.nms = new NMS_1_17();
+        } else if(Bukkit.getVersion().contains("1.18.1")) {
+            this.nms = new NMS_1_18_R1();
+        } else if(Bukkit.getVersion().contains("1.18.2")) {
+            this.nms = new NMS_1_18_R2();
+        } else {
+            this.nms = null;
+            Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247cNMS 미지원 버전입니다. 일부 기능이 작동하지 않습니다.");
         }
 
         registeredEventList = new ArrayList<>();
@@ -96,11 +107,16 @@ public class LAbilityMain extends JavaPlugin implements Listener {
     public void onDisable() {
         getServer().getScheduler().cancelTasks(plugin);
 
-        webServer.stopTask();
         gameManager.OnGameEnd(false);
 
         Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \2477v" + instance.getDescription().getVersion() + " 비활성화 되었습니다.");
         Bukkit.getConsoleSender().sendMessage("Made by MINUTE.");
+
+        try {
+            webServer.stopTask();
+        } catch (Exception ignore){
+
+        }
     }
 
     public Listener registerEvent(Ability ability, String funcName, Class<? extends Event> event, int cooldown) {

@@ -1,4 +1,4 @@
-package com.LAbility.LuaUtility;
+package com.LAbility;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;

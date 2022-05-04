@@ -10,52 +10,29 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c634ea3c-3084-4aa3-8959-bda19f302d52" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_comphenix_protocol_ProtocolLib_4_8_0.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__net_bytebuddy_byte_buddy_1_12_8.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/spigot_1_17_1.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/LuaUtility/ReflectionUtil.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/NMS/NMS.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/NMS/NMS_1_17.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/NMS/NMS_1_18_R1.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/NMS/NMS_1_18_R2.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/discord.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/discord.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/spigot_1_18_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/spigot_1_18_2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/NMS/1_17/1_17.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/NMS/1_18_R1/1_18_R1.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/NMS/1_18_R2/1_18_R2.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/NMS/NMSUtil/NMSUtil.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/artifacts/LAbility.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/artifacts/LAbility.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_comphenix_protocol_ProtocolLib_4_8_0.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__net_bytebuddy_byte_buddy_1_12_8.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/json_simple_1_1_1.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/json_simple_1_1_1.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/spigot_1_17_1.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/spigot_1_17_1.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LAbility.iml" beforeDir="false" afterPath="$PROJECT_DIR$/LAbility.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/Ability.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/Ability.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/Event/AbilityConfirmEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/Event/AbilityConfirmEvent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/Event/GameEndEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/Event/GameEndEvent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/Event/GameStartEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/Event/GameStartEvent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/Event/PlayerEliminateEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/Event/PlayerEliminateEvent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/Event/PlayerTargetEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/Event/PlayerTargetEvent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/LAPlayer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/LAPlayer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/LARule.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/LARule.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/LATeam.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/LATeam.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/LAbilityMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/LAbilityMain.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/LuaUtility/List/AbilityList.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/LuaUtility/List/AbilityList.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/LuaUtility/List/BanIDList.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/LuaUtility/List/BanIDList.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/LuaUtility/List/FunctionList.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/LuaUtility/List/FunctionList.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/LuaUtility/List/PlayerList.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/LuaUtility/List/PlayerList.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/LuaUtility/List/RuleList.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/LuaUtility/List/RuleList.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/LuaUtility/List/TeamList.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/LuaUtility/List/TeamList.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/LuaUtility/LuaAbilityLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/LuaUtility/LuaAbilityLoader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/LuaUtility/LuaException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/LuaUtility/LuaException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/LuaUtility/ResourcePackWebServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/LuaUtility/ResourcePackWebServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/LuaUtility/Wrapper/GameWrapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/LuaUtility/Wrapper/GameWrapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/LuaUtility/Wrapper/LoggerWrapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/LuaUtility/Wrapper/LoggerWrapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/LuaUtility/Wrapper/PluginWrapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/LuaUtility/Wrapper/PluginWrapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/LuaUtility/Wrapper/UtilitiesWrapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/LuaUtility/Wrapper/UtilitiesWrapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/Manager/BlockManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/Manager/BlockManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/Manager/CommandManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/Manager/CommandManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/Manager/EventManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/Manager/EventManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/Manager/GameManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/Manager/GameManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/Manager/ResourcePackManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/Manager/ResourcePackManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/Manager/ScheduleManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/Manager/ScheduleManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/Manager/TabManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/Manager/TabManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/LAbility/Manager/TeamManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/Manager/TeamManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/LAbility/LAbilityMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/LAbilityMain.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/LAbility/LuaUtility/LuaAbilityLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/LuaUtility/LuaAbilityLoader.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/LAbility/LuaUtility/ReflectionUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/NMS/NMSUtil/src/com/LAbility/ReflectionUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/LAbility/LuaUtility/Wrapper/UtilitiesWrapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/LuaUtility/Wrapper/UtilitiesWrapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/LAbility/Manager/GameManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/Manager/GameManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/LAbility/NMS/NMS.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/LAbility/NMS/NMS_1_17.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/LAbility/NMS/NMS_1_18_R1.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/LAbility/NMS/NMS_1_18_R2.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -82,13 +59,18 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../NMS/spigot-1.18.2-R0.1-SNAPSHOT.jar" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../NMS/datafixerupper-4.1.27.jar" />
     <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.15254237" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="settings.editor.selected.configurable" value="reference.settings.project.maven.importing" />
   </component>
   <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="G:\Git\LAbility\src\main\java\com\LAbility\NMS\1_18_R2\com.LAbility" />
+      <recent name="G:\Git\LAbility\src\main\java\com\LAbility\NMS\1_18_R1\com.LAbility" />
+      <recent name="G:\Git\LAbility\src\main\java\com\LAbility\NMS\1_17\src\com\LAbility" />
+    </key>
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="com.LAbility.NMS" />
     </key>

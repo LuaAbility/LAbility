@@ -425,17 +425,19 @@ public class GameManager {
                 }.runTaskTimer(LAbilityMain.plugin, 0, 40);
             }
 
-            for (Entity e : getSurvivePlayer().get(0).getPlayer().getWorld().getEntities()){
-                if (e.getType().equals(EntityType.PRIMED_TNT)) e.remove();
-                if (e.getType().equals(EntityType.ARROW)) e.remove();
-                if (e.getType().equals(EntityType.ZOMBIE)) e.remove();
-                if (e.getType().equals(EntityType.STRAY)) e.remove();
-                if (e.getType().equals(EntityType.WITHER_SKELETON)) e.remove();
-                if (e.getType().equals(EntityType.FIREBALL)) e.remove();
-                if (e.getType().equals(EntityType.DRAGON_FIREBALL)) e.remove();
-                if (e.getType().equals(EntityType.SMALL_FIREBALL)) e.remove();
-                if (e.getType().equals(EntityType.WOLF)) e.remove();
-                if (e.getType().equals(EntityType.ARMOR_STAND)) e.remove();
+            if (getSurvivePlayer().size() > 0) {
+                for (Entity e : getSurvivePlayer().get(0).getPlayer().getWorld().getEntities()) {
+                    if (e.getType().equals(EntityType.PRIMED_TNT)) e.remove();
+                    if (e.getType().equals(EntityType.ARROW)) e.remove();
+                    if (e.getType().equals(EntityType.ZOMBIE)) e.remove();
+                    if (e.getType().equals(EntityType.STRAY)) e.remove();
+                    if (e.getType().equals(EntityType.WITHER_SKELETON)) e.remove();
+                    if (e.getType().equals(EntityType.FIREBALL)) e.remove();
+                    if (e.getType().equals(EntityType.DRAGON_FIREBALL)) e.remove();
+                    if (e.getType().equals(EntityType.SMALL_FIREBALL)) e.remove();
+                    if (e.getType().equals(EntityType.WOLF)) e.remove();
+                    if (e.getType().equals(EntityType.ARMOR_STAND)) e.remove();
+                }
             }
             for (LAPlayer lap : getSurvivePlayer()) playerAbilityList(lap);
             if (LAbilityMain.instance.rules.size() > 0) LAbilityMain.instance.rules.get(currentRuleIndex).runResetFunc();

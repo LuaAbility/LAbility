@@ -17,6 +17,7 @@ import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.OneArgFunction;
 import org.luaj.vm2.lib.ThreeArgFunction;
 import org.luaj.vm2.lib.TwoArgFunction;
+import org.luaj.vm2.lib.ZeroArgFunction;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 import java.util.*;
@@ -229,6 +230,16 @@ public class UtilitiesWrapper extends LuaTable {
                 }
 
                 return CoerceJavaToLua.coerce(damager);
+            }
+        });
+
+        set("getNMS", new ZeroArgFunction() {
+            @Override
+            public LuaValue call() {
+                if (LAbilityMain.instance.nms == null){
+                    Bukkit.getConsoleSender().sendMessage("\2478[\2477LAbility\2478] \2477NMS 미지원 버전이므로, 일부 기능이 작동하지 않습니다.");
+                }
+                return CoerceJavaToLua.coerce(LAbilityMain.instance.nms);
             }
         });
     }
