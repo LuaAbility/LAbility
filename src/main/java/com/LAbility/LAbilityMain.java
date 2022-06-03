@@ -84,15 +84,16 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         gameManager.AbilityShuffle(true);
 
         assignAllPlayer();
-        if (dataPacks.size() > 0) {
-            try {
-                if (webServer.start()) appendResourcePacks();
-                else Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩을 사용하지 않습니다. 일부 능력의 효과음이 재생되지 않습니다.");
-            } catch (Exception e) {
-                Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩 생성 오류!");
-                Bukkit.getConsoleSender().sendMessage(e.getMessage());
-            }
-        }
+
+        //if (dataPacks.size() > 0) {
+        //    try {
+        //        if (webServer.start()) appendResourcePacks();
+        //        else Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩을 사용하지 않습니다. 일부 능력의 효과음이 재생되지 않습니다.");
+        //    } catch (Exception e) {
+        //        Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩 생성 오류!");
+        //        Bukkit.getConsoleSender().sendMessage(e.getMessage());
+        //    }
+        //}
 
         if (rules.size() > 0) {
             rules.get(0).InitScript();

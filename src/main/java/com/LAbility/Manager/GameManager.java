@@ -115,6 +115,7 @@ public class GameManager {
         if (variable.containsKey("-endSize")) defaultValues.put("-endSize", variable.get("-endSize"));
         if (variable.containsKey("-startReduct")) defaultValues.put("-startReduct", variable.get("-startReduct"));
         if (variable.containsKey("-duration")) defaultValues.put("-duration", variable.get("-duration"));
+        if (variable.containsKey("-godMode")) defaultValues.put("-godMode", variable.get("-godMode"));
 
         LAbilityMain.instance.teamManager.clearTeam();
         players = new PlayerList<LAPlayer>();
@@ -282,6 +283,7 @@ public class GameManager {
                 player.getAbility().add(a);
                 a.InitScript();
             } else {
+                if (shuffledAbilityIndex.size() < 1) AbilityShuffle(true);
                 Ability a = new Ability(LAbilityMain.instance.abilities.get(shuffledAbilityIndex.get(0)));
                 player.getAbility().add(a);
                 a.InitScript();

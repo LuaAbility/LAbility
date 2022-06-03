@@ -17,15 +17,16 @@ public class ScheduleManager {
     static int time_Skip = 0, time_Prepare = 0;
     static KeyedBossBar skipBossBar = null;
 
-    public void ClearTimer(){
+    public void ClearTimer() {
         if (Prepare_Scheduler != null) Prepare_Scheduler.cancel();
         if (autoSkip != null) autoSkip.cancel();
-        if (skipBossBar != null){
+        if (skipBossBar != null) {
             skipBossBar.removeAll();
             Bukkit.getServer().removeBossBar(skipBossBar.getKey());
             skipBossBar = null;
         }
-        time_Skip = 0; time_Prepare = 0;
+        time_Skip = 0;
+        time_Prepare = 0;
 
     }
 
@@ -39,9 +40,7 @@ public class ScheduleManager {
                 lap.lifeCount = LAbilityMain.instance.gameManager.defaultLife;
             }
             MainTimer();
-        }
-
-        else {
+        } else {
             Prepare_Scheduler = new BukkitRunnable() {
                 public void run() {
                     switch (time_Prepare) {
@@ -62,7 +61,7 @@ public class ScheduleManager {
                             }
                             Bukkit.broadcastMessage("\247b능력 시전 아이템 통일 \247f: \247a" + LAbilityMain.instance.gameManager.overrideItem);
                             if (LAbilityMain.instance.gameManager.overrideItem)
-                                Bukkit.broadcastMessage("\247b통일된 아이템의 종류 \247f: \247a" + LAbilityMain.instance.gameManager.targetItem.toString());
+                                Bukkit.broadcastMessage("\247b통일된 아이템의 종류 \247f: \247a" + LAbilityMain.instance.gameManager.targetItemString);
                             Bukkit.broadcastMessage("\247b능력 쿨타임 배율 \247f: \247ax" + LAbilityMain.instance.gameManager.cooldownMultiply);
                             if (!LAbilityMain.instance.gameManager.raffleAbility) time_Prepare = 26;
                             break;
@@ -74,17 +73,17 @@ public class ScheduleManager {
                             LAbilityMain.instance.gameManager.AbilityShuffle(true);
                             LAbilityMain.instance.gameManager.AssignAbility();
                             Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e능력 추첨이 완료되었습니다.");
-                            if ((!LAbilityMain.instance.gameManager.overlapAbility && ((LAbilityMain.instance.gameManager.abilityAmount * LAbilityMain.instance.gameManager.players.size()) == LAbilityMain.instance.abilities.size())) ||
-                                    (LAbilityMain.instance.gameManager.overlapAbility && LAbilityMain.instance.gameManager.abilityAmount == LAbilityMain.instance.abilities.size()) ||
-                                    LAbilityMain.instance.gameManager.skipYesOrNo) {
+                            if (LAbilityMain.instance.gameManager.skipYesOrNo) {
                                 Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e게임 설정으로 인해 능력 변경은 진행되지 않습니다.");
                                 for (LAPlayer lap : LAbilityMain.instance.gameManager.players) lap.isAssign = 0;
                                 time_Prepare = 26;
                             } else {
                                 if (LAbilityMain.instance.autoSkipTimer > 0) autoSkip();
+                                Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e채팅창의 선택 버튼 또는 \2476/la [yes/no] \247e명령어로 능력을 결정해주세요.");
                             }
 
-                            for (LAPlayer lap : LAbilityMain.instance.gameManager.players) lap.CheckAbility(lap.getPlayer(), -1);
+                            for (LAPlayer lap : LAbilityMain.instance.gameManager.players)
+                                lap.CheckAbility(lap.getPlayer(), -1);
                         case 4:
                         case 5:
                         case 6:
@@ -120,7 +119,7 @@ public class ScheduleManager {
                         case 24:
                             Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e모든 플레이어가 능력 결정을 완료했습니다.");
                             if (autoSkip != null) autoSkip.cancel();
-                            if (skipBossBar != null){
+                            if (skipBossBar != null) {
                                 skipBossBar.removeAll();
                                 Bukkit.getServer().removeBossBar(skipBossBar.getKey());
                                 skipBossBar = null;
@@ -160,7 +159,8 @@ public class ScheduleManager {
 
     public void MainTimer() {
         Bukkit.getPluginManager().callEvent(new GameStartEvent());
-        if (!LAbilityMain.instance.gameManager.skipInformation) Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e게임 시작!");
+        if (!LAbilityMain.instance.gameManager.skipInformation)
+            Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e게임 시작!");
         LAbilityMain.instance.gameManager.isGameStarted = true;
         for (LAPlayer lap : LAbilityMain.instance.gameManager.players) {
             lap.isSurvive = true;
@@ -186,7 +186,7 @@ public class ScheduleManager {
         time_Skip = 0;
         Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e원활한 진행을 위해, " + LAbilityMain.instance.autoSkipTimer + "초 뒤 능력을 강제로 확정합니다.");
 
-        autoSkip = new BukkitRunnable(){
+        autoSkip = new BukkitRunnable() {
             @Override
             public void run() {
                 ++time_Skip;
@@ -198,7 +198,7 @@ public class ScheduleManager {
                     }
                 }
                 skipBossBar.setTitle("\2476[\247e능력 결정\2476] \247a스킵까지 \247e" + (LAbilityMain.instance.autoSkipTimer - time_Skip) + "초");
-                skipBossBar.setProgress(time_Skip / (float)LAbilityMain.instance.autoSkipTimer);
+                skipBossBar.setProgress(time_Skip / (float) LAbilityMain.instance.autoSkipTimer);
 
                 if (time_Skip >= LAbilityMain.instance.autoSkipTimer) {
                     for (LAPlayer lap : LAbilityMain.instance.gameManager.players) lap.isAssign = 0;

@@ -65,6 +65,7 @@ public class CommandManager implements CommandExecutor {
 					sender.sendMessage("\2476/la \247estart \247f: \247a게임을 시작합니다.");
 					sender.sendMessage("\2476/la \247estop \247f: \247a게임을 중지합니다.");
 					sender.sendMessage("\2476/la \247eskip \247f: \247a모든 플레이어의 능력을 모두 확정합니다."); // OK
+					sender.sendMessage("\2476/la \247eforcegod \247f: \247a임의로 무적 시간을 종료합니다."); // OK
 					sender.sendMessage("\2476/la \247ereroll <Player>\247f: \247a플레이어의 능력을 재추첨합니다. 공란 시 모두 변경."); // OK
 					sender.sendMessage("\2476/la \247eob <Player>\247f: \247a해당 플레이어를 게임에서 제외합니다.");  // OK
 					sender.sendMessage("\2476/la \247esee <Player> \247f: \247a플레이어에게 할당된 능력들을 확인합니다.");  // OK
@@ -88,12 +89,14 @@ public class CommandManager implements CommandExecutor {
 					sender.sendMessage("\2476/la \247espawn <TeamName> \247f: \247a현재 위치로 스폰 위치를 설정합니다. 팀 입력 시 팀의 스폰 위치를 설정합니다."); // OK
 					sender.sendMessage("\2476/la \247eraffle <AbilityCount> \247f: \247a능력 추첨 시 해당 값만큼 능력을 추첨합니다. 0 이하 설정 시 추첨 안함."); // OK
 					sender.sendMessage("\2476/la \247ehealth <MaxHealth> \247f: \247a게임 최대 체력을 설정합니다."); // OK
+					sender.sendMessage("\2476/la \247egod <Time> \247f: \247a무적 시간을 설정합니다. (단위 : 초)"); // OK
 					sender.sendMessage("\2476/la \247eborder size <StartSize> <EndSize>\247f: \247a월드보더의 크기를 설정합니다."); //
 					sender.sendMessage("\2476/la \247eborder time <StartReduct> <Duration>\247f: \247a월드보더 크기 변경 시작 시간/변경 진행 시간을 설정합니다."); //
 					sender.sendMessage("\2476/la \247eitem <TeamName>\247f: \247a시작 시 지급 아이템 설정 GUI를 엽니다. 팀 입력 시 팀의 아이템을 설정합니다."); //
 					sender.sendMessage("\2476/la \247eequip <TeamName>\247f: \247a시작 시 착용 아이템 설정 GUI를 엽니다. 팀 입력 시 팀의 아이템을 설정합니다."); //
 					sender.sendMessage("\2476/la \247eban <AbilityID>\247f: \247a해당 ID를 가지고 있는 능력들을 밴합니다."); //ok
 					sender.sendMessage("\2476/la \247eunban <AbilityID>\247f: \247a해당 ID를 가지고 있는 능력들의 밴을 해제합니다."); // ok
+					sender.sendMessage("\2476/la \247eedit <Variable> <Value>\247f: \247a변수 값을 직접 변경합니다. (오류가 생길 수 있습니다)"); // ok
 					break;
 
 				case "debug":
@@ -381,6 +384,22 @@ public class CommandManager implements CommandExecutor {
 					}
 					break;
 
+				case "edit":
+					if (!isOp) return true;
+					if ((args.length > 2)) {
+						if (main.gameManager.variable.containsKey(args[1])){
+							sender.sendMessage("\2476[\247eLAbility\2476] \247e변수 [" + args[1] + "]의 값을 [" + args[2] + "]로 수정했습니다.");
+						} else {
+							sender.sendMessage("\2476[\247eLAbility\2476] \247e변수 [" + args[1] + "]를 생성해, 값을 [" + args[2] + "]로 설정했습니다.");
+						}
+
+						main.gameManager.addVariable(args[1], args[2]);
+						return true;
+					} else {
+						sender.sendMessage("\2474[\247cLAbility\2474] \247c값을 입력해주세요.");
+					}
+					break;
+
 				case "health":
 					if (!isOp) return true;
 					if ((args.length > 1)) {
@@ -395,6 +414,41 @@ public class CommandManager implements CommandExecutor {
 						return true;
 					} else {
 						sender.sendMessage("\2474[\247cLAbility\2474] \247c값을 입력해주세요.");
+					}
+					break;
+
+				case "god":
+					if (!isOp) return true;
+					if ((args.length > 1)) {
+						int healthAmount = Integer.parseInt(args[1]);
+						boolean canUse = healthAmount > 0;
+
+						if (healthAmount > 0) {
+							main.gameManager.maxHealth = healthAmount;
+							sender.sendMessage("\2476[\247eLAbility\2476] \247e무적 시간을 " + healthAmount + "초로 설정했습니다.");
+						}
+						else sender.sendMessage("\2474[\247cLAbility\2474] \247c값이 너무 적습니다.");
+						return true;
+					} else {
+						sender.sendMessage("\2474[\247cLAbility\2474] \247c값을 입력해주세요.");
+					}
+					break;
+
+				case "forcegod":
+					if (!isOp) return true;
+					try {
+						int gameCount = (int) main.gameManager.getVariable("gameCount");
+						int godMode = (int) main.gameManager.getVariable("-godMode");
+
+						if ((gameCount - 1) <= godMode){
+							sender.sendMessage("\2474[\247cLAbility\2474] \247c이미 무적시간이 종료되었습니다.");
+							break;
+						} else {
+							Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e관리자가 무적시간을 종료시켰습니다.");
+							main.gameManager.setVariable("gameCount", godMode - 1);
+						}
+					} catch (Exception e){
+						sender.sendMessage("\2474[\247cLAbility\2474] \247c무적시간을 종료 할 수 없습니다.");
 					}
 					break;
 
@@ -853,33 +907,8 @@ public class CommandManager implements CommandExecutor {
 				case "start":
 					if (isOp) {
 						if (!main.gameManager.isGameReady) {
-							if (!LAbilityMain.instance.gameManager.raffleAbility)
-								LAbilityMain.instance.scheduleManager.PrepareTimer();
-							else if ((!LAbilityMain.instance.gameManager.overlapAbility && (LAbilityMain.instance.gameManager.abilityAmount * LAbilityMain.instance.gameManager.players.size()) > LAbilityMain.instance.abilities.size()) ||
-									(LAbilityMain.instance.gameManager.overlapAbility && LAbilityMain.instance.gameManager.abilityAmount > LAbilityMain.instance.abilities.size())) {
-								if (!LAbilityMain.instance.gameManager.overlapAbility) {
-									sender.sendMessage("\2474[\247cLAbility\2474] \247c인원 수가 너무 많아 게임 플레이가 불가능합니다.");
-									sender.sendMessage("\2474[\247cLAbility\2474] \247c현재 로드된 능력들로 플레이 가능한 최대 인원은 " + LAbilityMain.instance.abilities.size() / LAbilityMain.instance.gameManager.abilityAmount + "명 입니다.");
-								}
-								if (LAbilityMain.instance.gameManager.abilityAmount > 1)
-									sender.sendMessage("\2474[\247cLAbility\2474] \247c추첨하는 능력의 개수가 너무 많습니다. 추첨하는 능력의 개수를 줄여주세요.");
-							} else if (LAbilityMain.instance.gameManager.players.size() < 2) {
-								sender.sendMessage("\2474[\247cLAbility\2474] \247c한 명일때는 게임 시작이 불가능합니다.");
-							} else {
-								if (LAbilityMain.instance.dataPacks.size() > 0 && LAbilityMain.instance.useResourcePack) {
-									for (Player player : Bukkit.getOnlinePlayers()) {
-										try {
-											String url = LAbilityMain.instance.webServer.getWebIp() + player.getUniqueId();
-											player.setResourcePack(url, (byte[]) null, false);
-										} catch (Exception e) {
-											Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩 로딩 오류!");
-											Bukkit.getConsoleSender().sendMessage(e.getMessage());
-										}
-									}
-								}
-
-								LAbilityMain.instance.scheduleManager.PrepareTimer();
-							}
+							if (main.gameManager.overlapAbility || main.gameManager.shuffledAbilityIndex.size() > 0) LAbilityMain.instance.scheduleManager.PrepareTimer();
+							else sender.sendMessage("\2474[\247cLAbility\2474] \247c게임 설정 이상으로 게임을 시작 할 수 없습니다.");
 						} else {
 							sender.sendMessage("\2474[\247cLAbility\2474] \247c게임이 진행 중입니다.");
 						}
@@ -911,17 +940,17 @@ public class CommandManager implements CommandExecutor {
 							}
 
 
-							if (LAbilityMain.instance.dataPacks.size() > 0 && LAbilityMain.instance.useResourcePack) {
-								for (Player player : Bukkit.getOnlinePlayers()) {
-									try {
-										String url = LAbilityMain.instance.webServer.getWebIp() + player.getUniqueId();
-										player.setResourcePack(url, (byte[]) null, false);
-									} catch (Exception e) {
-										Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩 로딩 오류!");
-										Bukkit.getConsoleSender().sendMessage(e.getMessage());
-									}
-								}
-							}
+							//if (LAbilityMain.instance.dataPacks.size() > 0 && LAbilityMain.instance.useResourcePack) {
+							//	for (Player player : Bukkit.getOnlinePlayers()) {
+							//		try {
+							//			String url = LAbilityMain.instance.webServer.getWebIp() + player.getUniqueId();
+							//			player.setResourcePack(url, (byte[]) null, false);
+							//		} catch (Exception e) {
+							//			Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩 로딩 오류!");
+							//			Bukkit.getConsoleSender().sendMessage(e.getMessage());
+							//		}
+							//	}
+							//}
 							LAbilityMain.instance.gameManager.RunPassive();
 						}
 					}
@@ -954,17 +983,17 @@ public class CommandManager implements CommandExecutor {
 
 						LAbilityMain.instance.gameManager.AbilityShuffle(true);
 
-						if (LAbilityMain.instance.dataPacks.size() > 0) {
-							try {
-								if (LAbilityMain.instance.webServer.start())
-									LAbilityMain.instance.appendResourcePacks();
-								else
-									Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩을 사용하지 않습니다. 일부 능력의 효과음이 재생되지 않습니다.");
-							} catch (Exception e) {
-								Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩 생성 오류!");
-								Bukkit.getConsoleSender().sendMessage(e.getMessage());
-							}
-						}
+						//if (LAbilityMain.instance.dataPacks.size() > 0) {
+						//	try {
+						//		if (LAbilityMain.instance.webServer.start())
+						//			LAbilityMain.instance.appendResourcePacks();
+						//		else
+						//			Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩을 사용하지 않습니다. 일부 능력의 효과음이 재생되지 않습니다.");
+						//	} catch (Exception e) {
+						//		Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩 생성 오류!");
+						//		Bukkit.getConsoleSender().sendMessage(e.getMessage());
+						//	}
+						//}
 
 						if (LAbilityMain.instance.rules.size() > 0) {
 							LAbilityMain.instance.rules.get(0).InitScript();
@@ -1008,6 +1037,7 @@ public class CommandManager implements CommandExecutor {
 						sender.sendMessage("\2476/la \247eteam remove <팀 이름> \247f: \247a팀을 삭제합니다. 가입된 팀원은 팀을 잃습니다."); //
 						sender.sendMessage("\2476/la \247eteam join <플레이어 이름> <팀 이름> \247f: \247a해당 플레이어를 팀에 가입시킵니다."); //
 						sender.sendMessage("\2476/la \247eteam leave <플레이어 이름> \247f: \247a해당 플레이어를 팀에 탈퇴시킵니다."); //
+						sender.sendMessage("\2476/la \247eteam change <플레이어 이름> <팀 이름> \247f: \247a해당 플레이어의 팀을 변경합니다."); //
 						sender.sendMessage("\2476/la \247eteam list \247f: \247a현재 생성된 팀과 팀원을 확인합니다.");
 						sender.sendMessage("\2476/la \247eteam divide \247f: \247a모든 플레이어를 무작위 팀으로 배정합니다."); //
 						sender.sendMessage("\2476/la \247eteam auto player <팀 인원 수> \247f: \247a자동으로 인원 수에 맞춰 팀을 생성해 배정합니다."); //
@@ -1084,6 +1114,32 @@ public class CommandManager implements CommandExecutor {
 
 								sender.sendMessage("\2476[\247eLAbility\2476] " + lap.getPlayer().getName() + "\247e님을 팀 [" + lap.getTeam().color + lap.getTeam().teamName + "\247e]에서 탈퇴시켰습니다.");
 								main.teamManager.leaveTeam(lap);
+							} else {
+								sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 플레이어입니다.");
+							}
+						}
+						case "change" -> {
+							if (!isOp) break;
+							if (args.length < 4) {
+								sender.sendMessage("\2474[\247cLAbility\2474] \247c값이 제대로 입력되지 않았습니다.");
+								break;
+							}
+							index = main.gameManager.players.indexOf(args[2]);
+							if (index >= 0) {
+								LAPlayer lap = main.gameManager.players.get(index);
+								if (lap.getTeam() == null) {
+									sender.sendMessage("\2474[\247cLAbility\2474] \247c해당 플레이어는 팀이 없습니다.");
+									break;
+								}
+
+								if (!main.teamManager.teams.contains(args[3])) {
+									sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 팀입니다.");
+									break;
+								}
+
+								main.teamManager.leaveTeam(lap);
+								main.teamManager.joinTeam(lap, main.teamManager.teams.get(args[3]));
+								sender.sendMessage("\2476[\247eLAbility\2476] " + lap.getPlayer().getName() + "\247e님을 팀 [" + lap.getTeam().color + lap.getTeam().teamName + "\247e]에서 팀 [" + lap.getTeam().color + lap.getTeam().teamName + "\247e]으로 변경시켰습니다.");
 							} else {
 								sender.sendMessage("\2474[\247cLAbility\2474] \247c존재하지 않는 플레이어입니다.");
 							}

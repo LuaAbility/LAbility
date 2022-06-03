@@ -192,6 +192,8 @@ public class TeamManager {
 
     public void leaveTeam(LAPlayer lap) { lap.setTeam(null); }
 
+
+
     public void ShowAllMember(CommandSender sender) {
         sender.sendMessage("\2476-------[\247eTeam List\2476]-------");
         for (LATeam lap : teams) {

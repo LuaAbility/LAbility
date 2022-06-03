@@ -48,16 +48,16 @@ public class EventManager implements Listener {
         if (!LAbilityMain.instance.gameManager.isGameReady) {
             if (index < 0) LAbilityMain.instance.gameManager.players.add(new LAPlayer(p));
         }
-        else if (enableDisconnectOutTick >= 0 && LAbilityMain.instance.dataPacks.size() > 0 && LAbilityMain.instance.useResourcePack) {
-            try {
-                String url = LAbilityMain.instance.webServer.getWebIp() + p.getUniqueId();
-                p.setResourcePack(url, (byte[]) null, false);
-            }
-            catch (Exception e){
-                Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩 오류!");
-                Bukkit.getConsoleSender().sendMessage(e.getMessage());
-            }
-        }
+        //else if (enableDisconnectOutTick >= 0 && LAbilityMain.instance.dataPacks.size() > 0 && LAbilityMain.instance.useResourcePack) {
+        //    try {
+        //        String url = LAbilityMain.instance.webServer.getWebIp() + p.getUniqueId();
+        //        p.setResourcePack(url, (byte[]) null, false);
+        //    }
+        //    catch (Exception e){
+        //        Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c리소스팩 오류!");
+        //        Bukkit.getConsoleSender().sendMessage(e.getMessage());
+        //    }
+        //}
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

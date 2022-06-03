@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class TabManager implements TabCompleter {
     public final LAbilityMain main;
@@ -29,25 +30,39 @@ public class TabManager implements TabCompleter {
                 basicCommand.add("yes");
                 basicCommand.add("no");
             }
+
+            if (commandSender.isOp()) {
+                // admin
+                basicCommand.add("start");
+                basicCommand.add("stop");
+                basicCommand.add("skip");
+                basicCommand.add("forcegod");
+                basicCommand.add("reroll");
+                basicCommand.add("ob");
+                basicCommand.add("see");
+                basicCommand.add("out");
+                basicCommand.add("add");
+                basicCommand.add("remove");
+
+                // setting
+                basicCommand.add("ruleset");
+                basicCommand.add("spawn");
+                basicCommand.add("raffle");
+                basicCommand.add("health");
+                basicCommand.add("god");
+                basicCommand.add("border");
+                basicCommand.add("item");
+                basicCommand.add("equip");
+                basicCommand.add("ban");
+                basicCommand.add("unban");
+                basicCommand.add("edit");
+            }
+
             basicCommand.add("ablist");
             basicCommand.add("ability");
             basicCommand.add("rlist");
             basicCommand.add("rule");
-            basicCommand.add("team");
-
-            if (commandSender.isOp()) {
-                basicCommand.add("ob");
-                basicCommand.add("ruleset");
-                basicCommand.add("see");
-                basicCommand.add("add");
-                basicCommand.add("remove");
-                basicCommand.add("list");
-                basicCommand.add("reroll");
-                basicCommand.add("skip");
-                basicCommand.add("start");
-                basicCommand.add("stop");
-                basicCommand.add("out");
-            }
+            basicCommand.add("list");
 
             return basicCommand;
         } else if (args.length > 1) {
@@ -91,6 +106,22 @@ public class TabManager implements TabCompleter {
                 if (args.length == 3) return playerAbilityList(args[2]);
             }
 
+            if (args[0].equalsIgnoreCase("spawn")) {
+                if (args.length == 2) return teamList();
+            }
+
+            if (args[0].equalsIgnoreCase("item")) {
+                if (args.length == 2) return teamList();
+            }
+
+            if (args[0].equalsIgnoreCase("equip")) {
+                if (args.length == 2) return teamList();
+            }
+
+            if (args[0].equalsIgnoreCase("edit")) {
+                if (args.length == 2) return variableList();
+            }
+
             if (args[0].equalsIgnoreCase("reroll")) {
                 if (args.length == 2) return playerList();
             }
@@ -123,6 +154,11 @@ public class TabManager implements TabCompleter {
                         if (args.length == 4) return teamList();
                     }
 
+                    if (args[1].equalsIgnoreCase("change")) {
+                        if (args.length == 3) return teamMembers(true);
+                        if (args.length == 4) return teamListExcpetPlayer(args[2]);
+                    }
+
                     if (args[1].equalsIgnoreCase("leave")) {
                         if (args.length == 3) return teamMembers(true);
                     }
@@ -140,6 +176,16 @@ public class TabManager implements TabCompleter {
                             return auto;
                         } else return blank;
                     }
+                }
+            }
+
+            if (args[0].equalsIgnoreCase("border")) {
+                if (args.length == 2) {
+                    List<String> border = new ArrayList<String>();
+                    border.add("size");
+                    border.add("time");
+
+                    return border;
                 }
             }
         }
@@ -211,11 +257,36 @@ public class TabManager implements TabCompleter {
         return team;
     }
 
+    private List<String> teamListExcpetPlayer(String playerName) {
+        List<String> team = new ArrayList<String>();
+        LATeam plTeam = null;
+        for (LAPlayer lap : main.gameManager.players) {
+            if (lap.getPlayer().getName().equals(playerName)) {
+                plTeam = lap.getTeam();
+            }
+        }
+
+        if (plTeam != null) {
+            for (LATeam t : main.teamManager.teams) {
+                if (!plTeam.equals(t)) team.add(t.teamName);
+            }
+        }
+        return team;
+    }
+
     private List<String> teamMembers(boolean isJoin) {
         List<String> command = new ArrayList<String>();
         for (LAPlayer lap : main.gameManager.players) {
             if ((isJoin && lap.getTeam() != null) || (!isJoin && lap.getTeam() == null))
                 command.add(lap.getPlayer().getName());
+        }
+        return command;
+    }
+
+    private List<String> variableList() {
+        List<String> command = new ArrayList<String>();
+        for (Map.Entry<String, Object> entry : main.gameManager.variable.entrySet()) {
+            command.add(entry.getKey());
         }
         return command;
     }
