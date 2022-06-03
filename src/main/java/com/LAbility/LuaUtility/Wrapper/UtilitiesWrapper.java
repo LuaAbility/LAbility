@@ -1,11 +1,20 @@
 package com.LAbility.LuaUtility.Wrapper;
 
 import com.LAbility.Ability;
+import com.LAbility.LAPlayer;
 import com.LAbility.LAbilityMain;
 import com.LAbility.LuaUtility.LuaException;
+import com.LAbility.Manager.BlockManager;
+import com.LAbility.Manager.GUIManager;
+import com.LAbility.Manager.GameManager;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.*;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.projectiles.BlockProjectileSource;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -26,6 +35,13 @@ import java.util.stream.Stream;
 
 public class UtilitiesWrapper extends LuaTable {
     public UtilitiesWrapper(LAbilityMain plugin) {
+        set("getDummyAbility", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue arg) {
+                return CoerceJavaToLua.coerce(new Ability("", "", "", "", "", "", ""));
+            }
+        });
+
         set("getTableFromList", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue arg) {
@@ -67,13 +83,6 @@ public class UtilitiesWrapper extends LuaTable {
                 }
 
                 return t;
-            }
-        });
-
-        set("getDummyAbility", new OneArgFunction() {
-            @Override
-            public LuaValue call(LuaValue arg) {
-                return CoerceJavaToLua.coerce(new Ability("", "", "", "", "", ""));
             }
         });
 
@@ -138,6 +147,11 @@ public class UtilitiesWrapper extends LuaTable {
                 String className = clazz.checkjstring();
                 Object obj = userdata.checkuserdata();
 
+                if (className.startsWith("$"))
+                    className = "org.bukkit" + className.substring(1);
+                if (className.startsWith("@"))
+                    className = "com.LAbility" + className.substring(1);
+
                 try {
                     Class<?> caster = Class.forName(className);
                     return userdataOf(caster.cast(obj));
@@ -163,6 +177,8 @@ public class UtilitiesWrapper extends LuaTable {
 
                 if (className.startsWith("$"))
                     className = "org.bukkit" + className.substring(1);
+                if (className.startsWith("@"))
+                    className = "com.LAbility" + className.substring(1);
 
                 try {
                     Class<?> caster = Class.forName(className);
@@ -176,6 +192,19 @@ public class UtilitiesWrapper extends LuaTable {
                     plugin.getLogger().warning("There was an unknown issue casting the object to " + className);
                     e.printStackTrace();
                 }
+
+                return CoerceJavaToLua.coerce(false);
+            }
+        });
+
+        set("setBlockType", new TwoArgFunction() {
+            @Override
+            public LuaValue call(LuaValue block, LuaValue mat) {
+                Block targetBlock = (Block) block.checkuserdata(Block.class);
+                Material material = (Material) mat.checkuserdata(Material.class);
+
+                BlockManager.AddData(targetBlock);
+                targetBlock.setType(material);
 
                 return CoerceJavaToLua.coerce(false);
             }
@@ -240,6 +269,47 @@ public class UtilitiesWrapper extends LuaTable {
                     Bukkit.getConsoleSender().sendMessage("\2478[\2477LAbility\2478] \2477NMS 미지원 버전이므로, 일부 기능이 작동하지 않습니다.");
                 }
                 return CoerceJavaToLua.coerce(LAbilityMain.instance.nms);
+            }
+        });
+
+        set("createGUIMethod", new TwoArgFunction() {
+            @Override
+            public LuaValue call(LuaValue click, LuaValue close) {
+                GUIManager.GUIMethod method = new GUIManager.GUIMethod() {
+                    @Override
+                    public void onClick(InventoryClickEvent event) {
+                        click.checkfunction().invoke(CoerceJavaToLua.coerce(event));
+                    }
+
+                    @Override
+                    public void onClose(InventoryCloseEvent event) {
+                        close.checkfunction().invoke(CoerceJavaToLua.coerce(event));
+                    }
+                };
+
+                return CoerceJavaToLua.coerce(method);
+            }
+        });
+
+        set("addRecipe", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue click) {
+                ShapedRecipe recipe = (ShapedRecipe) click.checkuserdata(ShapedRecipe.class);
+                LAbilityMain.instance.gameManager.customRecipe.add(recipe);
+                return NIL;
+            }
+        });
+
+        set("setRecipeElement", new ThreeArgFunction() {
+            @Override
+            public LuaValue call(LuaValue _recipe, LuaValue _string, LuaValue _mat) {
+                ShapedRecipe recipe = (ShapedRecipe) _recipe.checkuserdata(ShapedRecipe.class);
+                String string = _string.toString();
+                Material mat = (Material) _mat.checkuserdata(Material.class);
+
+                recipe.setIngredient(string.charAt(0), mat);
+                LAbilityMain.instance.gameManager.customRecipe.add(recipe);
+                return NIL;
             }
         });
     }

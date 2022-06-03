@@ -19,6 +19,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -40,6 +41,8 @@ public class GameManager {
     public int currentRuleIndex = 0;
 
     public int abilityAmount = 1;
+    public int abilityRerollCount = 1;
+    public int defaultLife = 1;
     public boolean overlapAbility = false;
     public boolean raffleAbility = true;
     public boolean canCheckAbility = true;
@@ -50,6 +53,8 @@ public class GameManager {
     public boolean skipYesOrNo = false;
     public boolean skipInformation = false;
     public Map<String, Object> variable = new HashMap<>();
+
+    public ArrayList<ShapedRecipe> customRecipe = new ArrayList<>();
 
     public float maxHealth = 20;
 
@@ -76,6 +81,16 @@ public class GameManager {
         }
     }
 
+    public void setVariableOnReady(String key, Object value){
+        if (variable.containsKey(key)) variable.replace(key, value);
+        else addVariableOnReady(key, value);
+    }
+
+    public void addVariableOnReady(String key, Object value) {
+        if (!variable.containsKey(key)) variable.put(key, value);
+        else variable.replace(key, value);
+    }
+
     public void removeVariable(String key) {
         if (variable.containsKey(key)) variable.remove(key);
     }
@@ -92,7 +107,15 @@ public class GameManager {
             p.setPlayerListName(ChatColor.RESET + p.getName());
         }
 
-        SoftReset();
+        HashMap<String, Object> defaultValues = new HashMap<>();
+        if (variable.containsKey("-spawn")) defaultValues.put("-spawn", variable.get("-spawn"));
+        if (variable.containsKey("-item")) defaultValues.put("-item", variable.get("-item"));
+        if (variable.containsKey("-equip")) defaultValues.put("-equip", variable.get("-equip"));
+        if (variable.containsKey("-startSize")) defaultValues.put("-startSize", variable.get("-startSize"));
+        if (variable.containsKey("-endSize")) defaultValues.put("-endSize", variable.get("-endSize"));
+        if (variable.containsKey("-startReduct")) defaultValues.put("-startReduct", variable.get("-startReduct"));
+        if (variable.containsKey("-duration")) defaultValues.put("-duration", variable.get("-duration"));
+
         LAbilityMain.instance.teamManager.clearTeam();
         players = new PlayerList<LAPlayer>();
         LAbilityMain.instance.assignAllPlayer();
@@ -101,8 +124,9 @@ public class GameManager {
         isTestMode = false;
         currentAbilityIndex = 0;
         shuffledAbilityIndex = new ArrayList<Integer>();
+        customRecipe = new ArrayList<>();
         StopPassive();
-        variable = new HashMap<>();
+        variable = defaultValues;
         BlockManager.ResetData();
         LAbilityMain.instance.scheduleManager.ClearTimer();
 
@@ -114,9 +138,8 @@ public class GameManager {
                 Bukkit.getServer().removeBossBar(bb.getKey());
             }
         }
-    }
 
-    public void SoftReset(){
+        LAbilityMain.plugin.getServer().getWorlds().get(0);
     }
 
     public void RunEvent(Event event) {
@@ -168,6 +191,8 @@ public class GameManager {
                     }
                 }
             }.runTaskTimer(LAbilityMain.plugin, 0, 1);
+
+            for (ShapedRecipe r : customRecipe){ if (Bukkit.getServer().getRecipe(r.getKey()) == null) Bukkit.getServer().addRecipe(r); }
         }
     }
 
@@ -326,7 +351,7 @@ public class GameManager {
 
     public boolean IsAllAsigned(){
         for (LAPlayer player : players){
-            if (!player.isAssign) return false;
+            if (player.isAssign > 0) return false;
         }
         return true;
     }
@@ -353,6 +378,8 @@ public class GameManager {
     }
 
     public void CheckGameEnd() {
+        if (!isGameStarted) return;
+
         Map<LATeam, ArrayList<LAPlayer>> teams = new HashMap<>();
 
         teams.put(null, new ArrayList<>());
@@ -407,6 +434,7 @@ public class GameManager {
         if (isGameReady) {
             Bukkit.getPluginManager().callEvent(new GameEndEvent(players, isGoodEnd));
 
+            for (ShapedRecipe r : customRecipe) {  Bukkit.getServer().removeRecipe(r.getKey()); }
             if (isGoodEnd) {
                 final ArrayList<LAPlayer> survive = getSurvivePlayer();
                 final int[] i = {0};
@@ -458,20 +486,47 @@ public class GameManager {
     }
 
     public void ShowAllAbility(CommandSender sender){
-        sender.sendMessage("\2476-------[\247eAbility List\2476]-------");
-        for (LAPlayer lap : this.players) {
-            if (lap.isSurvive) {
-                String abilityString = "";
-                abilityString += (lap.getPlayer().getDisplayName() + "\247e : \247a");
-                int index = 0;
-                for (Ability a : lap.getAbility()) {
-                    abilityString += a.abilityName;
-                    if (index++ < (lap.getAbility().size() - 1)) {
-                        abilityString += ", ";
+        if (sender instanceof Player) {
+            sender.sendMessage("\2476-------[\247eAbility List\2476]-------");
+            for (LAPlayer lap : this.players) {
+                if (lap.isSurvive) {
+                    String abilityString = "tellraw " + sender.getName() + " [\"\", {\"text\":\"" + lap.getPlayer().getName() + "\"}, {\"text\":\" : \",\"color\":\"yellow\"}, ";
+
+                    int index = 0;
+                    for (Ability a : lap.getAbility()) {
+                        abilityString += "{\"text\":\"" + a.abilityName + "\",\"color\":\"aqua\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/la ability " + a.abilityID + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"contents\":[{\"text\":\"" + a.abilityName + " \",\"color\":\"aqua\"},{\"text\":\"능력을 확인하려면 클릭하세요.\",\"color\":\"green\"}]}}";
+                        if (index++ < (lap.getAbility().size() - 1)) {
+                            abilityString += ",{\"text\":\", \",\"color\":\"green\"},";
+                        }
                     }
+                    if (index == 0) abilityString += "{\"text\":\"없음\",\"color\":\"red\"}]";
+                    else abilityString += "]";
+
+                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), abilityString);
                 }
-                if (index == 0) abilityString += "\247c없음";
-                sender.sendMessage(abilityString);
+            }
+        }
+    }
+
+    public void ShowAbility(CommandSender sender, ArrayList<LAPlayer> targetList){
+        if (sender instanceof Player) {
+            sender.sendMessage("\2476-------[\247eAbility List\2476]-------");
+            for (LAPlayer lap : targetList) {
+                if (lap.isSurvive) {
+                    String abilityString = "tellraw " + sender.getName() + " [\"\", {\"text\":\"" + lap.getPlayer().getName() + "\"}, {\"text\":\" : \",\"color\":\"yellow\"}, ";
+
+                    int index = 0;
+                    for (Ability a : lap.getAbility()) {
+                        abilityString += "{\"text\":\"" + a.abilityName + "\",\"color\":\"aqua\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/la ability " + a.abilityID + "\"},\"hoverEvent\":{\"action\":\"show_text\",\"contents\":[{\"text\":\"" + a.abilityName + " \",\"color\":\"aqua\"},{\"text\":\"능력을 확인하려면 클릭하세요.\",\"color\":\"green\"}]}}";
+                        if (index++ < (lap.getAbility().size() - 1)) {
+                            abilityString += ",{\"text\":\", \",\"color\":\"green\"},";
+                        }
+                    }
+                    if (index == 0) abilityString += "{\"text\":\"없음\",\"color\":\"red\"}]";
+                    else abilityString += "]";
+
+                    Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), abilityString);
+                }
             }
         }
     }

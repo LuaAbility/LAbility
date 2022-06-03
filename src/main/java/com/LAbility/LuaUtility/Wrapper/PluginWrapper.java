@@ -122,8 +122,8 @@ public class PluginWrapper extends LuaTable {
         set("enableDisconnectOut", new VarArgFunction() {
             @Override
             public LuaValue invoke(Varargs vargs) {
-                boolean enable = vargs.checkboolean(1);
-                EventManager.enableDisconnectOut = enable;
+                int enable = vargs.checkint(1);
+                EventManager.enableDisconnectOutTick = enable;
                 return NIL;
             }
         });

@@ -125,7 +125,7 @@ public class TeamManager {
         if (teamCount > 1) {
             clearTeam();
             for (int currentCount = 0; currentCount < teamCount; currentCount++) {
-                teams.add(new LATeam(presetColor.get(currentCount), presetName.get(currentCount), false));
+                createTeam(presetColor.get(currentCount), presetName.get(currentCount), false);
             }
         }
 
@@ -155,7 +155,7 @@ public class TeamManager {
             clearTeam();
             int maxCount = (int) Math.ceil((double) order.length / memberCount);
             for (int currentCount = 0; currentCount < maxCount; currentCount++) {
-                teams.add(new LATeam(presetColor.get(currentCount), presetName.get(currentCount), false));
+                createTeam(presetColor.get(currentCount), presetName.get(currentCount), false);
             }
         }
 
@@ -170,6 +170,9 @@ public class TeamManager {
 
     public void createTeam(ChatColor color, String teamName, boolean teamAttack) {
         teams.add(new LATeam(color, teamName, teamAttack));
+        LAbilityMain.instance.gameManager.addVariable(teamName + "-spawn", LAbilityMain.instance.gameManager.getVariable("-spawn"));
+        LAbilityMain.instance.gameManager.addVariable(teamName + "-item", LAbilityMain.instance.gameManager.getVariable("-item"));
+        LAbilityMain.instance.gameManager.addVariable(teamName + "-equip", LAbilityMain.instance.gameManager.getVariable("-equip"));
     }
 
     public void removeTeam(String teamName) {

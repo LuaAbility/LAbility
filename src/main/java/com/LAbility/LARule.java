@@ -46,7 +46,9 @@ public class LARule {
     }
 
     public void InitScript(){
+        LAbilityMain.instance.cancelBreakOnReady = false;
         LAbilityMain.instance.gameManager.banAbilityIDList = new BanIDList<>();
+        LAbilityMain.instance.gameManager.banAbilityRankList = new ArrayList<>();
         globals = JsePlatform.standardGlobals();
         script = globals.loadfile(luaScript);
         globals = setGlobals(globals);

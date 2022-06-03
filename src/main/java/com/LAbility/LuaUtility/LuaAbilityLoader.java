@@ -41,6 +41,7 @@ public class LuaAbilityLoader {
                     String abilityName = "";
                     String abilityRank = "";
                     String abilityDesc = "";
+                    String abilityFlavor = "";
                     String luaScriptLoc = "";
                     LuaValue luaScript = null;
 
@@ -62,6 +63,7 @@ public class LuaAbilityLoader {
                                 abilityName = abilityData.get("name").toString();
                                 abilityRank = abilityData.get("rank").toString();
                                 abilityDesc = abilityData.get("description").toString();
+                                if (abilityData.get("flavor") != null) abilityFlavor = abilityData.get("flavor").toString();
                             } catch (FileNotFoundException e) {
                                 Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247cdata.yml 파일을 불러올 수 없습니다. 해당 능력은 불러오지 않습니다.");
                             }
@@ -69,7 +71,7 @@ public class LuaAbilityLoader {
                     }
 
                     if (!luaScriptLoc.equals("") && !abilityName.equals("")) {
-                        Ability a = new Ability(abilityID, abilityType, abilityName, abilityRank, abilityDesc, luaScriptLoc);
+                        Ability a = new Ability(abilityID, abilityType, abilityName, abilityRank, abilityDesc, abilityFlavor, luaScriptLoc);
                         a.InitScript();
                         luaAbilities.add(a);
                     }
@@ -188,6 +190,8 @@ public class LuaAbilityLoader {
                     String path = luaValue.checkjstring();
                     if (path.startsWith("$"))
                         path = "org.bukkit" + path.substring(1);
+                    if (path.startsWith("@"))
+                        path = "com.LAbility" + path.substring(1);
                     return CoerceJavaToLua.coerce(Class.forName(path));
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
@@ -203,6 +207,8 @@ public class LuaAbilityLoader {
 
                 if (classPath.startsWith("$"))
                     classPath = "org.bukkit" + classPath.substring(1);
+                if (classPath.startsWith("@"))
+                    classPath = "com.LAbility" + classPath.substring(1);
 
                 if (!isClassPathValid(classPath)) {
                     LuaException classPathException = new LuaException("An invalid classpath \"" + classPath + "\" was provided to the \"newInstance\" method", 1);

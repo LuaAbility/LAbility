@@ -5,6 +5,7 @@ import com.LAbility.LuaUtility.List.FunctionList;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -61,6 +62,7 @@ public class Ability {
     public String abilityName;
     public String abilityRank;
     public String abilityDesc;
+    public String abilityFlavor;
     public String luaScript;
     public FunctionList<AbilityFunc> abilityFunc = new FunctionList<>();
 
@@ -68,15 +70,14 @@ public class Ability {
     LuaValue script;
     boolean syncScript = true;
 
-    public Ability(String id, String type, String name, String rank, String desc, String script) {
+    public Ability(String id, String type, String name, String rank, String desc, String flavor, String script) {
         abilityID = id;
         abilityType = type;
         abilityName = name;
         abilityRank = rank;
         abilityDesc = desc;
+        abilityFlavor = flavor;
         luaScript = script;
-
-
     }
 
     public Ability(Ability a) {
@@ -85,6 +86,7 @@ public class Ability {
         abilityName = a.abilityName;
         abilityRank = a.abilityRank;
         abilityDesc = a.abilityDesc;
+        abilityFlavor = a.abilityFlavor;
         luaScript = a.luaScript;
         abilityFunc = new FunctionList<>();
         for (Ability.AbilityFunc af : a.abilityFunc) {
@@ -123,7 +125,13 @@ public class Ability {
                     table.insert(3, CoerceJavaToLua.coerce(lap));
                     table.insert(4, CoerceJavaToLua.coerce(this));
 
+                    if (event.getClass().isAssignableFrom(Cancellable.class)) {
+                        Cancellable temp = (Cancellable)event;
+                        if (temp.isCancelled()) return;
+                    }
+
                     if (!globals.get("onEvent").isnil()) globals.get("onEvent").call(table);
+                    return;
                 }
             }
         }
@@ -161,7 +169,7 @@ public class Ability {
 
                     if (showMessage && maxCooldown >= 100) {
                         if (abilityFunc.get(index).currentTime == maxCooldown) {
-                            lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b재사용 대기시간이 종료되었습니다. (" + abilityFunc.get(index).funcID + ")");
+                            lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b쿨타임이 종료되었습니다. (" + abilityFunc.get(index).funcID + ")");
                             lap.player.playSound(lap.player, Sound.ENTITY_PLAYER_LEVELUP, 0.5F, 2F);
                             return;
                         } else if (abilityFunc.get(index).currentTime == maxCooldown - 20) {
@@ -181,7 +189,7 @@ public class Ability {
                             lap.player.playSound(lap.player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 2F);
                         }
 
-                        if (abilityFunc.get(index).currentTime < maxCooldown) lap.addMessage(abilityID + ID, "\247b" + ID + "(쿨타임) \247f: \247a" + (int) Math.ceil(cooldown) + "초");
+                        if (abilityFunc.get(index).currentTime < maxCooldown) lap.addMessage(abilityID + ID, "\247b" + ID + " (쿨타임) \247f: \247a" + (int) Math.ceil(cooldown) + "초");
                         else lap.removeMessage(abilityID + ID);
                     }
                 }
@@ -190,7 +198,7 @@ public class Ability {
         }
 
         double cooldown = ((abilityFunc.get(index).cooldown * LAbilityMain.instance.gameManager.cooldownMultiply) - abilityFunc.get(index).currentTime) / 20.0;
-        if (showMessage) lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b재사용 대기시간 입니다. (" + cooldown + "초 / " + abilityFunc.get(index).funcID + ")" );
+        if (showMessage) lap.player.sendMessage("\2471[\247b" + abilityName + "\2471] \247b쿨타임 입니다. (" + cooldown + "초 / " + abilityFunc.get(index).funcID + ")" );
         return false;
     }
 
@@ -248,6 +256,7 @@ public class Ability {
     }
 
     public void ExplainAbility(CommandSender player) {
+        player.sendMessage("");
         if (LAbilityMain.instance.gameManager.canCheckAbility) {
             player.sendMessage("\2476===============[\247e " + abilityName + " \2476]===============");
             player.sendMessage("\247eID : \247a" + abilityID + " \247e/ \247eRank : \247a" + abilityRank + " \247e/ Type : \247a" + abilityType);
@@ -279,6 +288,14 @@ public class Ability {
             player.sendMessage("\247eID : \247a??? \247e/ \247eRank : \247a??? \247e/ Type : \247a???");
             player.sendMessage("\247f" + FilterAbilityDescription(abilityDesc));
         }
+        player.sendMessage("");
+    }
+
+    public void ShowFlavor(CommandSender player){
+        String flavor = abilityFlavor.length() > 0 ? abilityFlavor : "이 능력은 플레이버 텍스트가 없습니다.";
+        if (LAbilityMain.instance.gameManager.canCheckAbility) player.sendMessage("\2477\247o\"" + flavor + "\"");
+        else player.sendMessage("\2477\247o\"\247k" + FilterAbilityDescription(flavor) + "\247r\2477\247o\"");
+        player.sendMessage("");
     }
 
     public String FilterAbilityDescription(String originTxt) {

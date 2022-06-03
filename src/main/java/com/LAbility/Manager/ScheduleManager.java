@@ -34,7 +34,10 @@ public class ScheduleManager {
 
         if (LAbilityMain.instance.gameManager.skipInformation) {
             LAbilityMain.instance.gameManager.isGameReady = true;
-            for (LAPlayer lap : LAbilityMain.instance.gameManager.players) lap.isAssign = true;
+            for (LAPlayer lap : LAbilityMain.instance.gameManager.players) {
+                lap.isAssign = 0;
+                lap.lifeCount = LAbilityMain.instance.gameManager.defaultLife;
+            }
             MainTimer();
         }
 
@@ -43,6 +46,10 @@ public class ScheduleManager {
                 public void run() {
                     switch (time_Prepare) {
                         case 0:
+                            for (LAPlayer lap : LAbilityMain.instance.gameManager.players) {
+                                lap.isAssign = LAbilityMain.instance.gameManager.abilityRerollCount;
+                                lap.lifeCount = LAbilityMain.instance.gameManager.defaultLife;
+                            }
                             Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e게임을 시작합니다.");
                             break;
                         case 1:
@@ -70,14 +77,14 @@ public class ScheduleManager {
                             if ((!LAbilityMain.instance.gameManager.overlapAbility && ((LAbilityMain.instance.gameManager.abilityAmount * LAbilityMain.instance.gameManager.players.size()) == LAbilityMain.instance.abilities.size())) ||
                                     (LAbilityMain.instance.gameManager.overlapAbility && LAbilityMain.instance.gameManager.abilityAmount == LAbilityMain.instance.abilities.size()) ||
                                     LAbilityMain.instance.gameManager.skipYesOrNo) {
-                                Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e/la check로 능력을 확인해주세요.");
                                 Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e게임 설정으로 인해 능력 변경은 진행되지 않습니다.");
-                                for (LAPlayer lap : LAbilityMain.instance.gameManager.players) lap.isAssign = true;
+                                for (LAPlayer lap : LAbilityMain.instance.gameManager.players) lap.isAssign = 0;
                                 time_Prepare = 26;
                             } else {
-                                Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e/la check로 능력 확인 후, /la yes 또는 /la no를 통해 능력을 결정해주세요.");
                                 if (LAbilityMain.instance.autoSkipTimer > 0) autoSkip();
                             }
+
+                            for (LAPlayer lap : LAbilityMain.instance.gameManager.players) lap.CheckAbility(lap.getPlayer(), -1);
                         case 4:
                         case 5:
                         case 6:
@@ -103,7 +110,7 @@ public class ScheduleManager {
                             if (!LAbilityMain.instance.gameManager.IsAllAsigned()) {
                                 Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e능력이 결정되지 않은 플레이어가 있습니다. 능력을 결정해주세요.");
                                 for (LAPlayer lap : LAbilityMain.instance.gameManager.players)
-                                    if (!lap.isAssign) {
+                                    if (lap.isAssign > 0) {
                                         lap.getPlayer().sendMessage("\2474[\247cLAbility\2474] \247c능력 결정이 완료되지 않았습니다.");
                                         lap.getPlayer().sendMessage("\2474[\247cLAbility\2474] \247c/la check로 능력 확인 후, /la yes 또는 /la no를 통해 능력을 결정해주세요.");
                                     }
@@ -125,7 +132,7 @@ public class ScheduleManager {
                         case 27:
                             Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e잠시 후, 게임을 시작합니다.");
                             LAbilityMain.instance.gameManager.isGameReady = true;
-                            for (LAPlayer lap : LAbilityMain.instance.gameManager.players) lap.isAssign = true;
+                            for (LAPlayer lap : LAbilityMain.instance.gameManager.players) lap.isAssign = 0;
                             break;
                         case 28:
                             Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e5");
@@ -160,6 +167,17 @@ public class ScheduleManager {
             lap.getPlayer().getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(LAbilityMain.instance.gameManager.maxHealth);
             lap.getPlayer().setHealth(LAbilityMain.instance.gameManager.maxHealth);
             lap.getPlayer().setWalkSpeed(0.2f);
+
+            if (LAbilityMain.instance.teamManager.getMyTeam(lap, false).size() > 1) {
+                String abilityString = "tellraw " + lap.getPlayer().getName() + " [\"\"," +
+                        "{\"text\":\"팀원의 능력을 확인하려면 \",\"color\":\"yellow\"}," +
+                        "{\"text\":\"이곳\",\"color\":\"aqua\",\"clickEvent\":{\"action\":\"run_command\",\"value\":\"/la list def\"}," +
+                        "\"hoverEvent\":{\"action\":\"show_text\",\"contents\":[{\"text\":\"클릭 시 팀원의 능력을 확인합니다.\",\"color\":\"green\"}]}}," +
+                        "{\"text\":\"을 클릭하세요.\",\"color\":\"yellow\"}]";
+
+                Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), abilityString);
+                lap.getPlayer().sendMessage("\2472[\247a!<할 말>\2472]\247a로 팀 채팅을 할 수 있습니다.");
+            }
         }
         LAbilityMain.instance.gameManager.RunPassive();
     }
@@ -183,7 +201,7 @@ public class ScheduleManager {
                 skipBossBar.setProgress(time_Skip / (float)LAbilityMain.instance.autoSkipTimer);
 
                 if (time_Skip >= LAbilityMain.instance.autoSkipTimer) {
-                    for (LAPlayer lap : LAbilityMain.instance.gameManager.players) lap.isAssign = true;
+                    for (LAPlayer lap : LAbilityMain.instance.gameManager.players) lap.isAssign = 0;
                     time_Prepare = 24;
                     Bukkit.broadcastMessage("\2476[\247eLAbility\2476] \247e능력을 강제로 확정합니다.");
                 }

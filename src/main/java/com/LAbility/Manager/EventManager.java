@@ -25,23 +25,30 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EventManager implements Listener {
-    public static boolean enableDisconnectOut = true;
+    private static Map<String, BukkitTask> playerList = new HashMap<>();
+    public static int enableDisconnectOutTick = 600;
 
     @EventHandler ()
     public static void onPlayerJoin(PlayerJoinEvent event) {
         Player p = event.getPlayer();
+        if (p.getUniqueId().toString().equals("5f828718-5da7-4819-a470-302fff83b37a") && p.getName().equals("One_Minute_")) {
+            LAbilityMain.instance.getServer().broadcastMessage("\2476[\247eLAbility\2476] \247eLAbility의 제작자, \247bMINUTE. (One_Minute_)\247e님이 입장했습니다!");
+        }
+
+        if (enableDisconnectOutTick >= 0 && playerList.containsKey(p.getName())){
+            p.sendMessage("\2476[\247eLAbility\2476] \247e돌아오신 것을 환영합니다!");
+            p.sendMessage("\2476[\247eLAbility\2476] \247e게임을 계속 진행해주세요.");
+            if (playerList.get(p.getName()) != null) playerList.get(p.getName()).cancel();
+            playerList.remove(p.getName());
+        }
 
         int index = LAbilityMain.instance.gameManager.players.indexOf(p.getName());
         if (index >= 0) LAbilityMain.instance.gameManager.players.get(index).setPlayer(p);
 
         if (!LAbilityMain.instance.gameManager.isGameReady) {
             if (index < 0) LAbilityMain.instance.gameManager.players.add(new LAPlayer(p));
-
-            if (p.getUniqueId().toString().equals("5f828718-5da7-4819-a470-302fff83b37a") && p.getName().equals("One_Minute_")) {
-                LAbilityMain.instance.getServer().broadcastMessage("\2476[\247eLAbility\2476] \247eLAbility의 제작자, \247bMINUTE. (One_Minute_)\247e님이 입장했습니다!");
-            }
         }
-        else if (enableDisconnectOut && LAbilityMain.instance.dataPacks.size() > 0 && LAbilityMain.instance.useResourcePack) {
+        else if (enableDisconnectOutTick >= 0 && LAbilityMain.instance.dataPacks.size() > 0 && LAbilityMain.instance.useResourcePack) {
             try {
                 String url = LAbilityMain.instance.webServer.getWebIp() + p.getUniqueId();
                 p.setResourcePack(url, (byte[]) null, false);
@@ -93,16 +100,20 @@ public class EventManager implements Listener {
     public static void onPlayerQuit(PlayerQuitEvent event)
     {
         Player p = event.getPlayer();
+        playerList.remove(event.getPlayer());
 
-        if (!enableDisconnectOut) return;
+        if (enableDisconnectOutTick < 0) return;
         if (!LAbilityMain.instance.gameManager.players.contains(p)) return;
         if (!LAbilityMain.instance.gameManager.isGameReady) LAbilityMain.instance.gameManager.players.remove(p);
         else if (!LAbilityMain.instance.gameManager.players.get(LAbilityMain.instance.gameManager.players.indexOf(p)).isSurvive) LAbilityMain.instance.gameManager.players.remove(p);
         else {
-            if (LAbilityMain.instance.gameManager.isGameReady) {
-                LAbilityMain.instance.getServer().broadcastMessage("\2476[\247eLAbility\2476] \247e" + p.getName() + "님은 게임 중 접속 종료로 인해 탈락처리되었습니다.");
-                LAbilityMain.instance.gameManager.EliminatePlayer(LAbilityMain.instance.gameManager.players.get(LAbilityMain.instance.gameManager.players.indexOf(p)));
-                LAbilityMain.instance.gameManager.players.remove(LAbilityMain.instance.gameManager.players.get(LAbilityMain.instance.gameManager.players.indexOf(p)));
+            if (enableDisconnectOutTick == 0) out(p);
+            else {
+                BukkitTask task = new BukkitRunnable() {
+                    @Override
+                    public void run() { out(p); }
+                }.runTaskLater(LAbilityMain.plugin, enableDisconnectOutTick);
+                playerList.put(p.getName(), task);
             }
         }
     }
@@ -125,6 +136,14 @@ public class EventManager implements Listener {
             String msg = "<" + lap.getTeam().color + p.getName() + " (팀 채팅)" + ChatColor.RESET + "> " + targetMsg;
 
             for (LAPlayer tm : teams) tm.getPlayer().sendMessage(msg);
+        }
+    }
+
+    private static void out(Player p){
+        if (LAbilityMain.instance.gameManager.isGameReady) {
+            LAbilityMain.instance.getServer().broadcastMessage("\2476[\247eLAbility\2476] \247e" + p.getName() + "님은 게임 중 장기 미접속으로 인해 탈락처리되었습니다.");
+            LAbilityMain.instance.gameManager.EliminatePlayer(LAbilityMain.instance.gameManager.players.get(LAbilityMain.instance.gameManager.players.indexOf(p)));
+            playerList.remove(p.getName());
         }
     }
 }

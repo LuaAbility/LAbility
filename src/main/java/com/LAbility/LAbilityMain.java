@@ -14,6 +14,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +36,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
     public boolean burntBlock = true;
     public boolean explodeBlock = true;
     public boolean autoRespawn = true;
+    public boolean cancelBreakOnReady = false;
     public AbilityList<Ability> abilities = new AbilityList<>();
     public RuleList<LARule> rules = new RuleList<>();
     public ArrayList<Class<? extends Event>> registeredEventList = new ArrayList<>();
@@ -76,6 +78,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         getCommand("la").setTabCompleter(new TabManager(this));
         getServer().getPluginManager().registerEvents(new EventManager(), this);
         getServer().getPluginManager().registerEvents(new BlockManager(), this);
+        getServer().getPluginManager().registerEvents(new GUIManager(), this);
 
         BlockManager.ResetData();
         gameManager.AbilityShuffle(true);
@@ -100,6 +103,9 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         if (hasError > 0) Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c" + hasError + "개의 능력을 로드하는데 문제가 생겼습니다. 해당 능력들은 로드하지 않습니다.");
         Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \247ev" + instance.getDescription().getVersion() + " " + abilities.size() + "개 능력 로드 완료!");
         Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \247e미추첨 능력 개수 : " + (abilities.size() - gameManager.shuffledAbilityIndex.size()) + "개 / 추첨 능력 개수 : "  + gameManager.shuffledAbilityIndex.size() + "개");
+        if (checkVersion()) Bukkit.getConsoleSender().sendMessage("\2471[\247bLAbility\2471] \247b플러그인이 최신 버전입니다.");
+        else Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c플러그인이 최신 버전이 아닙니다!");
+
         Bukkit.getConsoleSender().sendMessage("Made by MINUTE.");
     }
 
@@ -165,5 +171,30 @@ public class LAbilityMain extends JavaPlugin implements Listener {
         packManager.patch(fileList);
         Bukkit.getConsoleSender().sendMessage("\2476[\247eLAbility\2476] \247e리소스팩 결합 완료!");
         useResourcePack = true;
+    }
+
+    public final boolean checkVersion() {
+        try {
+            URL url = new URL("https://kivotos.co.kr/lability/checkVersion");
+            BufferedReader bf = new BufferedReader(new InputStreamReader(url.openStream()));
+
+            String[] currentVersion = bf.readLine().split("\\.");
+            String[] pluginVersion = instance.getDescription().getVersion().split("\\.");
+
+            int[] cVInt = new int[currentVersion.length];
+            int[] pVInt = new int[pluginVersion.length];
+
+            for (int i = 0; i < currentVersion.length; i++) cVInt[i] = Integer.parseInt(currentVersion[i]);
+            for (int i = 0; i < pluginVersion.length; i++) pVInt[i] = Integer.parseInt(pluginVersion[i]);
+
+            if (cVInt[0] > pVInt[0]) return false;
+            else if (cVInt.length > 1 && pVInt.length > 1 && cVInt[1] > pVInt[1]) return false;
+            else if (cVInt.length > 2 && pVInt.length <= 2) return false;
+            else return cVInt.length <= 2 || cVInt[2] <= pVInt[2];
+        } catch (Exception e) {
+            e.printStackTrace();
+            Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247c버전 체크 서버 접속에 실패했습니다.");
+            return true;
+        }
     }
 }

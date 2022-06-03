@@ -248,7 +248,7 @@ public class GameWrapper extends LuaTable {
                 player.getAbility().add(newAbility);
                 newAbility.InitScript();
 
-                return CoerceJavaToLua.coerce(false);
+                return CoerceJavaToLua.coerce(newAbility);
             }
         });
 
@@ -365,7 +365,8 @@ public class GameWrapper extends LuaTable {
                 if (arg.isnil()) return CoerceJavaToLua.coerce(false);
                 LAPlayer player = (LAPlayer) arg.checkuserdata(LAPlayer.class);
 
-                LAbilityMain.instance.gameManager.EliminatePlayer(player);
+                if (--player.lifeCount < 1) LAbilityMain.instance.gameManager.EliminatePlayer(player);
+                else player.getPlayer().sendMessage("\2474[\247cLAbility\2474] \247cLife가 1개 감소하였습니다. (남은 Life : " + player.lifeCount + ")");
                 return NIL;
             }
         });
