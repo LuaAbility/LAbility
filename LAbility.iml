@@ -23,11 +23,12 @@
     <orderEntry type="library" exported="" name="luaj-jse-3.0.1" level="project" />
     <orderEntry type="library" exported="" name="vertx-core-4.2.4" level="project" />
     <orderEntry type="library" exported="" name="BungeeCord" level="project" />
-    <orderEntry type="library" exported="" name="spigot-api-1.18.1-R0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="spigot-api" level="project" />
     <orderEntry type="library" exported="" name="json-simple-1.1.1" level="project" />
     <orderEntry type="module" module-name="NMSUtil" />
     <orderEntry type="module" module-name="1_17" />
     <orderEntry type="module" module-name="1_18_R1" />
     <orderEntry type="module" module-name="1_18_R2" />
+    <orderEntry type="module" module-name="1_19" />
   </component>
 </module>

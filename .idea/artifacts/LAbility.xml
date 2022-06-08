@@ -7,7 +7,6 @@
       <element id="extracted-dir" path="$PROJECT_DIR$/../BungeeCord.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../../vertx-core-4.2.4.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../../luaj.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../api/bundler/libraries/spigot-api-1.18.1-R0.1-SNAPSHOT.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../api/bundler/libraries/snakeyaml-1.30.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../../json-simple-1.1.1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../../juniversalchardet-1.0.3.jar" path-in-jar="/" />
@@ -15,6 +14,8 @@
       <element id="module-output" name="1_18_R2" />
       <element id="module-output" name="1_18_R1" />
       <element id="module-output" name="1_17" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../api/bundler/libraries/spigot-api-1.19-R0.1-SNAPSHOT.jar" path-in-jar="/" />
+      <element id="module-output" name="1_19" />
     </root>
   </artifact>
 </component>

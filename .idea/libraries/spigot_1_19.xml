@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="spigot-1.19">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../NMS/spigot-api-1.19-R0.1-SNAPSHOT.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../NMS/spigot-1.19-R0.1-SNAPSHOT.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../NMS/datafixerupper-5.0.28.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -65,6 +65,8 @@ public class LAbilityMain extends JavaPlugin implements Listener {
             this.nms = new NMS_1_18_R1();
         } else if(Bukkit.getVersion().contains("1.18.2")) {
             this.nms = new NMS_1_18_R2();
+        } else if(Bukkit.getVersion().contains("1.19")) {
+            this.nms = new NMS_1_19();
         } else {
             this.nms = null;
             Bukkit.getConsoleSender().sendMessage("\2474[\247cLAbility\2474] \247cNMS 미지원 버전입니다. 일부 기능이 작동하지 않습니다.");
@@ -176,7 +178,7 @@ public class LAbilityMain extends JavaPlugin implements Listener {
 
     public final boolean checkVersion() {
         try {
-            URL url = new URL("https://kivotos.co.kr/lability/checkVersion");
+            URL url = new URL("https://kivotos.co.kr/lability/checkVersion.html");
             BufferedReader bf = new BufferedReader(new InputStreamReader(url.openStream()));
 
             String[] currentVersion = bf.readLine().split("\\.");

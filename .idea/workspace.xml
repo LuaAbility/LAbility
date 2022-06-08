@@ -10,14 +10,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c634ea3c-3084-4aa3-8959-bda19f302d52" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/spigot_1_19.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/NMS/1_19/1_19.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/NMS/1_19/src/com/LAbility/NMS_1_19.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/artifacts/LAbility.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/artifacts/LAbility.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/spigot_api_1_18_1_R0_1_SNAPSHOT.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/spigot_api.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LAbility.iml" beforeDir="false" afterPath="$PROJECT_DIR$/LAbility.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NMS/1_17/src/com/LAbility/NMS_1_17.java" beforeDir="false" afterPath="$PROJECT_DIR$/NMS/1_17/src/com/LAbility/NMS_1_17.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NMS/1_18_R1/src/com/LAbility/NMS_1_18_R1.java" beforeDir="false" afterPath="$PROJECT_DIR$/NMS/1_18_R1/src/com/LAbility/NMS_1_18_R1.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NMS/1_18_R2/src/com/LAbility/NMS_1_18_R2.java" beforeDir="false" afterPath="$PROJECT_DIR$/NMS/1_18_R2/src/com/LAbility/NMS_1_18_R2.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NMS/NMSUtil/NMSUtil.iml" beforeDir="false" afterPath="$PROJECT_DIR$/NMS/NMSUtil/NMSUtil.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NMS/NMSUtil/src/com/LAbility/NMS.java" beforeDir="false" afterPath="$PROJECT_DIR$/NMS/NMSUtil/src/com/LAbility/NMS.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/LAbility/LAbilityMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/LAbilityMain.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/LAbility/Manager/CommandManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/Manager/CommandManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/LAbility/Manager/EventManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/Manager/EventManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/LAbility/Manager/GameManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/Manager/GameManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/LAbility/Manager/ScheduleManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/Manager/ScheduleManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/LAbility/Manager/TabManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/Manager/TabManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/LAbility/Manager/TeamManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/LAbility/Manager/TeamManager.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,13 +71,16 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../api/bundler/libraries/spigot-api-1.18.2-R0.1-SNAPSHOT.jar" />
-    <property name="project.structure.last.edited" value="Libraries" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/NMS" />
+    <property name="project.structure.last.edited" value="Artifacts" />
     <property name="project.structure.proportion" value="0.15254237" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="settings.editor.selected.configurable" value="reference.settings.project.maven.importing" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="G:\Git\LAbility\NMS\1_19\src\com\LAbility" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="G:\Git\LAbility\src\main\java\com\LAbility\NMS\1_18_R2\com.LAbility" />
       <recent name="G:\Git\LAbility\src\main\java\com\LAbility\NMS\1_18_R1\com.LAbility" />
@@ -80,6 +90,21 @@
       <recent name="com.LAbility.Manager" />
       <recent name="com.LAbility.NMS" />
     </key>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="LAbility" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="LAbility" />
+      <option name="filePath" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -103,16 +128,5 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/LAbility/LAbilityMain.java</url>
-          <line>148</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

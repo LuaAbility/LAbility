@@ -64,7 +64,9 @@ public class TabManager implements TabCompleter {
             basicCommand.add("rule");
             basicCommand.add("list");
 
-            return basicCommand;
+
+
+            return filterCommand(basicCommand, args[0]);
         } else if (args.length > 1) {
             if (args[0].equalsIgnoreCase("ablist")) {
                 List<String> advancedCommand = new ArrayList<String>();
@@ -73,57 +75,57 @@ public class TabManager implements TabCompleter {
                     advancedCommand.add(i + "");
                 }
 
-                if (args.length == 2) return advancedCommand;
+                if (args.length == 2) return filterCommand(advancedCommand, args[1]);
             }
 
             if (args[0].equalsIgnoreCase("ability")) {
-                if (args.length == 2) return abilityList();
+                if (args.length == 2) return filterCommand(abilityList(), args[1]);
             }
 
             if (args[0].equalsIgnoreCase("rule") || args[0].equalsIgnoreCase("ruleset")) {
-                if (args.length == 2) return ruleList();
+                if (args.length == 2) return filterCommand(ruleList(), args[1]);
             }
 
             if (args[0].equalsIgnoreCase("ob")) {
-                if (args.length == 2) return playerList();
+                if (args.length == 2) return filterCommand(playerList(), args[1]);
             }
 
             if (args[0].equalsIgnoreCase("out")) {
-                if (args.length == 2) return survivePlayerList();
+                if (args.length == 2) return filterCommand(survivePlayerList(), args[1]);
             }
 
             if (args[0].equalsIgnoreCase("see")) {
-                if (args.length == 2) return survivePlayerList();
+                if (args.length == 2) return filterCommand(survivePlayerList(), args[1]);
             }
 
             if (args[0].equalsIgnoreCase("add")) {
-                if (args.length == 2) return playerList();
-                if (args.length == 3) return abilityList();
+                if (args.length == 2) return filterCommand(playerList(), args[1]);
+                if (args.length == 3) return filterCommand(abilityList(), args[2]);
             }
 
             if (args[0].equalsIgnoreCase("remove")) {
-                if (args.length == 2) return playerList();
-                if (args.length == 3) return playerAbilityList(args[2]);
+                if (args.length == 2) return filterCommand(playerList(), args[1]);
+                if (args.length == 3) return filterCommand(playerAbilityList(args[2]), args[2]);
             }
 
             if (args[0].equalsIgnoreCase("spawn")) {
-                if (args.length == 2) return teamList();
+                if (args.length == 2) return filterCommand(teamList(), args[1]);
             }
 
             if (args[0].equalsIgnoreCase("item")) {
-                if (args.length == 2) return teamList();
+                if (args.length == 2) return filterCommand(teamList(), args[1]);
             }
 
             if (args[0].equalsIgnoreCase("equip")) {
-                if (args.length == 2) return teamList();
+                if (args.length == 2) return filterCommand(teamList(), args[1]);
             }
 
             if (args[0].equalsIgnoreCase("edit")) {
-                if (args.length == 2) return variableList();
+                if (args.length == 2) return filterCommand(variableList(), args[1]);
             }
 
             if (args[0].equalsIgnoreCase("reroll")) {
-                if (args.length == 2) return playerList();
+                if (args.length == 2) return filterCommand(playerList(), args[1]);
             }
 
             if (args[0].equalsIgnoreCase("team")) {
@@ -137,30 +139,30 @@ public class TabManager implements TabCompleter {
                     team.add("divide");
                     team.add("auto");
 
-                    return team;
+                    return filterCommand(team, args[1]);
                 } else {
                     if (args[1].equalsIgnoreCase("create")) {
-                        if (args.length == 3) return blank;
-                        if (args.length == 4) return colorList();
-                        if (args.length == 5) return bool();
+                        if (args.length == 3) return filterCommand(blank, args[2]);
+                        if (args.length == 4) return filterCommand(colorList(), args[3]);
+                        if (args.length == 5) return filterCommand(bool(), args[4]);
                     }
 
                     if (args[1].equalsIgnoreCase("remove")) {
-                        if (args.length == 3) return teamList();
+                        if (args.length == 3) return filterCommand(teamList(), args[2]);
                     }
 
                     if (args[1].equalsIgnoreCase("join")) {
-                        if (args.length == 3) return teamMembers(false);
-                        if (args.length == 4) return teamList();
+                        if (args.length == 3) return filterCommand(teamMembers(false), args[2]);
+                        if (args.length == 4) return filterCommand(teamList(), args[3]);
                     }
 
                     if (args[1].equalsIgnoreCase("change")) {
-                        if (args.length == 3) return teamMembers(true);
-                        if (args.length == 4) return teamListExcpetPlayer(args[2]);
+                        if (args.length == 3) return filterCommand(teamMembers(true), args[2]);
+                        if (args.length == 4) return filterCommand(teamListExcpetPlayer(args[2]), args[3]);
                     }
 
                     if (args[1].equalsIgnoreCase("leave")) {
-                        if (args.length == 3) return teamMembers(true);
+                        if (args.length == 3) return filterCommand(teamMembers(true), args[2]);
                     }
 
                     if (args[1].equalsIgnoreCase("list")) return blank;
@@ -173,7 +175,7 @@ public class TabManager implements TabCompleter {
                             auto.add("player");
                             auto.add("team");
 
-                            return auto;
+                            return filterCommand(auto, args[2]);
                         } else return blank;
                     }
                 }
@@ -185,7 +187,7 @@ public class TabManager implements TabCompleter {
                     border.add("size");
                     border.add("time");
 
-                    return border;
+                    return filterCommand(border, args[1]);
                 }
             }
         }
@@ -289,5 +291,24 @@ public class TabManager implements TabCompleter {
             command.add(entry.getKey());
         }
         return command;
+    }
+
+    private List<String> filterCommand(List<String> target, String base){
+        if (base.length() < 1)
+            return target;
+
+        ArrayList<String> result = new ArrayList<>();
+        while (base.startsWith(" "))
+            base = base.substring(1);
+
+
+        for (String s : target)
+            if (s.toLowerCase().startsWith(base.toLowerCase()))
+                result.add(s);
+
+        if (result.size() < 1)
+            return target;
+
+        return result;
     }
 }
